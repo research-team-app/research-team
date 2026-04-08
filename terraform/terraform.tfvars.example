@@ -1,0 +1,32 @@
+
+aws_region   = "us-east-1"
+project_name = "research-team"
+
+# S3 bucket for Terraform remote state — create this bucket manually first, then run:
+#   terraform init -backend-config="bucket=YOUR_BUCKET_NAME"
+# (cannot be set as a variable; update terraform/main.tf directly or use -backend-config)
+
+# Cognito hosted UI domain prefix (must be globally unique across all AWS accounts)
+cognito_domain_prefix = "research-team-auth"
+
+# Your custom domain (e.g. "research.team"). Leave as "" to use CloudFront domain only.
+app_domain = ""
+
+# ACM certificate ARN for the custom domain — must be in us-east-1
+acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
+
+# ARN of the CloudFront viewer-request function (URL rewrite). Leave as "" if none.
+cloudfront_function_arn = ""
+
+# Existing CloudFront distribution ID 
+cloudfront_distribution_id = "E1XXXXXXXXX"
+
+# Google OAuth credentials from https://console.cloud.google.com/
+google_client_id     = "REPLACE_ME"
+google_client_secret = "REPLACE_ME"
+
+# Internal API key — any strong random string, e.g. `openssl rand -hex 32`
+internal_api_key = "REPLACE_ME"
+
+# Aurora DSQL cluster hostname (managed outside Terraform)
+database_url = "CLUSTER_ID.dsql.us-east-1.on.aws"

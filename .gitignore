@@ -1,0 +1,17 @@
+**/.env
+
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfvars
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/tfplan
+terraform/*.tfplan
+notes
+playground.ipynb
+**/.DS_Store
+.DS_Store
+.mypy_cache
+.vscode
+.claude
+.kiro

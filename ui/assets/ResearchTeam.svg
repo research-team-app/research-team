@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" fill="none">
+    <defs>
+        <!-- Professional gradient with subtle color transition -->
+        <linearGradient id="professional-gradient" x1="0" y1="0" x2="160" y2="120"
+            gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#2563EB" />
+            <stop offset="100%" stop-color="#7C3AED" />
+        </linearGradient>
+
+        <!-- Refined glow effect -->
+        <filter id="subtle-glow" x="-5%" y="-5%" width="110%" height="110%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        <!-- Refined texture -->
+        <pattern id="subtle-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-opacity="0.03"
+                stroke-width="0.5" />
+        </pattern>
+    </defs>
+
+    <!-- Background with refined cut corner -->
+    <path d="M15,15 L135,15 L145,30 L145,105 L15,105 L15,15 Z" fill="url(#professional-gradient)" />
+    <path d="M15,15 L135,15 L145,30 L145,105 L15,105 L15,15 Z" fill="url(#subtle-grid)" />
+
+    <!-- Shadow layer for depth -->
+    <path
+        d="M45,42 L62,42 C69,42 74,47 74,54 C74,59 71,63 66,65 L76,86 L64,86 L55,66 L55,86 L45,86 Z"
+        fill="rgba(0,0,0,0.2)" transform="translate(2,2)" />
+
+    <path d="M85,42 L115,42 L115,52 L107,52 L107,86 L93,86 L93,52 L85,52 Z"
+        fill="rgba(0,0,0,0.2)" transform="translate(2,2)" />
+
+    <!-- Refined R with precise geometry -->
+    <path
+        d="M45,38 L62,38 C69,38 74,43 74,50 C74,55 71,59 66,61 L76,82 L64,82 L55,62 L55,82 L45,82 Z"
+        fill="white" filter="url(#subtle-glow)" />
+    <!-- Refined T with precise geometry -->
+    <path d="M85,38 L115,38 L115,48 L107,48 L107,82 L93,82 L93,48 L85,48 Z"
+        fill="white" filter="url(#subtle-glow)" />
+
+    <!-- Subtle highlight -->
+    <path d="M15,15 L135,15 L145,30 L145,105 L15,105 L15,15 Z"
+        stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="none" />
+</svg>

@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling:build"
+
+[project]
+name= "research-team"
+version = "0.1.0"
+description = "Research Team API"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi[standard]==0.116.1",
+    "asyncpg==0.30.0",
+    "httpx==0.28.1",
+    "openai==2.3.0",
+    "boto3==1.40.61",
+    "pyjwt[crypto]==2.10.1",
+]
+
+[project.scripts]
+run-api = "main:app"
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # import sorting
+    "UP",   # pyupgrade
+]
+ignore = [
+    "E501", # handled by formatter/line-length policy
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyright]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+include = [
+    "auth.py",
+    "db.py",
+    "logger.py",
+    "main.py",
+    "routers",
+    "services",
+]
+exclude = [
+    "**/__pycache__",
+    ".venv",
+]
+typeCheckingMode = "basic"
+reportMissingImports = "warning"
+reportMissingTypeStubs = "none"
+reportOptionalMemberAccess = "none"
+reportArgumentType = "warning"
+reportAttributeAccessIssue = "warning"
+reportGeneralTypeIssues = "warning"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.406",
+    "ruff>=0.15.6",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-anyio>=0.0.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

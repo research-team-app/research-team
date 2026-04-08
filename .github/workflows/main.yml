@@ -1,0 +1,124 @@
+# .github/workflows/main.yml
+name: Deploy Research team to AWS
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_os:
+        description: "Runner"
+        required: true
+        default: "ubuntu-latest"
+        type: choice
+        options:
+          - "ubuntu-latest"
+          - "self-hosted"
+      target:
+        description: "Deploy target"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - "all"
+          - "frontend"
+          - "backend"
+          - "cron"
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-front-end:
+    if: ${{ inputs.target == 'all' || inputs.target == 'frontend' }}
+    runs-on: ${{ inputs.runner_os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ui
+        env:
+          NEXT_PUBLIC_IS_LOCAL: "false"
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_CLIENT_ID }}
+          NEXT_PUBLIC_COGNITO_DOMAIN: ${{ secrets.NEXT_PUBLIC_COGNITO_DOMAIN }}
+        run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync build to S3
+        run: |
+          aws s3 sync ui/out/ s3://${{ secrets.AWS_S3_BUCKET }} \
+            --delete --region ${{ env.AWS_REGION }}
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  deploy-cron-job:
+    if: ${{ inputs.target == 'all' || inputs.target == 'cron' }}
+    runs-on: ${{ inputs.runner_os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload cron scripts to S3
+        working-directory: crons
+        run: |
+          aws s3 cp main.py s3://${{ secrets.GLUE_S3_BUCKET }}/main.py
+          aws s3 cp requirements.txt s3://${{ secrets.GLUE_S3_BUCKET }}/requirements.txt
+
+  deploy-back-end:
+    if: ${{ inputs.target == 'all' || inputs.target == 'backend' }}
+    runs-on: ${{ inputs.runner_os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} \
+            | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+
+      - name: Build and push Docker image
+        working-directory: api
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            --provenance=false \
+            -t ${{ secrets.ECR_REPOSITORY }}/research-team/backend-image:latest .
+          docker push ${{ secrets.ECR_REPOSITORY }}/research-team/backend-image:latest
+
+      - name: Update Lambda with new image
+        run: |
+          aws lambda update-function-code \
+            --function-name research-team-backend \
+            --image-uri ${{ secrets.ECR_REPOSITORY }}/research-team/backend-image:latest
