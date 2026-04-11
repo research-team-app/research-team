@@ -98,9 +98,7 @@ session = boto3.Session(profile_name="research-team") if RUN_LOCAL else boto3.Se
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(
-    logging.Formatter("%(name)s - %(asctime)s - %(levelname)s - %(message)s")
-)
+handler.setFormatter(logging.Formatter("%(name)s - %(asctime)s - %(levelname)s - %(message)s"))
 logger.addHandler(handler)
 
 logger.info(f"{RUN_LOCAL=}")
@@ -112,16 +110,8 @@ logger.info(f"{GRANTS_MAX_PAGES=}")
 logger.info(f"{VECTOR_BUCKET=} | {VECTOR_INDEX=}")
 logger.info(f"{MAX_RETRIES=} | {AWS_REGION=}")
 
-if (
-    not VECTOR_BUCKET
-    or not VECTOR_INDEX
-    or not DB_TABLE
-    or not SUMMARY_TABLE
-    or not DB_DSN
-):
-    logger.error(
-        "Missing required config: VECTOR_BUCKET, VECTOR_INDEX, DB_TABLE, SUMMARY_TABLE, or DB_DSN."
-    )
+if not VECTOR_BUCKET or not VECTOR_INDEX or not DB_TABLE or not SUMMARY_TABLE or not DB_DSN:
+    logger.error("Missing required config: VECTOR_BUCKET, VECTOR_INDEX, DB_TABLE, SUMMARY_TABLE, or DB_DSN.")
     sys.exit()
 
 # ---------------------------------------------------------------------------
@@ -269,9 +259,7 @@ class DBUtility:
             placeholders, params = [], []
             for i, r in enumerate(batch):
                 base = i * per
-                placeholders.append(
-                    "(" + ",".join(f"${base + j + 1}" for j in range(per)) + ")"
-                )
+                placeholders.append("(" + ",".join(f"${base + j + 1}" for j in range(per)) + ")")
                 params.extend(
                     [
                         DBUtility._as_int(r["id"]),
@@ -287,9 +275,7 @@ class DBUtility:
             sql = f"INSERT INTO {DB_TABLE} ({', '.join(cols)}) VALUES {', '.join(placeholders)} {conflict_clause}"
             await self.db_conn.execute(sql, *params)
 
-    async def upsert_grant_details(
-        self, grant_id: str, fields: dict[str, Any], raw_data: dict[str, Any]
-    ) -> None:
+    async def upsert_grant_details(self, grant_id: str, fields: dict[str, Any], raw_data: dict[str, Any]) -> None:
         """Store full fetchOpportunity response plus extracted columns.
 
         raw_data is stored as TEXT because AWS DSQL does not support JSONB.
@@ -423,12 +409,8 @@ class VectorUtility:
     #   PutVectors:    500 vectors (we use 100 to keep memory/latency low)
     BATCH_SIZE = 100
 
-    def __init__(
-        self, vector_bucket: str | None = None, vector_index: str | None = None
-    ):
-        self.bedrock: BedrockRuntimeClient = session.client(
-            service_name="bedrock-runtime"
-        )
+    def __init__(self, vector_bucket: str | None = None, vector_index: str | None = None):
+        self.bedrock: BedrockRuntimeClient = session.client(service_name="bedrock-runtime")
         self.s3vectors: S3VectorsClient = session.client(service_name="s3vectors")
         self.vector_bucket = vector_bucket
         self.vector_index = vector_index
@@ -471,16 +453,10 @@ class VectorUtility:
                     accept="application/json",
                     contentType="application/json",
                 )
-                embeddings = (
-                    json.loads(response["body"].read())
-                    .get("embeddings", {})
-                    .get("float", [])
-                )
+                embeddings = json.loads(response["body"].read()).get("embeddings", {}).get("float", [])
                 all_embeddings.extend(embeddings)
             except ClientError as e:
-                logger.error(
-                    f"Bedrock embedding error: {e.response['Error']['Message']}"
-                )
+                logger.error(f"Bedrock embedding error: {e.response['Error']['Message']}")
                 raise
         return all_embeddings
 
@@ -530,9 +506,7 @@ class VectorUtility:
                 )
                 deleted += len(chunk)
             except ClientError as e:
-                logger.error(
-                    f"S3Vectors delete_vectors error [{e.response['Error']['Code']}]: {e}"
-                )
+                logger.error(f"S3Vectors delete_vectors error [{e.response['Error']['Code']}]: {e}")
                 raise
         return deleted
 
@@ -551,8 +525,7 @@ class VectorUtility:
                 )
                 continue
             vectors = [
-                {"key": key, "data": {"float32": VectorUtility._to_float32(emb)}}
-                for key, emb in zip(keys, embeddings)
+                {"key": key, "data": {"float32": VectorUtility._to_float32(emb)}} for key, emb in zip(keys, embeddings)
             ]
             try:
                 response = self.s3vectors.put_vectors(
@@ -563,9 +536,7 @@ class VectorUtility:
                 responses.append(response)
                 logger.info(f"Uploaded batch of {len(chunk)} vectors.")
             except ClientError as e:
-                logger.error(
-                    f"S3Vectors put_vectors error [{e.response['Error']['Code']}]: {e}"
-                )
+                logger.error(f"S3Vectors put_vectors error [{e.response['Error']['Code']}]: {e}")
                 raise
         return responses
 
@@ -578,10 +549,7 @@ class VectorUtility:
         """
         total = 0
         for chunk in VectorUtility._chunks(grants, 80):
-            payload = [
-                {"key": g["id"], "text": GrantUtility.build_embedding_text(g)}
-                for g in chunk
-            ]
+            payload = [{"key": g["id"], "text": GrantUtility.build_embedding_text(g)} for g in chunk]
             try:
                 responses = self._put_vectors(payload)
                 if responses:
@@ -647,11 +615,7 @@ class GrantUtility:
             synopsis_obj = (opportunity_data.get("data") or {}).get("synopsis") or {}
 
             def descriptions(items: list[dict]) -> str | None:
-                parts = [
-                    str(x.get("description") or "").strip()
-                    for x in (items or [])
-                    if x.get("description")
-                ]
+                parts = [str(x.get("description") or "").strip() for x in (items or []) if x.get("description")]
                 return ", ".join(parts) if parts else None
 
             def clean(v: str | None) -> str | None:
@@ -669,15 +633,9 @@ class GrantUtility:
                 "award_ceiling": synopsis_obj.get("awardCeilingFormatted") or None,
                 "cost_sharing": synopsis_obj.get("costSharing"),
                 "agency_contact_email": synopsis_obj.get("agencyContactEmail") or None,
-                "applicant_types": (
-                    json.dumps(applicant_types) if applicant_types else None
-                ),
-                "funding_instruments": (
-                    json.dumps(funding_instruments) if funding_instruments else None
-                ),
-                "funding_categories": (
-                    json.dumps(funding_categories) if funding_categories else None
-                ),
+                "applicant_types": (json.dumps(applicant_types) if applicant_types else None),
+                "funding_instruments": (json.dumps(funding_instruments) if funding_instruments else None),
+                "funding_categories": (json.dumps(funding_categories) if funding_categories else None),
                 # *_label keys are human-readable strings used only for embedding text, not stored in DB
                 "applicant_types_label": descriptions(applicant_types),
                 "funding_instruments_label": descriptions(funding_instruments),
@@ -695,9 +653,7 @@ class GrantUtility:
     )
     def fetch_opportunity(self, grant_id: str) -> dict[str, Any]:
         """Fetch the full detail record for a single grant from grants.gov."""
-        return GrantUtility.http_post_json(
-            FETCH_OPPORTUNITY_URL, {"opportunityId": grant_id}
-        )
+        return GrantUtility.http_post_json(FETCH_OPPORTUNITY_URL, {"opportunityId": grant_id})
 
     @staticmethod
     def _parse_date(s: str) -> str | None:
@@ -757,9 +713,7 @@ class GrantUtility:
         retry=retry_if_exception_type((httpx.RequestError, RetryableHTTP)),
         before_sleep=before_sleep_log(logger, logging.WARNING),
     )
-    def fetch_grants(
-        self, status: str | None, sort_by: str | None
-    ) -> list[dict[str, Any]]:
+    def fetch_grants(self, status: str | None, sort_by: str | None) -> list[dict[str, Any]]:
         """Fetch all grants for the given status, paginating until exhausted.
 
         Logs an error (and records it in SUMMARY) if we hit GRANTS_MAX_PAGES,
@@ -869,16 +823,10 @@ async def _step_mark_inactive(
     """
     try:
         if ids_to_close:
-            SUMMARY["db_closed"] = await db.update_status_for_ids(
-                ids_to_close, Status.CLOSED
-            )
+            SUMMARY["db_closed"] = await db.update_status_for_ids(ids_to_close, Status.CLOSED)
         if ids_to_archive:
-            SUMMARY["db_archived"] = await db.update_status_for_ids(
-                ids_to_archive, Status.ARCHIVED
-            )
-        logger.info(
-            f"Marked {len(ids_to_close)} closed, {len(ids_to_archive)} archived in DB"
-        )
+            SUMMARY["db_archived"] = await db.update_status_for_ids(ids_to_archive, Status.ARCHIVED)
+        logger.info(f"Marked {len(ids_to_close)} closed, {len(ids_to_archive)} archived in DB")
     except Exception as e:
         SUMMARY["errors"].append(f"DB status updates failed: {e}")
         logger.error("DB status updates failed", exc_info=True)
@@ -909,9 +857,7 @@ async def _step_upsert_active(
         existing_updated = len(all_active) - len(new_grants)
         SUMMARY["db_added"] = len(new_grants)
         SUMMARY["db_added_ids"] = [g["id"] for g in new_grants]
-        logger.info(
-            f"{len(new_grants)} new grants inserted, {existing_updated} existing grants refreshed"
-        )
+        logger.info(f"{len(new_grants)} new grants inserted, {existing_updated} existing grants refreshed")
     except Exception as e:
         SUMMARY["errors"].append(f"DB upsert failed: {e}")
         logger.error("DB upsert failed", exc_info=True)
@@ -934,9 +880,7 @@ async def _step_fetch_details_and_vectorize(
     """
     fetched = 0
     total = len(grants)
-    logger.info(
-        f"Fetching details for {total} {label}s (1 req/sec due to rate limit, ~{total}s)"
-    )
+    logger.info(f"Fetching details for {total} {label}s (1 req/sec due to rate limit, ~{total}s)")
     for i, grant in enumerate(grants, 1):
         gid = grant["id"]
         try:
@@ -955,14 +899,10 @@ async def _step_fetch_details_and_vectorize(
     if grants and embed:
         logger.info(f"Embedding {len(grants)} {label}s...")
         embedded = await vector.embed_grants(grants)
-        logger.info(
-            f"{fetched}/{len(grants)} {label} had details fetched, {embedded} embedded"
-        )
+        logger.info(f"{fetched}/{len(grants)} {label} had details fetched, {embedded} embedded")
         return embedded
     if grants:
-        logger.info(
-            f"{fetched}/{len(grants)} {label} had details fetched (embed skipped)"
-        )
+        logger.info(f"{fetched}/{len(grants)} {label} had details fetched (embed skipped)")
     return 0
 
 
@@ -1017,24 +957,16 @@ async def _step_ensure_vectors(
     closed grants. The newly_inactive_ids safety-net handles those.
     """
     try:
-        existing_keys = {
-            str(v["key"])
-            for v in vector.get_vectors(list(active_ids))
-            if v.get("key") is not None
-        }
+        existing_keys = {str(v["key"]) for v in vector.get_vectors(list(active_ids)) if v.get("key") is not None}
         logger.info(f"{len(existing_keys)} vectors present for active grants")
 
         # Add missing vectors
         missing_ids = [k for k in active_ids if k not in existing_keys]
-        missing_grants = [
-            grants_by_id[gid] for gid in missing_ids if gid in grants_by_id
-        ]
+        missing_grants = [grants_by_id[gid] for gid in missing_ids if gid in grants_by_id]
         if missing_grants:
             SUMMARY["vectors_added_cleanup"] = await vector.embed_grants(missing_grants)
             SUMMARY["vectors_added_cleanup_ids"] = missing_ids
-            logger.info(
-                f"{len(missing_grants)} missing vectors added during sanity check"
-            )
+            logger.info(f"{len(missing_grants)} missing vectors added during sanity check")
 
         # Remove stale vectors (orphans within the queried set + safety net for this run's inactive)
         orphan_ids = [k for k in existing_keys if k not in active_ids]
@@ -1067,17 +999,13 @@ async def _step_catchup_details(
     try:
         ids_without_details = await db.get_active_ids_without_details()
         # Exclude grants already processed earlier in this run
-        catchup_ids = list(ids_without_details - already_fetched_ids)[
-            :DETAILS_CATCHUP_LIMIT
-        ]
+        catchup_ids = list(ids_without_details - already_fetched_ids)[:DETAILS_CATCHUP_LIMIT]
         if not catchup_ids:
             logger.info("No grants need detail catch-up")
             return
 
         # Build enriched grant dicts for grants we know about from the API this run
-        catchup_grants = [
-            dict(grants_by_id[gid]) for gid in catchup_ids if gid in grants_by_id
-        ]
+        catchup_grants = [dict(grants_by_id[gid]) for gid in catchup_ids if gid in grants_by_id]
         embedded = await _step_fetch_details_and_vectorize(
             db, vector, grant_utility, catchup_grants, label="catch-up grant"
         )
@@ -1116,9 +1044,7 @@ async def main_job() -> None:
         #                             changes without needing all pages
         # ------------------------------------------------------------------
         posted_grants = grant_utility.fetch_grants(Status.POSTED, "openDate|desc")
-        forecasted_grants = grant_utility.fetch_grants(
-            Status.FORECASTED, "openDate|desc"
-        )
+        forecasted_grants = grant_utility.fetch_grants(Status.FORECASTED, "openDate|desc")
         closed_grants = grant_utility.fetch_grants(Status.CLOSED, "closeDate|desc")
         archived_grants = grant_utility.fetch_grants(Status.ARCHIVED, "closeDate|desc")
 
@@ -1144,9 +1070,7 @@ async def main_job() -> None:
         #    actually have as active — not the full history from the API.
         # ------------------------------------------------------------------
         closed_ids_from_api = {
-            str(g["id"])
-            for g in closed_grants
-            if g.get("id") and GrantUtility.close_date_has_passed(g)
+            str(g["id"]) for g in closed_grants if g.get("id") and GrantUtility.close_date_has_passed(g)
         }
         archived_ids_from_api = {str(g["id"]) for g in archived_grants if g.get("id")}
 
@@ -1168,9 +1092,7 @@ async def main_job() -> None:
         # ------------------------------------------------------------------
         # 6. Fetch full details for new grants and embed them
         # ------------------------------------------------------------------
-        embedded_new = await _step_fetch_details_and_vectorize(
-            db, vector, grant_utility, new_grants, label="new grant"
-        )
+        embedded_new = await _step_fetch_details_and_vectorize(db, vector, grant_utility, new_grants, label="new grant")
         SUMMARY["details_fetched"] = len(new_grants)
         SUMMARY["vectors_added"] = embedded_new
         SUMMARY["vectors_added_ids"] = [g["id"] for g in new_grants]
@@ -1211,12 +1133,8 @@ async def main_job() -> None:
 
         if RUN_LOCAL:
             with open("summary.json", "w") as f:
-                json.dump(
-                    SUMMARY, f, indent=2, default=DBUtility.custom_json_serializer
-                )
-            logger.info(
-                f"Job complete: {json.dumps(SUMMARY, indent=2, default=DBUtility.custom_json_serializer)}"
-            )
+                json.dump(SUMMARY, f, indent=2, default=DBUtility.custom_json_serializer)
+            logger.info(f"Job complete: {json.dumps(SUMMARY, indent=2, default=DBUtility.custom_json_serializer)}")
 
     except Exception as e:
         logger.error(f"Unhandled exception in main_job: {e}", exc_info=True)
