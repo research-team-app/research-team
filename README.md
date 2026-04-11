@@ -1,6 +1,6 @@
 # ResearchTeam
 
-[![CI Status](https://github.com/research-team-lab/research-team/actions/workflows/main.yml/badge.svg)](https://github.com/research-team-lab/research-team/actions)
+[![CI Status](https://github.com/research-team-app/research-team/actions/workflows/main.yml/badge.svg)](https://github.com/research-team-app/research-team/actions)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 Platform for research team formation — combines grant discovery, researcher profiles, and AI-powered collaboration matching.
@@ -86,4 +86,4 @@ To report a security vulnerability, see [SECURITY.md](SECURITY.md) — do not op
 
 ## License
 
-Copyright (c) 2024 ResearchTeam Contributors.
+Copyright (c) 2026 ResearchTeam Contributors.

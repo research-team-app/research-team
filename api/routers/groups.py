@@ -590,7 +590,11 @@ async def remove_group_member(
         )
 
     # Only owner may remove owner/admin members.
-    if not _is_internal(auth) and target_role in {"owner", "admin"} and group.get("owner_id") != actor_id:
+    if (
+        not _is_internal(auth)
+        and target_role in {"owner", "admin"}
+        and group.get("owner_id") != actor_id
+    ):
         raise HTTPException(
             status_code=403, detail="Only owner can remove owner/admin members"
         )

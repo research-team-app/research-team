@@ -94,7 +94,7 @@ export function useFeedPosts(page = 1, pageSize = 20) {
       );
       return data;
     },
-    staleTime: 30 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -119,7 +119,7 @@ export function useInfiniteFeedPosts(pageSize = 20) {
       if (loaded >= lastPage.total) return undefined;
       return allPages.length + 1;
     },
-    staleTime: 30 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -134,7 +134,7 @@ export function useFeedComments(postId: string | null, enabled = false) {
       return data;
     },
     enabled: enabled && !!postId,
-    staleTime: 15 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -151,7 +151,7 @@ export function useUserFeedLikes(userId?: string) {
       return data;
     },
     enabled: !!userId,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -168,7 +168,7 @@ export function usePostLikers(postId: string | null, enabled = false) {
       return data;
     },
     enabled: enabled && !!postId,
-    staleTime: 15 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -185,7 +185,7 @@ export function useUserFeedDislikes(userId?: string) {
       return data;
     },
     enabled: !!userId,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

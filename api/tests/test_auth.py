@@ -2,6 +2,7 @@
 Tests for auth.py — internal token creation/verification and access-control helpers.
 No network or AWS calls are needed; all logic is pure JWT operations.
 """
+
 import time
 
 import jwt
@@ -15,8 +16,8 @@ from auth import (
     verify_internal_token,
 )
 
-
 # ── Internal token round-trip ─────────────────────────────────────────────────
+
 
 def test_create_and_verify_internal_token():
     token = create_internal_token()
@@ -61,6 +62,7 @@ def test_verify_internal_token_expired():
 
 
 # ── require_self ──────────────────────────────────────────────────────────────
+
 
 def test_require_self_allows_matching_sub():
     payload = {"sub": "user-abc"}

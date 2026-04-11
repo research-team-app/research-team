@@ -4,9 +4,14 @@ Test configuration and shared fixtures.
 All AWS SDK calls are mocked so tests run without AWS credentials.
 The database pool is replaced with an AsyncMock for route tests.
 """
+
 import os
 import sys
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 
 # ── 1. Env vars must be set before any app module is imported ─────────────────
 os.environ["DATABASE_URL"] = "test-host.example.com"
@@ -27,13 +32,8 @@ sys.modules.setdefault("botocore.exceptions", MagicMock())
 # Add api/ to path so tests can import app modules directly
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import pytest
-import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from unittest.mock import patch
-
-
 # ── Fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_pool():

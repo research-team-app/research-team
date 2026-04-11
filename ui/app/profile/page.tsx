@@ -24,6 +24,9 @@ import {
   BookOpen,
   IdCard,
   Briefcase,
+  Eye,
+  EyeOff,
+  Lock,
 } from "lucide-react";
 import { FaTwitter, FaLinkedin, FaResearchgate, FaOrcid } from "react-icons/fa";
 import { SiGooglescholar } from "react-icons/si";
@@ -58,6 +61,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
+import Alert from "@/components/ui/Alert";
 
 interface SectionHeaderProps extends ComponentPropsWithoutRef<"div"> {
   title: string;
@@ -175,8 +179,14 @@ const Profile: React.FC = () => {
   const [followListLoading, setFollowListLoading] = useState(false);
 
   const { user, getAccessToken } = useAuthStore();
-  const { data: profile, isLoading, isError } = useProfileStore(id);
+  const isViewingOwnProfile = !!user?.id && user.id == id;
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = useProfileStore(id, isViewingOwnProfile ? getAccessToken : undefined);
 
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageDraft, setMessageDraft] = useState("");
@@ -241,7 +251,8 @@ const Profile: React.FC = () => {
   } = useFieldArray({ control, name: "experience" });
 
   const values = watch();
-  const canEdit = user?.id == id;
+  const isOwner = user?.id == id;
+  const canEdit = isOwner && !isPreviewMode;
   const canMessage = !!user?.id && user.id !== id;
 
   useEffect(() => {
@@ -567,6 +578,29 @@ const Profile: React.FC = () => {
   }
 
   if (isError && !profile) {
+    if (isViewingOwnProfile) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+          <div className="w-full max-w-sm text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/30">
+              <Lock className="h-8 w-8 text-amber-500 dark:text-amber-400" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              Your profile is private
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Only you can see this page. Other researchers won&apos;t find you
+              in search or AI matching while your profile is private.
+            </p>
+            <div className="mt-6 flex justify-center gap-3">
+              <Button variant="outline" onClick={() => router.push("/")}>
+                Go home
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
         <div className="w-full max-w-sm text-center">
@@ -622,27 +656,64 @@ const Profile: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {canEdit && !isEditing && (
+            {isOwner && !isEditing && (
               <>
+                {!isPreviewMode && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      startIcon={
+                        <FaOrcid className="size-3.5 text-green-600" />
+                      }
+                      onClick={() => setOrcidImportOpen(true)}
+                    >
+                      Import ORCID
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                      startIcon={<Pencil className="size-4" />}
+                    >
+                      Edit Profile
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
-                  startIcon={<FaOrcid className="size-3.5 text-green-600" />}
-                  onClick={() => setOrcidImportOpen(true)}
+                  onClick={() => setIsPreviewMode((v) => !v)}
+                  startIcon={
+                    isPreviewMode ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )
+                  }
                 >
-                  Import ORCID
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  startIcon={<Pencil className="size-4" />}
-                >
-                  Edit Profile
+                  {isPreviewMode ? "Exit Preview" : "Preview"}
                 </Button>
               </>
             )}
           </div>
         </div>
+
+        {/* Preview mode banner */}
+        {isPreviewMode && (
+          <Alert variant="primary" icon={<Eye className="size-4" />}>
+            <strong>Preview mode</strong> — this is exactly what other
+            researchers see when they visit your profile.
+          </Alert>
+        )}
+
+        {/* Private profile notice (owner only, not in preview) */}
+        {isOwner && !isPreviewMode && profile?.status === "private" && (
+          <Alert variant="warning" icon={<Lock className="size-4" />}>
+            <strong>Your profile is private.</strong> Only you can view it — you
+            won&apos;t appear in the collaborators directory, search, or AI
+            matching.
+          </Alert>
+        )}
 
         {/* Hero Card */}
         <Card className="overflow-hidden dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-2xl dark:shadow-black/50">

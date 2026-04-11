@@ -15,7 +15,7 @@ const NAV_COLUMNS = [
     title: "Platform",
     links: [
       { name: "Features", href: "/#features" },
-      { name: "Testimonials", href: "/#testimonials" },
+      { name: "Research Impact", href: "/#research-impact" },
     ],
   },
   {
@@ -44,7 +44,7 @@ const SOCIALS = [
   {
     icon: FiGithub,
     label: "GitHub",
-    href: "https://github.com/research-team-lab",
+    href: "https://github.com/research-team-app",
   },
   { icon: FiMail, label: "Email", href: "mailto:research.team.app@gmail.com" },
 ];

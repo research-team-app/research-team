@@ -251,6 +251,21 @@ def verify_internal_token(token: str) -> dict | None:
         return None
 
 
+def get_optional_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+) -> dict | None:
+    """Optional auth: returns token payload if a valid Bearer token is present, None otherwise."""
+    if credentials is None or not credentials.credentials:
+        return None
+    try:
+        internal = verify_internal_token(credentials.credentials)
+        if internal is not None:
+            return internal
+        return _verify_token(credentials.credentials)
+    except HTTPException:
+        return None
+
+
 def get_verified_user_or_internal(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
 ) -> dict:
@@ -301,7 +316,7 @@ def _inject_auth_dependency(
             return await f(*args, **kwargs)
         return f(*args, **kwargs)
 
-    wrapped.__signature__ = new_sig
+    wrapped.__signature__ = new_sig  # type: ignore[attr-defined]
     return wrapped
 
 

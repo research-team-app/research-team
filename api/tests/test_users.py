@@ -1,15 +1,20 @@
 """
 Tests for users — pure helper functions and key HTTP routes.
 """
+
 import json
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from routers.users import extract_user_text_for_embedding, row_to_dict, serialize_json_value
-
+from routers.users import (
+    extract_user_text_for_embedding,
+    row_to_dict,
+    serialize_json_value,
+)
 
 # ── serialize_json_value ──────────────────────────────────────────────────────
+
 
 def test_serialize_json_value_none():
     assert serialize_json_value(None) is None
@@ -41,6 +46,7 @@ def test_serialize_json_value_bool():
 
 # ── row_to_dict ───────────────────────────────────────────────────────────────
 
+
 def test_row_to_dict_deserializes_json_text_fields():
     interests = ["machine learning", "NLP"]
     row = MagicMock()
@@ -54,7 +60,9 @@ def test_row_to_dict_deserializes_json_text_fields():
             ]
         )
     )
-    row.keys = MagicMock(return_value=["id", "first_name", "research_interests", "education"])
+    row.keys = MagicMock(
+        return_value=["id", "first_name", "research_interests", "education"]
+    )
     # dict(row) should work — use a plain dict instead for simplicity
     plain = {
         "id": "user-1",
@@ -86,6 +94,7 @@ def test_row_to_dict_leaves_invalid_json_as_string():
 
 # ── extract_user_text_for_embedding ──────────────────────────────────────────
 
+
 def test_extract_user_text_basic():
     data = {
         "first_name": "Ada",
@@ -100,7 +109,11 @@ def test_extract_user_text_basic():
 
 
 def test_extract_user_text_includes_bio():
-    data = {"first_name": "Test", "last_name": "User", "bio": "Researches quantum computing"}
+    data = {
+        "first_name": "Test",
+        "last_name": "User",
+        "bio": "Researches quantum computing",
+    }
     text = extract_user_text_for_embedding(data)
     assert "quantum computing" in text
 
@@ -134,6 +147,7 @@ def test_extract_user_text_empty_data():
 
 # ── Route: GET /health ────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_health_endpoint(client):
     ac, _ = client
@@ -144,10 +158,13 @@ async def test_health_endpoint(client):
 
 # ── Route: POST /auth/token ───────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_auth_token_valid_key(client):
     ac, _ = client
-    response = await ac.post("/auth/token", json={"api_key": "test-secret-key-for-tests"})
+    response = await ac.post(
+        "/auth/token", json={"api_key": "test-secret-key-for-tests"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
@@ -162,6 +179,7 @@ async def test_auth_token_wrong_key(client):
 
 
 # ── Route: GET /users ─────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_list_users_empty(client):
@@ -188,6 +206,7 @@ async def test_list_users_by_ids_empty_result(client):
 
 
 # ── Route: GET /users/{id} ────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_get_user_not_found(client):

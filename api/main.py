@@ -1,4 +1,3 @@
-
 import os
 
 from fastapi import FastAPI
@@ -42,7 +41,6 @@ fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://research.team",
-        "https://dt0vhg1s506xf.cloudfront.net",
         "http://localhost:3000",
     ],
     allow_credentials=True,

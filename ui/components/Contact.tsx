@@ -144,7 +144,6 @@ const Contact: React.FC = () => {
                 >
                   Create Your Account
                 </Button>
-
               </div>
             </div>
 
@@ -229,7 +228,7 @@ const Contact: React.FC = () => {
                     {
                       icon: FiGithub,
                       label: "GitHub",
-                      href: "https://github.com/research-team-lab",
+                      href: "https://github.com/research-team-app",
                     },
                     {
                       icon: FiLinkedin,

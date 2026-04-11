@@ -8,7 +8,6 @@ import GrantPreview from "@/components/GrantPreview";
 import Hero from "@/components/Hero";
 import Impact from "@/components/Impact";
 import PlatformOverview from "@/components/PlatformOverview";
-import Testimonials from "@/components/Testimonials";
 import FAQS from "@/components/FAQS";
 
 export default function Home() {
