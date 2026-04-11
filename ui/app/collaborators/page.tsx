@@ -139,9 +139,9 @@ const filterCollaborators = (
 };
 
 const hasActiveFilters = (filters: FilterOptions): boolean => {
-  // openToCollaboration is the default state — not counted as an active filter.
   return (
     !!filters.searchQuery.trim() ||
+    !filters.openToCollaboration || // default is true; false means user changed it
     filters.seekingPhd ||
     filters.acceptingInterns ||
     filters.lookingForPostdocs ||

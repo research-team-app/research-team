@@ -7,6 +7,7 @@ if echo "$STAGED" | grep -q "^ui/"; then
   (cd ui && npm run lint) || exit 1
   (cd ui && npx tsc --noEmit) || exit 1
   (cd ui && npm run format:check) || exit 1
+  (npm audit --audit-level=high) || exit 1
 fi
 
 if echo "$STAGED" | grep -q "^api/"; then
