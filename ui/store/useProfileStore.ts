@@ -162,13 +162,23 @@ function trimId(id: string | null | undefined): string {
   return id.trim();
 }
 
-export function useProfileStore(id: string | null | undefined) {
+export function useProfileStore(
+  id: string | null | undefined,
+  getToken?: () => Promise<string | null>
+) {
   const idStr = trimId(id);
   return useQuery({
-    queryKey: ["profile", idStr],
+    queryKey: ["profile", idStr, !!getToken],
     queryFn: async () => {
       if (!idStr) throw new Error("Profile id required");
-      const { data } = await axios.get(`${API_URL}/users/${idStr}`);
+      const headers: Record<string, string> = {};
+      if (getToken) {
+        const token = await getToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+      }
+      const { data } = await axios.get(`${API_URL}/users/${idStr}`, {
+        headers,
+      });
       const normalized: ResearcherProfile = {
         ...RESEARCHER_DEFAULT_VALUES,
         ...data,
@@ -204,7 +214,7 @@ export function useMatchingGrants(id: string | undefined) {
       return data.map((x) => String(x));
     },
     enabled: !!idStr,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
     retry: 1,
   });
 }

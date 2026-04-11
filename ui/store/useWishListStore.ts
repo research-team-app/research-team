@@ -52,11 +52,19 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   isInWishlist: (grantId) => get()._idSet.has(String(grantId)),
 
   fetchWishlistIds: async (userId) => {
-    if (!String(userId ?? "").trim()) return;
+    const uid = String(userId ?? "").trim();
+    if (!uid) return;
+    // If full details are already loaded, derive IDs from them — skip the Lambda call.
+    const { wishlistDetails } = get();
+    if (wishlistDetails.length > 0) {
+      const ids = wishlistDetails.map((g) => String(g.id));
+      set({ wishlistIds: ids, _idSet: new Set(ids) });
+      return;
+    }
     try {
       const headers = await getAuthHeaders();
       const { data } = await axios.get<{ wishlist_grant_ids: string[] }>(
-        `${API_URL}/wishlist/${encodeURIComponent(String(userId).trim())}`,
+        `${API_URL}/wishlist/${encodeURIComponent(uid)}`,
         { headers }
       );
       const ids = (data.wishlist_grant_ids || []).map(String);
@@ -68,7 +76,8 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   },
 
   fetchWishlistDetails: async (userId: string) => {
-    if (!String(userId ?? "").trim()) {
+    const uid = String(userId ?? "").trim();
+    if (!uid) {
       set({ wishlistDetails: [] });
       return;
     }
@@ -76,22 +85,22 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     try {
       const headers = await getAuthHeaders();
       const { data } = await axios.post<Grant[]>(
-        `${API_URL}/wishlist-grants/${encodeURIComponent(String(userId).trim())}`,
+        `${API_URL}/wishlist-grants/${encodeURIComponent(uid)}`,
         {},
         { headers }
       );
       const list = Array.isArray(data) ? data : [];
-      set({
-        wishlistDetails: list.map((g) => ({
-          ...g,
-          id: String(g.id),
-          open_date: g.open_date ?? "",
-          close_date: g.close_date ?? "",
-          inserted_at:
-            (g as Grant & { inserted_at?: string }).inserted_at ?? "",
-          updated_at: (g as Grant & { updated_at?: string }).updated_at ?? "",
-        })),
-      });
+      const details = list.map((g) => ({
+        ...g,
+        id: String(g.id),
+        open_date: g.open_date ?? "",
+        close_date: g.close_date ?? "",
+        inserted_at: (g as Grant & { inserted_at?: string }).inserted_at ?? "",
+        updated_at: (g as Grant & { updated_at?: string }).updated_at ?? "",
+      }));
+      // Keep IDs in sync so fetchWishlistIds can skip its own API call.
+      const ids = details.map((g) => g.id);
+      set({ wishlistDetails: details, wishlistIds: ids, _idSet: new Set(ids) });
     } catch (err) {
       console.error("Failed to load wishlist details", err);
       set({ error: "Could not load details", wishlistDetails: [] });

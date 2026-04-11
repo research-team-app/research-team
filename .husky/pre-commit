@@ -1,0 +1,23 @@
+#!/bin/sh
+
+STAGED=$(git diff --cached --name-only)
+
+if echo "$STAGED" | grep -q "^ui/"; then
+  echo "→ UI checks"
+  (cd ui && npm run lint) || exit 1
+  (cd ui && npx tsc --noEmit) || exit 1
+  (cd ui && npm run format:check) || exit 1
+fi
+
+if echo "$STAGED" | grep -q "^api/"; then
+  echo "→ API checks"
+  (cd api && uv run ruff check .) || exit 1
+  (cd api && uv run ruff format --check .) || exit 1
+  (cd api && uv run pyright) || exit 1
+fi
+
+if echo "$STAGED" | grep -q "^crons/"; then
+  echo "→ Crons checks"
+  (cd crons && uv run ruff check .) || exit 1
+  (cd crons && uv run ruff format --check .) || exit 1
+fi

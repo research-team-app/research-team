@@ -59,7 +59,11 @@ This project follows our [Code of Conduct](CODE_OF_CONDUCT.md). By participating
    ```
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/research-team-lab/research-team.git
+   git remote add upstream https://github.com/research-team-app/research-team.git
+   ```
+4. **Install pre-commit hooks** (runs lint/format/type checks automatically before each commit):
+   ```bash
+   npm install
    ```
 
 ---
@@ -245,4 +249,4 @@ Do **not** open a public issue for security vulnerabilities. See [SECURITY.md](S
 
 ## Questions?
 
-Open a [Discussion](https://github.com/research-team-lab/research-team/discussions) or email [research.team.app@gmail.com](mailto:research.team.app@gmail.com).
+Open a [Discussion](https://github.com/research-team-app/research-team/discussions) or email [research.team.app@gmail.com](mailto:research.team.app@gmail.com).

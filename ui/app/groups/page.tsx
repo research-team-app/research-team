@@ -579,119 +579,120 @@ export default function GroupsPage() {
               sidebarWidth={270}
               sidebar={
                 <div className="space-y-3">
-                {/* My Teams */}
-                <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
-                  <div className="flex items-center justify-between px-4 pt-4 pb-2">
-                    <h3 className="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-                      My Teams
-                      {myActiveGroups.length > 0 && (
-                        <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                          {myActiveGroups.length}
-                        </span>
-                      )}
-                    </h3>
-                    <Button
-                      intent="primary"
-                      size="sm"
-                      onClick={() => setCreateTeamOpen(true)}
-                      startIcon={<PlusIcon className="h-3.5 w-3.5" />}
-                    >
-                      New
-                    </Button>
-                  </div>
-                  <div className="max-h-[40vh] space-y-0.5 overflow-y-auto p-2">
-                    {myActiveGroups.length === 0 ? (
-                      <p className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        No teams yet.{" "}
-                        <Button
-                          variant="link"
-                          size="sm"
-                          intent="primary"
-                          onClick={() => setCreateTeamOpen(true)}
-                        >
-                          Create one
-                        </Button>
-                      </p>
-                    ) : (
-                      myActiveGroups.map((group: GroupItem) => (
-                        <button
-                          key={`my-${group.id}`}
-                          type="button"
-                          onClick={() => setActiveGroupId(group.id)}
-                          className={cn(
-                            "w-full rounded-lg px-3 py-2.5 text-left transition",
-                            resolvedActiveGroupId === group.id
-                              ? "bg-primary-600 text-white"
-                              : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                          )}
-                        >
-                          <p className="truncate text-sm font-semibold">
-                            {group.name}
-                          </p>
-                          <p
+                  {/* My Teams */}
+                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
+                    <div className="flex items-center justify-between px-4 pt-4 pb-2">
+                      <h3 className="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                        My Teams
+                        {myActiveGroups.length > 0 && (
+                          <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            {myActiveGroups.length}
+                          </span>
+                        )}
+                      </h3>
+                      <Button
+                        intent="primary"
+                        size="sm"
+                        onClick={() => setCreateTeamOpen(true)}
+                        startIcon={<PlusIcon className="h-3.5 w-3.5" />}
+                      >
+                        New
+                      </Button>
+                    </div>
+                    <div className="max-h-[40vh] space-y-0.5 overflow-y-auto p-2">
+                      {myActiveGroups.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
+                          No teams yet.{" "}
+                          <Button
+                            variant="link"
+                            size="sm"
+                            intent="primary"
+                            onClick={() => setCreateTeamOpen(true)}
+                          >
+                            Create one
+                          </Button>
+                        </p>
+                      ) : (
+                        myActiveGroups.map((group: GroupItem) => (
+                          <button
+                            key={`my-${group.id}`}
+                            type="button"
+                            onClick={() => setActiveGroupId(group.id)}
                             className={cn(
-                              "truncate text-xs capitalize",
+                              "w-full rounded-lg px-3 py-2.5 text-left transition",
                               resolvedActiveGroupId === group.id
-                                ? "text-white/70"
-                                : "text-slate-500 dark:text-slate-400"
+                                ? "bg-primary-600 text-white"
+                                : "hover:bg-slate-100 dark:hover:bg-slate-800"
                             )}
                           >
-                            {group.visibility} · {group.role}
-                          </p>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {pendingGroups.length > 0 && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 shadow-sm dark:border-amber-800/40 dark:bg-amber-950/20">
-                    <p className="mb-2 px-1 text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
-                      Pending ({pendingGroups.length})
-                    </p>
-                    <div className="space-y-1.5">
-                      {pendingGroups.map((g) => (
-                        <div
-                          key={`pending-${g.id}`}
-                          className="flex items-center justify-between gap-2 rounded-lg border border-amber-200/60 bg-white px-3 py-2 dark:border-amber-800/30 dark:bg-slate-900/70"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-                              {g.name}
+                            <p className="truncate text-sm font-semibold">
+                              {group.name}
                             </p>
-                            <span className="text-[10px] font-medium text-amber-600 capitalize dark:text-amber-400">
-                              {g.status === "invited"
-                                ? "Invited"
-                                : "Pending approval"}
-                            </span>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="shrink-0"
-                            onClick={() => {
-                              void leaveGroupMutation
-                                .mutateAsync(g.id)
-                                .then(() => setActionError(""))
-                                .catch((error) => {
-                                  setActionError(
-                                    toErrorMessage(
-                                      error,
-                                      "Could not cancel join request."
-                                    )
-                                  );
-                                });
-                            }}
-                            disabled={leaveGroupMutation.isPending}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ))}
+                            <p
+                              className={cn(
+                                "truncate text-xs capitalize",
+                                resolvedActiveGroupId === group.id
+                                  ? "text-white/70"
+                                  : "text-slate-500 dark:text-slate-400"
+                              )}
+                            >
+                              {group.visibility} · {group.role}
+                            </p>
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
-                )}
-              </div>}
+
+                  {pendingGroups.length > 0 && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 shadow-sm dark:border-amber-800/40 dark:bg-amber-950/20">
+                      <p className="mb-2 px-1 text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
+                        Pending ({pendingGroups.length})
+                      </p>
+                      <div className="space-y-1.5">
+                        {pendingGroups.map((g) => (
+                          <div
+                            key={`pending-${g.id}`}
+                            className="flex items-center justify-between gap-2 rounded-lg border border-amber-200/60 bg-white px-3 py-2 dark:border-amber-800/30 dark:bg-slate-900/70"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                {g.name}
+                              </p>
+                              <span className="text-[10px] font-medium text-amber-600 capitalize dark:text-amber-400">
+                                {g.status === "invited"
+                                  ? "Invited"
+                                  : "Pending approval"}
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="shrink-0"
+                              onClick={() => {
+                                void leaveGroupMutation
+                                  .mutateAsync(g.id)
+                                  .then(() => setActionError(""))
+                                  .catch((error) => {
+                                    setActionError(
+                                      toErrorMessage(
+                                        error,
+                                        "Could not cancel join request."
+                                      )
+                                    );
+                                  });
+                              }}
+                              disabled={leaveGroupMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              }
             >
               <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
                 {!activeGroup ? (

@@ -19,7 +19,11 @@ import SidebarLayout from "@/components/ui/SidebarLayout";
 import axios from "axios";
 
 // Store & Utils
-import { useGrantsCacheStore } from "@/store/useGrantStore";
+import {
+  useGrantsCacheStore,
+  useGrantsByIds,
+  usePaginatedGrants,
+} from "@/store/useGrantStore";
 import { useMatchingGrants } from "@/store/useProfileStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/useWishListStore";
@@ -56,8 +60,14 @@ function normalizeGrantStatus(value: string | null | undefined): string {
   const raw = value?.toLowerCase().trim() ?? "";
   if (raw.includes("forecast") || raw.includes("forcast")) return "forecasted";
   if (raw === "posted" || raw === "open") return "posted";
-  if (raw === "closed" || raw === "archived") return "closed";
+  if (raw === "closed") return "closed";
+  if (raw === "archived") return "archived";
   return raw;
+}
+
+/** "posted" and "open" are the same status and are the default — neither triggers Clear Filters. */
+function isDefaultStatus(s: string) {
+  return s === "posted" || s === "open";
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -69,29 +79,20 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-/** Display status: future open_date => forecasted; past/active open_date => open (posted); closed by close_date/status. */
+/** Display status: trust opp_status from DB; only override to "closed" when close_date has passed. */
 function getGrantDisplayStatus(grant: Grant): string {
   const normalizedStatus = normalizeGrantStatus(grant.opp_status);
-  const now = new Date();
-  let openDate: Date | null = null;
-  let closeDate: Date | null = null;
 
-  if (grant.open_date) {
-    const parsed = parseISO(grant.open_date);
-    openDate = isValid(parsed) ? parsed : null;
-  }
+  // Trust the database status (kept in sync by the cron job).
+  if (normalizedStatus === "forecasted") return "forecasted";
+  if (normalizedStatus === "archived") return "archived";
+  if (normalizedStatus === "closed") return "closed";
 
+  // If close_date has passed and status is still posted, show as closed.
   if (grant.close_date) {
     const parsed = parseISO(grant.close_date);
-    closeDate = isValid(parsed) ? parsed : null;
+    if (isValid(parsed) && parsed <= new Date()) return "closed";
   }
-
-  if (closeDate && closeDate <= now) return "closed";
-  if (openDate && openDate > now) return "forecasted";
-  if (openDate && openDate <= now) return "posted";
-
-  if (normalizedStatus === "closed") return "closed";
-  if (normalizedStatus === "forecasted") return "forecasted";
 
   return "posted";
 }
@@ -101,6 +102,7 @@ function statusFilterLabel(value: string): string {
   if (v === "posted" || v === "open") return "Open";
   if (v === "forecasted") return "Forecasted";
   if (v === "closed") return "Closed";
+  if (v === "archived") return "Archived";
   return value;
 }
 
@@ -108,12 +110,12 @@ const INITIAL_FILTERS: FilterState = {
   searchTerm: "",
   agencyFilter: "all",
   departmentFilter: "all",
-  statusFilter: "all",
+  statusFilter: "posted",
   startDate: null,
   endDate: null,
 };
 
-const STATUS_ORDER = ["posted", "forecasted", "closed"] as const;
+const STATUS_ORDER = ["posted", "forecasted", "closed", "archived"] as const;
 
 const useGrantFilters = (
   grants: Grant[],
@@ -284,9 +286,48 @@ const GrantsExplorer = () => {
     fetchAll: fetchAllGrants,
   } = useGrantsCacheStore();
 
+  // Only fetch the full catalog when browsing "all" grants.
+  // AI and recommended modes fetch only the matched grants via useGrantsByIds.
   useEffect(() => {
-    fetchAllGrants();
-  }, [fetchAllGrants]);
+    if (viewMode === "all") fetchAllGrants();
+  }, [fetchAllGrants, viewMode]);
+
+  const { data: aiGrants = [], isLoading: isAiGrantsLoading } = useGrantsByIds(
+    viewMode === "ai" && aiResultIds?.length ? aiResultIds : undefined
+  );
+
+  const { data: recommendedGrants = [], isLoading: isRecommendedLoading } =
+    useGrantsByIds(
+      viewMode === "recommended" && matchingGrantIds?.length
+        ? matchingGrantIds
+        : undefined
+    );
+
+  // Closed/archived can be 80k+ rows — never cache them, fetch server-side on demand.
+  const isHeavyStatus =
+    viewMode === "all" &&
+    (filters.statusFilter === "closed" ||
+      filters.statusFilter === "archived" ||
+      filters.statusFilter === "forecasted");
+
+  const { data: heavyStatusData, isLoading: isHeavyStatusLoading } =
+    usePaginatedGrants(
+      {
+        page: currentPage,
+        pageSize: ITEMS_PER_PAGE,
+        status: filters.statusFilter,
+        search: filters.searchTerm || undefined,
+        agency:
+          filters.agencyFilter !== "all" ? filters.agencyFilter : undefined,
+        openDateFrom: filters.startDate
+          ? filters.startDate.toISOString().split("T")[0]
+          : null,
+        openDateTo: filters.endDate
+          ? filters.endDate.toISOString().split("T")[0]
+          : null,
+      },
+      { enabled: isHeavyStatus }
+    );
 
   useEffect(() => {
     try {
@@ -327,10 +368,9 @@ const GrantsExplorer = () => {
           searchTerm: saved.filters.searchTerm ?? "",
           agencyFilter: saved.filters.agencyFilter ?? "all",
           departmentFilter: saved.filters.departmentFilter ?? "all",
-          statusFilter:
-            saved.filters.statusFilter && saved.filters.statusFilter !== "all"
-              ? normalizeGrantStatus(saved.filters.statusFilter)
-              : "all",
+          statusFilter: saved.filters.statusFilter
+            ? normalizeGrantStatus(saved.filters.statusFilter)
+            : "posted",
           startDate: saved.filters.startDate
             ? parseISO(saved.filters.startDate)
             : null,
@@ -365,14 +405,13 @@ const GrantsExplorer = () => {
 
   const sourceForView = useMemo(() => {
     if (viewMode === "all") return cachedGrants;
-    if (viewMode === "ai") {
-      if (aiResultIds === null) return [];
-      const idSet = new Set(aiResultIds.map(String));
-      return cachedGrants.filter((g) => idSet.has(String(g.id)));
-    }
-    const idSet = new Set((matchingGrantIds ?? []).map(String));
-    return cachedGrants.filter((g) => idSet.has(String(g.id)));
-  }, [viewMode, cachedGrants, aiResultIds, matchingGrantIds]);
+    if (viewMode === "ai")
+      return aiResultIds === null ? [] : (aiGrants as Grant[]);
+    // Suggested tab: only show active (posted) grants — forecasted/closed/archived are not actionable.
+    return (recommendedGrants as Grant[]).filter(
+      (g) => getGrantDisplayStatus(g) === "posted"
+    );
+  }, [viewMode, cachedGrants, aiResultIds, aiGrants, recommendedGrants]);
 
   const { options, filteredGrants, updateFilter, resetFilters } =
     useGrantFilters(
@@ -383,32 +422,46 @@ const GrantsExplorer = () => {
       setFilters
     );
 
+  // For closed/archived/forecasted: server handles filtering+pagination; bypass client-side logic.
+  const heavyItems = useMemo(
+    () => (heavyStatusData?.items ?? []) as Grant[],
+    [heavyStatusData]
+  );
+  const heavyTotal = heavyStatusData?.total ?? 0;
+
   const limitedFilteredGrants = useMemo(() => {
+    if (isHeavyStatus) return heavyItems;
     if (viewMode === "ai" || viewMode === "recommended") {
       return filteredGrants.slice(0, resultLimit);
     }
     return filteredGrants;
-  }, [filteredGrants, viewMode, resultLimit]);
+  }, [isHeavyStatus, heavyItems, filteredGrants, viewMode, resultLimit]);
 
-  const totalCount = limitedFilteredGrants.length;
-
+  const totalCount = isHeavyStatus ? heavyTotal : limitedFilteredGrants.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+
+  // For heavy statuses the API already returns the correct page slice.
   const displayedGrants = useMemo(() => {
+    if (isHeavyStatus) return heavyItems;
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return limitedFilteredGrants.slice(start, start + ITEMS_PER_PAGE);
-  }, [limitedFilteredGrants, currentPage]);
+  }, [isHeavyStatus, heavyItems, limitedFilteredGrants, currentPage]);
 
   const isError = !!grantsCacheError;
   const hasGrantsCache = cachedGrants.length > 0;
   const showCatalogLoading =
-    isGrantsCacheLoading &&
-    !hasGrantsCache &&
-    (viewMode === "all" || (viewMode === "recommended" && !!user));
+    (viewMode === "all" &&
+      !isHeavyStatus &&
+      isGrantsCacheLoading &&
+      !hasGrantsCache) ||
+    (viewMode === "all" && isHeavyStatus && isHeavyStatusLoading) ||
+    (viewMode === "ai" && isAiGrantsLoading) ||
+    (viewMode === "recommended" && isRecommendedLoading);
 
   const activeFilterCount =
     Number(filters.agencyFilter !== "all") +
     Number(filters.departmentFilter !== "all") +
-    Number(filters.statusFilter !== "all") +
+    Number(!isDefaultStatus(filters.statusFilter)) +
     Number(!!filters.startDate) +
     Number(!!filters.endDate);
   const hasActiveFilters = activeFilterCount > 0;
@@ -442,7 +495,6 @@ const GrantsExplorer = () => {
     setIsAiLoading(true);
     setAiSearchError(null);
     try {
-      await fetchAllGrants();
       const res = await axios.post(`${API_URL}/grants/ai-search`, {
         keyword: aiQuery,
         top_k: Math.max(1, Math.min(100, resultLimit)),
@@ -713,6 +765,7 @@ const GrantsExplorer = () => {
           ) : viewMode === "recommended" &&
             user &&
             isSuggestedFetched &&
+            !isRecommendedLoading &&
             totalCount === 0 ? (
             <SuggestedEmptyState userId={user.id} />
           ) : viewMode === "ai" && aiResultIds === null ? (
@@ -847,7 +900,8 @@ const FilterSummary = ({
   const hasActiveFilters =
     filters.searchTerm ||
     filters.agencyFilter !== "all" ||
-    filters.statusFilter !== "all" ||
+    filters.departmentFilter !== "all" ||
+    !isDefaultStatus(filters.statusFilter) ||
     filters.startDate ||
     filters.endDate;
 

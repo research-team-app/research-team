@@ -8,8 +8,8 @@ import boto3
 from botocore.exceptions import ClientError
 
 if TYPE_CHECKING:
-    from mypy_boto3_bedrock_runtime import BedrockRuntimeClient
-    from mypy_boto3_s3vectors import S3VectorsClient
+    from mypy_boto3_bedrock_runtime import BedrockRuntimeClient  # type: ignore[import-untyped]
+    from mypy_boto3_s3vectors import S3VectorsClient  # type: ignore[import-untyped]
 
 logger = logging.getLogger()
 

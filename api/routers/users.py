@@ -1,6 +1,8 @@
+import asyncio
 import json
 import logging
 import re
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -13,6 +15,7 @@ import db
 from auth import (
     COGNITO_REGION,
     COGNITO_USER_POOL_ID,
+    get_optional_user,
     get_verified_user,
     get_verified_user_or_internal,
     require_self_id,
@@ -283,14 +286,24 @@ async def list_users(
 
 
 @users_router.get("/users/{id}")
-async def get_user(id: str):
+async def get_user(
+    id: str,
+    auth: dict | None = Depends(get_optional_user),
+):
     try:
         row = await db.pool.fetchrow(f"SELECT * FROM {DB_TABLE} WHERE id = $1", id)
     except Exception:
         raise HTTPException(status_code=500, detail="UnExpected Error")
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
-    return row_to_dict(row)
+    user = row_to_dict(row)
+    # Private profiles are only visible to the owner — return 404 to everyone else
+    # so we don't leak the existence of private accounts.
+    if user.get("status") == "private":
+        caller_sub = (auth or {}).get("sub", "")
+        if caller_sub != id:
+            raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 @users_router.delete("/users/{id}")
@@ -742,19 +755,157 @@ async def import_orcid_profile(
     return result
 
 
+@users_router.get("/users/{id}/export")
+async def export_user_data(
+    id: str,
+    _: str = Depends(require_self_id),
+):
+    """Export all data belonging to the authenticated user as a single JSON object."""
+
+    def _serialise(rows: list) -> list[dict]:
+        out = []
+        for r in rows:
+            d = dict(r)
+            for k, v in d.items():
+                if hasattr(v, "isoformat"):
+                    d[k] = v.isoformat()
+            out.append(d)
+        return out
+
+    user_row = await db.pool.fetchrow(f"SELECT * FROM {DB_TABLE} WHERE id = $1", id)
+    if not user_row:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user = row_to_dict(user_row)
+    for k, v in list(user.items()):
+        if hasattr(v, "isoformat"):
+            user[k] = v.isoformat()
+
+    # Run all independent queries in parallel — cuts wall-clock time by ~8x.
+    (
+        wishlist_rows,
+        following_rows,
+        followers_rows,
+        sent_rows,
+        received_rows,
+        post_rows,
+        comment_rows,
+        membership_rows,
+    ) = await asyncio.gather(
+        db.pool.fetch(
+            "SELECT grant_id, created_at FROM wishlist WHERE user_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT following_id, created_at FROM user_follows WHERE follower_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT follower_id, created_at FROM user_follows WHERE following_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT id, recipient_id, content, is_read, created_at FROM user_messages WHERE sender_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT id, sender_id, content, is_read, created_at FROM user_messages WHERE recipient_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT id, content, created_at, updated_at FROM feed_posts WHERE author_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT id, post_id, parent_comment_id, content, created_at FROM feed_comments WHERE author_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+        db.pool.fetch(
+            "SELECT group_id, role, status, created_at FROM group_memberships WHERE user_id = $1 ORDER BY created_at DESC",
+            id,
+        ),
+    )
+
+    # Secondary lookups — can run in parallel with each other (no JOINs in DSQL).
+    grant_ids = [int(r["grant_id"]) for r in wishlist_rows]
+    group_ids = [r["group_id"] for r in membership_rows]
+
+    async def _fetch_grant_lookup(ids: list[int]) -> dict[int, dict]:
+        if not ids:
+            return {}
+        rows = await db.pool.fetch(
+            "SELECT id, title, agency_name, number, opp_status FROM grants WHERE id = ANY($1::int[])",
+            ids,
+        )
+        return {r["id"]: dict(r) for r in rows}
+
+    async def _fetch_group_lookup(ids: list[str]) -> dict[str, str]:
+        if not ids:
+            return {}
+        rows = await db.pool.fetch(
+            "SELECT id, name FROM groups WHERE id = ANY($1::text[])",
+            ids,
+        )
+        return {r["id"]: r["name"] for r in rows}
+
+    grant_lookup, group_lookup = await asyncio.gather(
+        _fetch_grant_lookup(grant_ids),
+        _fetch_group_lookup(group_ids),
+    )
+
+    # Wishlist — attach grant metadata
+    wishlist = []
+    for r in wishlist_rows:
+        entry = dict(r)
+        if hasattr(entry.get("created_at"), "isoformat"):
+            entry["created_at"] = entry["created_at"].isoformat()
+        g = grant_lookup.get(entry["grant_id"], {})
+        entry["title"] = g.get("title")
+        entry["agency_name"] = g.get("agency_name")
+        entry["number"] = g.get("number")
+        entry["opp_status"] = g.get("opp_status")
+        wishlist.append(entry)
+
+    # Groups — attach group names
+    groups = []
+    for r in membership_rows:
+        entry = _serialise([r])[0]
+        entry["name"] = group_lookup.get(entry["group_id"])
+        groups.append(entry)
+
+    return {
+        "exported_at": datetime.now(UTC).isoformat(),
+        "profile": user,
+        "wishlist": wishlist,
+        "following": _serialise(list(following_rows)),
+        "followers": _serialise(list(followers_rows)),
+        "messages": {
+            "sent": _serialise(list(sent_rows)),
+            "received": _serialise(list(received_rows)),
+        },
+        "feed": {
+            "posts": _serialise(list(post_rows)),
+            "comments": _serialise(list(comment_rows)),
+        },
+        "groups": groups,
+    }
+
+
 @users_router.get("/matching_grants/{id}")
-def find_matching_grants(id: UUID):
+async def find_matching_grants(id: UUID):
     """Return list of similar grant ids based on user profile vector (empty if none / error)."""
     try:
-        vectors = users_vector_utility.get_vectors([str(id)])
+        # boto3 is synchronous — run in a thread so the event loop stays free.
+        vectors = await asyncio.to_thread(users_vector_utility.get_vectors, [str(id)])
         if not vectors:
             return []
         user_info = vectors[0]
         data = user_info.get("data") if isinstance(user_info, dict) else None
         if not data or "float32" not in data:
             return []
-        grant_vectors = grants_vector_utility.query_vectors_with_vector(
-            vector=data["float32"]
+        grant_vectors = await asyncio.to_thread(
+            grants_vector_utility.query_vectors_with_vector,
+            vector=data["float32"],
         )
         if not grant_vectors:
             return []

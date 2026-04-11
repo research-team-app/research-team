@@ -47,6 +47,7 @@ export default function ProfileDropdown() {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [privateSaving, setPrivateSaving] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -114,6 +115,30 @@ export default function ProfileDropdown() {
       setSettingsError("Could not update privacy.");
     } finally {
       setPrivateSaving(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    if (!user?.id || exportLoading) return;
+    setExportLoading(true);
+    try {
+      const headers = await getAuthHeaders();
+      const { data } = await axios.get(`${API_URL}/users/${user.id}/export`, {
+        headers,
+      });
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `researchteam-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently ignore — user can retry
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -431,16 +456,27 @@ export default function ProfileDropdown() {
                 </div>
               </div>
             </div>
-            <div className="rounded-lg border border-dashed border-slate-200 p-4 opacity-70 dark:border-slate-700">
+            <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
               <div className="flex items-start gap-3">
-                <ArrowDownTrayIcon className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" />
-                <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <ArrowDownTrayIcon className="mt-0.5 h-5 w-5 shrink-0 text-slate-500 dark:text-slate-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
                     Export your data
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-500">
-                    Coming soon
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    Download your profile, messages, feed posts, and saved
+                    grants as a JSON file.
                   </p>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    className="mt-3"
+                    disabled={exportLoading}
+                    onClick={handleExportData}
+                    startIcon={<ArrowDownTrayIcon className="size-3.5" />}
+                  >
+                    {exportLoading ? "Preparing…" : "Download"}
+                  </Button>
                 </div>
               </div>
             </div>

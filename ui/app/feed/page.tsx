@@ -111,7 +111,10 @@ function PostCard({
     ? undefined
     : `/profile?id=${encodeURIComponent(String(post.author?.id ?? ""))}`;
 
-  const allComments = commentsData?.items ?? [];
+  const allComments = useMemo(
+    () => commentsData?.items ?? [],
+    [commentsData?.items]
+  );
   const rootComments = useMemo(
     () => allComments.filter((c) => !c.parent_comment_id),
     [allComments]

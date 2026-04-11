@@ -141,7 +141,10 @@ export interface GrantsListResponse {
   page_size: number;
 }
 
-export function usePaginatedGrants(params: GrantsListParams) {
+export function usePaginatedGrants(
+  params: GrantsListParams,
+  options?: { enabled?: boolean }
+) {
   const {
     page,
     pageSize,
@@ -154,6 +157,7 @@ export function usePaginatedGrants(params: GrantsListParams) {
     closeDateTo,
   } = params;
   return useQuery({
+    enabled: options?.enabled ?? true,
     queryKey: [
       "grants",
       "paginated",
@@ -214,7 +218,7 @@ export function useGrantFilterOptions() {
       }>(`${API_URL}/grants/options/filters`);
       return data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
   });
 }
 
@@ -285,6 +289,8 @@ export const useGrantsCacheStore = create<GrantsCacheState>((set, get) => ({
             const sp = new URLSearchParams();
             sp.set("page", String(page));
             sp.set("page_size", String(GRANTS_PAGE_SIZE_FETCH_ALL));
+            // Only cache open grants — forecasted/closed/archived are fetched on demand
+            sp.set("status", "posted");
             const { data } = await axios.get<GrantsListResponse>(
               `${API_URL}/grants?${sp.toString()}`
             );

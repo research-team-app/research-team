@@ -42,7 +42,10 @@ const Impact = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden py-10 sm:py-12 lg:py-16">
+    <section
+      className="relative overflow-hidden py-10 sm:py-12 lg:py-16"
+      id="research-impact"
+    >
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           sectionName="Research Impact"
@@ -80,7 +83,6 @@ const Impact = () => {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );

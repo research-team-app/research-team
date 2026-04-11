@@ -70,7 +70,8 @@ const normalizeGrantStatus = (value?: string | null): string => {
   const raw = value?.toLowerCase().trim() ?? "";
   if (raw.includes("forecast") || raw.includes("forcast")) return "forecasted";
   if (raw === "posted" || raw === "open") return "posted";
-  if (raw === "closed" || raw === "archived") return "closed";
+  if (raw === "closed") return "closed";
+  if (raw === "archived") return "archived";
   return raw;
 };
 
@@ -165,15 +166,16 @@ const GrantSummaryCard = ({
 
   const getDisplayStatus = (): string => {
     const normalizedStatus = normalizeGrantStatus(grant.opp_status);
-    const now = new Date();
-    const openDateObj = parseValidDate(grant.open_date);
-    const closeDateObj = parseValidDate(grant.close_date);
 
-    if (closeDateObj && closeDateObj <= now) return "closed";
-    if (openDateObj && openDateObj > now) return "forecasted";
-    if (openDateObj && openDateObj <= now) return "posted";
-    if (normalizedStatus === "closed") return "closed";
+    // Trust the database status (kept in sync by the cron job).
     if (normalizedStatus === "forecasted") return "forecasted";
+    if (normalizedStatus === "archived") return "archived";
+    if (normalizedStatus === "closed") return "closed";
+
+    // If close_date has passed and status is still posted, show as closed.
+    const closeDateObj = parseValidDate(grant.close_date);
+    if (closeDateObj && closeDateObj <= new Date()) return "closed";
+
     return "posted";
   };
 
@@ -201,6 +203,14 @@ const GrantSummaryCard = ({
           "bg-red-50 text-red-600 ring-1 ring-red-200 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800/60",
         dotColor: "bg-red-500",
         label: "Closed",
+      };
+    }
+    if (s === "archived") {
+      return {
+        style:
+          "bg-slate-100 text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:ring-slate-700/60",
+        dotColor: "bg-slate-400",
+        label: "Archived",
       };
     }
     return {

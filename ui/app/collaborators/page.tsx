@@ -31,6 +31,15 @@ type ViewMode = "all" | "ai";
 const COLLABORATOR_UI_STATE_KEY = "collaborators-ui-state-v1";
 const DEFAULT_RESULT_LIMIT = 25;
 
+const DEFAULT_FILTERS: FilterOptions = {
+  searchQuery: "",
+  openToCollaboration: true,
+  seekingPhd: false,
+  acceptingInterns: false,
+  lookingForPostdocs: false,
+  availableForMentorship: false,
+};
+
 const keyMap: Record<
   AcademicStatusKey,
   keyof Omit<FilterOptions, "searchQuery">
@@ -130,9 +139,9 @@ const filterCollaborators = (
 };
 
 const hasActiveFilters = (filters: FilterOptions): boolean => {
+  // openToCollaboration is the default state — not counted as an active filter.
   return (
     !!filters.searchQuery.trim() ||
-    filters.openToCollaboration ||
     filters.seekingPhd ||
     filters.acceptingInterns ||
     filters.lookingForPostdocs ||
@@ -213,14 +222,7 @@ const Collaborators: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hasHydratedState, setHasHydratedState] = useState(false);
-  const [filters, setFilters] = useState<FilterOptions>({
-    searchQuery: "",
-    openToCollaboration: false,
-    seekingPhd: false,
-    acceptingInterns: false,
-    lookingForPostdocs: false,
-    availableForMentorship: false,
-  });
+  const [filters, setFilters] = useState<FilterOptions>({ ...DEFAULT_FILTERS });
 
   const isAllView = viewMode === "all";
   const {
@@ -260,7 +262,9 @@ const Collaborators: FC = () => {
       if (saved.filters) {
         setFilters({
           searchQuery: saved.filters.searchQuery ?? "",
-          openToCollaboration: !!saved.filters.openToCollaboration,
+          openToCollaboration:
+            saved.filters.openToCollaboration ??
+            DEFAULT_FILTERS.openToCollaboration,
           seekingPhd: !!saved.filters.seekingPhd,
           acceptingInterns: !!saved.filters.acceptingInterns,
           lookingForPostdocs: !!saved.filters.lookingForPostdocs,
@@ -332,14 +336,7 @@ const Collaborators: FC = () => {
   }, [viewMode, filters.searchQuery, resultLimit]);
 
   const clearFilters = () => {
-    setFilters({
-      searchQuery: "",
-      openToCollaboration: false,
-      seekingPhd: false,
-      acceptingInterns: false,
-      lookingForPostdocs: false,
-      availableForMentorship: false,
-    });
+    setFilters({ ...DEFAULT_FILTERS });
     setAiResultIds(null);
     setAiQuery("");
     setResultLimit(DEFAULT_RESULT_LIMIT);
@@ -409,16 +406,7 @@ const Collaborators: FC = () => {
         </h3>
         {hasActiveFilters(filters) && (
           <Button
-            onClick={() =>
-              setFilters((prev) => ({
-                ...prev,
-                openToCollaboration: false,
-                seekingPhd: false,
-                acceptingInterns: false,
-                lookingForPostdocs: false,
-                availableForMentorship: false,
-              }))
-            }
+            onClick={clearFilters}
             variant="outline"
             intent="danger"
             size="xs"
@@ -523,88 +511,85 @@ const Collaborators: FC = () => {
           open={sidebarOpen}
           onOpenChange={setSidebarOpen}
         >
-            {showStartResearching ? (
-              <StartResearchingState />
-            ) : showAiBeforeSearch ? (
-              <div className="border-border bg-card flex min-h-70 flex-col items-center justify-center rounded-2xl border px-6 py-16 text-center shadow-sm sm:px-8 sm:py-20">
-                <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-100 shadow-sm sm:mb-6 dark:bg-slate-800">
-                  <HiSparkles className="h-10 w-10 text-slate-600 dark:text-slate-300" />
-                </div>
-                <h2 className="text-foreground text-xl font-semibold">
-                  AI Collaborator Search
-                </h2>
-                <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
-                  Enter a research topic, role, or interest in the search bar
-                  above and press Search. We match your description against the
-                  full researcher directory and return the most relevant
-                  profiles.
-                </p>
-                <p className="text-muted-foreground mt-4 text-xs font-medium tracking-wider uppercase">
-                  Try: &quot;machine learning&quot;, &quot;mentorship&quot;, or
-                  &quot;cancer research&quot;
-                </p>
+          {showStartResearching ? (
+            <StartResearchingState />
+          ) : showAiBeforeSearch ? (
+            <div className="border-border bg-card flex min-h-70 flex-col items-center justify-center rounded-2xl border px-6 py-16 text-center shadow-sm sm:px-8 sm:py-20">
+              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-100 shadow-sm sm:mb-6 dark:bg-slate-800">
+                <HiSparkles className="h-10 w-10 text-slate-600 dark:text-slate-300" />
               </div>
-            ) : (
-              <>
-                {/* Results count + Clear */}
-                <div className="border-border mb-4 flex flex-col items-start justify-between gap-2 border-t pt-4 sm:mb-6 sm:flex-row sm:items-center">
-                  <p className="text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {totalCount}
-                    </span>{" "}
-                    {totalCount === 1 ? "researcher" : "researchers"} found
-                  </p>
-                  {(hasActiveFilters(filters) ||
-                    viewMode === "ai" ||
-                    aiResultIds?.length) && (
-                    <Button
-                      onClick={clearFilters}
-                      intent="danger"
-                      size="xs"
-                      variant="outline"
-                      endIcon={<HiX className="size-3" />}
-                    >
-                      Clear Filters
-                    </Button>
-                  )}
-                </div>
-
-                {totalCount === 0 ? (
-                  <EmptyState
-                    hasFilters={hasActiveFilters(filters)}
-                    viewMode={viewMode}
-                  />
-                ) : (
-                  <>
-                    <div
-                      className={
-                        sidebarOpen
-                          ? "grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-2"
-                          : "grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3"
-                      }
-                    >
-                      {displayedCollaborators.map((collaborator) => (
-                        <ProfileCard
-                          key={collaborator.id}
-                          collaborator={collaborator}
-                          highlightQuery={
-                            viewMode === "ai" ? aiQuery : filters.searchQuery
-                          }
-                          isAiResult={viewMode === "ai"}
-                        />
-                      ))}
-                    </div>
-                    {totalPages > 1 && (
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                      />
-                    )}
-                  </>
+              <h2 className="text-foreground text-xl font-semibold">
+                AI Collaborator Search
+              </h2>
+              <p className="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
+                Enter a research topic, role, or interest in the search bar
+                above and press Search. We match your description against the
+                full researcher directory and return the most relevant profiles.
+              </p>
+              <p className="text-muted-foreground mt-4 text-xs font-medium tracking-wider uppercase">
+                Try: &quot;machine learning&quot;, &quot;mentorship&quot;, or
+                &quot;cancer research&quot;
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Results count + Clear */}
+              <div className="border-border mb-4 flex flex-col items-start justify-between gap-2 border-t pt-4 sm:mb-6 sm:flex-row sm:items-center">
+                <p className="text-sm text-slate-600 sm:text-base dark:text-slate-400">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {totalCount}
+                  </span>{" "}
+                  {totalCount === 1 ? "researcher" : "researchers"} found
+                </p>
+                {hasActiveFilters(filters) && (
+                  <Button
+                    onClick={clearFilters}
+                    intent="danger"
+                    size="xs"
+                    variant="outline"
+                    endIcon={<HiX className="size-3" />}
+                  >
+                    Clear Filters
+                  </Button>
                 )}
-              </>
-            )}
+              </div>
+
+              {totalCount === 0 ? (
+                <EmptyState
+                  hasFilters={hasActiveFilters(filters)}
+                  viewMode={viewMode}
+                />
+              ) : (
+                <>
+                  <div
+                    className={
+                      sidebarOpen
+                        ? "grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-2"
+                        : "grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3"
+                    }
+                  >
+                    {displayedCollaborators.map((collaborator) => (
+                      <ProfileCard
+                        key={collaborator.id}
+                        collaborator={collaborator}
+                        highlightQuery={
+                          viewMode === "ai" ? aiQuery : filters.searchQuery
+                        }
+                        isAiResult={viewMode === "ai"}
+                      />
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </>
+              )}
+            </>
+          )}
         </SidebarLayout>
       </div>
     </div>
