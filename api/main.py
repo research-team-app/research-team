@@ -41,6 +41,7 @@ fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://research.team",
+        "https://www.research.team",
         "http://localhost:3000",
     ],
     allow_credentials=True,
