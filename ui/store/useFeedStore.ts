@@ -269,6 +269,16 @@ export function useUpdateFeedPost() {
   });
 }
 
+function invalidateLikeQueries(
+  qc: ReturnType<typeof useQueryClient>,
+  userId: string
+) {
+  qc.invalidateQueries({ queryKey: ["feed", "posts"] });
+  qc.invalidateQueries({ queryKey: ["feed", "likes", userId] });
+  qc.invalidateQueries({ queryKey: ["feed", "dislikes", userId] });
+  qc.invalidateQueries({ queryKey: ["feed", "post-likers"] });
+}
+
 export function useLikeFeedPost() {
   const qc = useQueryClient();
   return useMutation({
@@ -287,12 +297,7 @@ export function useLikeFeedPost() {
       );
       return { userId, postId };
     },
-    onSuccess: ({ userId }) => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
-      qc.invalidateQueries({ queryKey: ["feed", "likes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "dislikes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "post-likers"] });
-    },
+    onSuccess: ({ userId }) => invalidateLikeQueries(qc, userId),
   });
 }
 
@@ -313,12 +318,7 @@ export function useUnlikeFeedPost() {
       });
       return { userId, postId };
     },
-    onSuccess: ({ userId }) => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
-      qc.invalidateQueries({ queryKey: ["feed", "likes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "dislikes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "post-likers"] });
-    },
+    onSuccess: ({ userId }) => invalidateLikeQueries(qc, userId),
   });
 }
 
@@ -340,12 +340,7 @@ export function useDislikeFeedPost() {
       );
       return { userId, postId };
     },
-    onSuccess: ({ userId }) => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
-      qc.invalidateQueries({ queryKey: ["feed", "likes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "dislikes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "post-likers"] });
-    },
+    onSuccess: ({ userId }) => invalidateLikeQueries(qc, userId),
   });
 }
 
@@ -366,12 +361,7 @@ export function useUndislikeFeedPost() {
       });
       return { userId, postId };
     },
-    onSuccess: ({ userId }) => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
-      qc.invalidateQueries({ queryKey: ["feed", "likes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "dislikes", userId] });
-      qc.invalidateQueries({ queryKey: ["feed", "post-likers"] });
-    },
+    onSuccess: ({ userId }) => invalidateLikeQueries(qc, userId),
   });
 }
 

@@ -33,7 +33,7 @@ const DEFAULT_RESULT_LIMIT = 25;
 
 const DEFAULT_FILTERS: FilterOptions = {
   searchQuery: "",
-  openToCollaboration: true,
+  openToCollaboration: false,
   seekingPhd: false,
   acceptingInterns: false,
   lookingForPostdocs: false,
@@ -141,7 +141,7 @@ const filterCollaborators = (
 const hasActiveFilters = (filters: FilterOptions): boolean => {
   return (
     !!filters.searchQuery.trim() ||
-    !filters.openToCollaboration || // default is true; false means user changed it
+    filters.openToCollaboration ||
     filters.seekingPhd ||
     filters.acceptingInterns ||
     filters.lookingForPostdocs ||
@@ -199,7 +199,6 @@ const StartResearchingState: FC = () => (
 const FilterPanel: FC<{
   filters: FilterOptions;
   setFilters: React.Dispatch<React.SetStateAction<FilterOptions>>;
-  onClearFilters: () => void;
 }> = ({ filters, setFilters }) => {
   return (
     <AcademicStatusPicker
@@ -417,11 +416,7 @@ const Collaborators: FC = () => {
           </Button>
         )}
       </div>
-      <FilterPanel
-        filters={filters}
-        setFilters={setFilters}
-        onClearFilters={clearFilters}
-      />
+      <FilterPanel filters={filters} setFilters={setFilters} />
     </div>
   );
 

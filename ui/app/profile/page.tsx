@@ -62,6 +62,7 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import Alert from "@/components/ui/Alert";
+import { getAuthHeaders } from "@/lib/apiAuth";
 
 interface SectionHeaderProps extends ComponentPropsWithoutRef<"div"> {
   title: string;
@@ -290,7 +291,7 @@ const Profile: React.FC = () => {
       .get(`${API_URL}/resume/${id}`)
       .then(({ data }) => setCvPresignedUrl(data.presigned_url ?? null))
       .catch(() => setCvPresignedUrl(null));
-  }, [id, profile?.resume_url]);
+  }, [id]);
 
   const handleCvUpload = async (file: File) => {
     if (!user?.id || user.id !== id) return;
@@ -305,8 +306,7 @@ const Profile: React.FC = () => {
     setCvUploading(true);
     setCvUploadError(null);
     try {
-      const token = await getAccessToken();
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = await getAuthHeaders();
 
       const { data: presign } = await axios.post(
         `${API_URL}/resume/${user.id}/presigned_put`,
@@ -341,8 +341,7 @@ const Profile: React.FC = () => {
   const handleCvDelete = async () => {
     if (!user?.id || user.id !== id) return;
     try {
-      const token = await getAccessToken();
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = await getAuthHeaders();
       await axios.delete(`${API_URL}/resume/${user.id}`, { headers });
       await axios.put(
         `${API_URL}/users/${user.id}`,
@@ -359,25 +358,22 @@ const Profile: React.FC = () => {
   // update the profile.
   const profileMutation = useMutation({
     mutationFn: async (data: ResearcherProfile) => {
-      const token = await getAccessToken();
-      if (!token) {
+      const headers = await getAuthHeaders();
+      if (!headers.Authorization) {
         throw new Error("Not authenticated. Please sign in again.");
       }
 
-      // Backend expects the path id to match Cognito sub (token.sub).
+      // Backend expects the path id to match Cognito sub
       const targetId = user?.id ?? data.id;
       const res = await axios.put(`${API_URL}/users/${targetId}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       });
       return res.data;
     },
     onError: () => {},
     onSuccess: () => {
-      // need to reload the page and scroll to top
-      window.location.reload();
       window.scrollTo({ top: 0, behavior: "smooth" });
+      window.location.reload();
     },
   });
 
@@ -409,8 +405,7 @@ const Profile: React.FC = () => {
     if (!user?.id || followLoading) return;
     setFollowLoading(true);
     try {
-      const token = await getAccessToken();
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = await getAuthHeaders();
       if (followStats?.is_following) {
         await axios.delete(`${API_URL}/follows/${id}`, { headers });
         setFollowStats((prev) =>
@@ -468,11 +463,11 @@ const Profile: React.FC = () => {
     setOrcidError(null);
     setOrcidData(null);
     try {
-      const token = await getAccessToken();
+      const headers = await getAuthHeaders();
       const { data } = await axios.post(
         `${API_URL}/users/${user?.id}/import-orcid`,
         { orcid_id: orcidId.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers }
       );
       const d = data as OrcidImportData;
       const fields = new Set<string>(
@@ -539,8 +534,8 @@ const Profile: React.FC = () => {
     setMessageError(null);
     setMessageSuccess(null);
     try {
-      const token = await getAccessToken();
-      if (!token) {
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders.Authorization) {
         throw new Error("Not authenticated");
       }
       const hasFile = messageFile instanceof File;
@@ -555,7 +550,7 @@ const Profile: React.FC = () => {
         : { recipient_id: id, content };
       await axios.post(`${API_URL}/messages`, payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...authHeaders,
           ...(hasFile ? {} : { "Content-Type": "application/json" }),
         },
       });
@@ -701,7 +696,7 @@ const Profile: React.FC = () => {
         {/* Preview mode banner */}
         {isPreviewMode && (
           <Alert variant="primary" icon={<Eye className="size-4" />}>
-            <strong>Preview mode</strong> — this is exactly what other
+            <strong>Preview mode</strong>: this is exactly what other
             researchers see when they visit your profile.
           </Alert>
         )}
@@ -709,8 +704,8 @@ const Profile: React.FC = () => {
         {/* Private profile notice (owner only, not in preview) */}
         {isOwner && !isPreviewMode && profile?.status === "private" && (
           <Alert variant="warning" icon={<Lock className="size-4" />}>
-            <strong>Your profile is private.</strong> Only you can view it — you
-            won&apos;t appear in the collaborators directory, search, or AI
+            <strong>Your profile is private.</strong>&nbsp;Only you can view it,
+            you won&apos;t appear in the collaborators directory, search, or AI
             matching.
           </Alert>
         )}
