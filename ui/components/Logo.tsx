@@ -10,7 +10,12 @@ const Logo = () => {
       aria-label="Go to Home"
     >
       <div className="shrink-0">
-        <Image src={logoSrc} alt="Research Team Logo" className="h-16 w-auto" />
+        <Image
+          src={logoSrc}
+          alt="Research Team Logo"
+          className="h-16 w-auto"
+          priority
+        />
       </div>
       <div className="text-secondary-800 dark:text-secondary-400 hidden text-2xl font-bold transition-colors sm:block">
         Research

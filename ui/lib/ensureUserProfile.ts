@@ -26,9 +26,11 @@ export async function ensureUserProfile(user: AuthUser | null): Promise<void> {
     } catch (e: unknown) {
       const status = (e as { response?: { status?: number } })?.response
         ?.status;
-      // 404 = definitely no profile. Any other error (5xx, network) = treat as
-      // "not found" so we attempt creation rather than throwing and aborting.
-      return status !== 404 ? false : false;
+      // 404 = profile does not exist, proceed to create it.
+      // 5xx / network error = API is temporarily unavailable; assume the profile
+      // may already exist so we skip creation and let the user log in. The next
+      // login attempt will re-check once the API recovers.
+      return status === 404 ? false : true;
     }
   };
 

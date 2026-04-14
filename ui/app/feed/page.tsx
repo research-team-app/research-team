@@ -856,6 +856,7 @@ export default function FeedPage() {
   const [draftFile, setDraftFile] = useState<File | null>(null);
   const [composerError, setComposerError] = useState<string | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const hasScrolledToPost = useRef(false);
   const { data: followingIds = new Set<string>() } = useFollowingIds(user?.id);
 
   const {
@@ -902,19 +903,25 @@ export default function FeedPage() {
     const content = draft.trim();
     if (!content && !draftFile) return;
     setComposerError(null);
-    await createPostMutation.mutateAsync({ content, file: draftFile });
-    setDraft("");
-    setDraftFile(null);
+    try {
+      await createPostMutation.mutateAsync({ content, file: draftFile });
+      setDraft("");
+      setDraftFile(null);
+    } catch {
+      setComposerError("Failed to create post. Please try again.");
+    }
   };
 
   useEffect(() => {
     if (typeof window === "undefined" || posts.length === 0) return;
+    if (hasScrolledToPost.current) return;
     const params = new URLSearchParams(window.location.search);
     const postParam = params.get("post")?.trim();
     if (!postParam) return;
     const el = document.getElementById(`post-${postParam}`);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center" });
+    hasScrolledToPost.current = true;
   }, [posts]);
 
   useEffect(() => {

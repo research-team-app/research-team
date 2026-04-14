@@ -388,39 +388,54 @@ export default function GroupsPage() {
   const handleCreateGroup = async () => {
     const name = newGroupName.trim();
     if (!name) return;
-    const group = await createGroupMutation.mutateAsync({
-      name,
-      description: newGroupDescription.trim(),
-      visibility: newGroupVisibility,
-    });
-    setActionError("");
-    setNewGroupName("");
-    setNewGroupDescription("");
-    setNewGroupVisibility("public");
-    setCreateTeamOpen(false);
-    setActiveGroupId(group.id);
+    try {
+      const group = await createGroupMutation.mutateAsync({
+        name,
+        description: newGroupDescription.trim(),
+        visibility: newGroupVisibility,
+      });
+      setActionError("");
+      setNewGroupName("");
+      setNewGroupDescription("");
+      setNewGroupVisibility("public");
+      setCreateTeamOpen(false);
+      setActiveGroupId(group.id);
+    } catch {
+      setActionError("Failed to create team. Please try again.");
+    }
   };
 
   const handleSend = async () => {
     const text = newMessage.trim();
     if (!resolvedActiveGroupId || (!text && !newMessageFile)) return;
-    await sendMessageMutation.mutateAsync({
-      groupId: resolvedActiveGroupId,
-      content: text,
-      file: newMessageFile,
-    });
-    setActionError("");
-    setNewMessage("");
-    setNewMessageFile(null);
+    try {
+      await sendMessageMutation.mutateAsync({
+        groupId: resolvedActiveGroupId,
+        content: text,
+        file: newMessageFile,
+      });
+      setActionError("");
+      setNewMessage("");
+      setNewMessageFile(null);
+    } catch {
+      setActionError("Failed to send message. Please try again.");
+    }
   };
 
   const handleInviteByEmail = async () => {
     const email = inviteEmailDraft.trim();
     if (!resolvedActiveGroupId || !email) return;
-    await inviteMutation.mutateAsync({ groupId: resolvedActiveGroupId, email });
-    setActionError("");
-    setInviteEmailDraft("");
-    setInviteDialogOpen(false);
+    try {
+      await inviteMutation.mutateAsync({
+        groupId: resolvedActiveGroupId,
+        email,
+      });
+      setActionError("");
+      setInviteEmailDraft("");
+      setInviteDialogOpen(false);
+    } catch {
+      setActionError("Failed to send invite. Please try again.");
+    }
   };
 
   return (
