@@ -147,7 +147,6 @@ const Navbar = () => {
                   startIcon={
                     <HiMiniArrowRightStartOnRectangle className="size-5" />
                   }
-                  intent="primary"
                   variant="solid"
                   className="rounded-xl px-4 py-2 shadow-sm"
                   onClick={() => router.push("/login")}

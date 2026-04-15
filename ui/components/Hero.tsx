@@ -471,12 +471,7 @@ const Hero = () => {
                     Join researchers worldwide
                   </p>
                 </div>
-                <Button
-                  href="/login"
-                  size="sm"
-                  variant="solid"
-                  intent="primary"
-                >
+                <Button href="/login" size="sm" variant="solid">
                   <span className="inline-flex items-center gap-1">
                     Sign up free
                     <HiArrowRight className="h-3.5 w-3.5" />

@@ -266,7 +266,7 @@ async def grant_by_ids(grant_search_params: GrantSearchParams):
         return []
 
     sql_query = f"""
-        SELECT id, number, title, agency_name, opp_status, open_date, close_date
+        SELECT id, number, title, agency_code, agency_name, opp_status, open_date, close_date, inserted_at, updated_at
         FROM {DB_TABLE}
         WHERE id = ANY($1::int[])
           AND opp_status IN ('posted', 'forecasted', 'closed', 'archived')
