@@ -79,7 +79,7 @@ const Navbar = () => {
                       hoverUnderline={false}
                     >
                       {active && (
-                        <div className="bg-primary-800 dark:bg-primary-600 absolute inset-0 rounded-lg shadow-sm transition-all duration-200" />
+                        <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 rounded-lg shadow-sm transition-all duration-200" />
                       )}
                       <span
                         className={`relative z-10 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 ${
@@ -272,12 +272,12 @@ const Navbar = () => {
                         >
                           {/* Active background */}
                           {active && (
-                            <div className="bg-primary-800 dark:bg-primary-600 absolute inset-0 shadow-sm transition-all duration-200" />
+                            <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 shadow-sm transition-all duration-200" />
                           )}
 
                           {/* Hover background */}
                           {!active && (
-                            <div className="bg-primary-800 dark:bg-primary-600 absolute inset-0 opacity-0 transition-opacity hover:opacity-100" />
+                            <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 opacity-0 transition-opacity hover:opacity-100" />
                           )}
 
                           <div className="relative flex items-center justify-between px-4 py-3.5">
