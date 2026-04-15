@@ -2,6 +2,16 @@
 
 STAGED=$(git diff --cached --name-only)
 
+# Block any .env files from being committed
+ENV_FILES=$(echo "$STAGED" | grep -E "(^|/).env" || true)
+if [ -n "$ENV_FILES" ]; then
+  echo "ERROR: Attempt to commit .env file(s) detected:"
+  echo "$ENV_FILES"
+  echo ""
+  echo "Remove them with: git restore --staged <file>"
+  exit 1
+fi
+
 if echo "$STAGED" | grep -q "^ui/"; then
   echo "→ UI checks"
   (cd ui && npm run lint) || exit 1
