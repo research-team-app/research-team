@@ -497,7 +497,7 @@ const GrantsExplorer = () => {
     try {
       const res = await axios.post(`${API_URL}/grants/ai-search`, {
         keyword: aiQuery,
-        top_k: Math.max(1, Math.min(100, resultLimit)),
+        top_k: Math.min(300, Math.max(1, resultLimit) * 4),
       });
       const ids = res.data?.ids ?? [];
       setAiResultIds(Array.isArray(ids) ? ids.map(String) : []);

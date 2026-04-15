@@ -86,7 +86,7 @@ const GrantSummaryCard = ({
   isAiResult = false,
 }: GrantSummaryCardProps) => {
   const reduceMotion = useReducedMotion();
-  const matchedFields = grantMatchFields(grant, highlightQuery);
+  const matchedFields = isAiResult ? [] : grantMatchFields(grant, highlightQuery);
 
   const calculateDaysRemaining = (closeDate: string | null): string => {
     const closeDateObj = parseValidDate(closeDate);
