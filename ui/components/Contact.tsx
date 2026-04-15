@@ -121,7 +121,7 @@ const Contact: React.FC = () => {
             className="space-y-5 lg:col-span-5"
           >
             {/* Start Journey Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
               <div className="relative p-6 sm:p-7">
                 <div className="mb-4">
                   <Badge icon={<FiCheckCircle className="h-3.5 w-3.5" />}>
@@ -148,7 +148,7 @@ const Contact: React.FC = () => {
             </div>
 
             {/* Contact Info Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-7 dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-7 dark:border-slate-700 dark:bg-slate-800">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
                   <FiMessageCircle className="h-6 w-6 text-slate-600 dark:text-slate-300" />
@@ -166,10 +166,10 @@ const Contact: React.FC = () => {
               <div className="space-y-3">
                 <motion.a
                   href="mailto:research.team.app@gmail.com"
-                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:border-slate-600 dark:hover:bg-slate-700"
                   whileHover={{ x: 4 }}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors group-hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:group-hover:border-slate-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors group-hover:border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:group-hover:border-slate-600">
                     <FiMail className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -184,10 +184,10 @@ const Contact: React.FC = () => {
 
                 <motion.a
                   href="tel:+18323106869"
-                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:border-slate-600 dark:hover:bg-slate-700"
                   whileHover={{ x: 4 }}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors group-hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:group-hover:border-slate-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors group-hover:border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:group-hover:border-slate-600">
                     <FiPhone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -201,10 +201,10 @@ const Contact: React.FC = () => {
                 </motion.a>
 
                 <motion.div
-                  className="flex items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 dark:bg-slate-800/50"
+                  className="flex items-start gap-4 rounded-xl border border-transparent bg-slate-50 p-4 dark:bg-slate-700/50"
                   whileHover={{ x: 4 }}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-700">
                     <FiMapPin className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -239,7 +239,7 @@ const Contact: React.FC = () => {
                     <motion.a
                       key={social.label}
                       href={social.href}
-                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition-all duration-300 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700/70 dark:hover:text-slate-100"
+                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition-all duration-300 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-700/50 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700/70 dark:hover:text-slate-100"
                       aria-label={social.label}
                       whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -260,7 +260,7 @@ const Contact: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-7"
           >
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md sm:p-7 lg:p-8 dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md sm:p-7 lg:p-8 dark:border-slate-700 dark:bg-slate-800">
               <div className="mb-8">
                 <div className="mb-4">
                   <Badge icon={<FiSend className="h-3.5 w-3.5" />}>
@@ -353,8 +353,8 @@ const Contact: React.FC = () => {
 
                 <div className="flex flex-col items-start gap-4 pt-4 sm:flex-row sm:items-center">
                   <Button
+                    variant="solid"
                     type="submit"
-                    intent="primary"
                     disabled={isSubmitting}
                     startIcon={<FiSend className="h-5 w-5" />}
                   >

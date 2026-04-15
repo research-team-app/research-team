@@ -548,7 +548,7 @@ export default function GroupsPage() {
         />
 
         {!user?.id ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <h3 className="text-base font-semibold text-slate-900 dark:text-white">
               Collaborate faster with Research Teams
             </h3>
@@ -571,7 +571,7 @@ export default function GroupsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
+            <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <div className="flex flex-col gap-3">
                 <InputField
                   startIcon={
@@ -695,7 +695,7 @@ export default function GroupsPage() {
               sidebar={
                 <div className="space-y-3">
                   {/* My Teams */}
-                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
+                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
                     <div className="flex items-center justify-between px-4 pt-4 pb-2">
                       <h3 className="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
                         My Teams

@@ -98,7 +98,7 @@ const textColorByIntent: Record<Intent, string> = {
 
 const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
   outline: {
-    default: "bg-white dark:bg-slate-900/80",
+    default: "bg-white dark:bg-slate-600/20",
     primary: "bg-white dark:bg-slate-900/80",
     secondary: "bg-white dark:bg-slate-900/80",
     success: "bg-white dark:bg-slate-900/80",

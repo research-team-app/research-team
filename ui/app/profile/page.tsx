@@ -105,7 +105,7 @@ const Card: React.FC<{
   hover?: boolean;
 }> = ({ children, className = "", hover = false }) => (
   <div
-    className={`rounded-2xl border border-gray-200 bg-white shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/70 ${
+    className={`rounded-2xl border border-gray-200 bg-white shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-800 ${
       hover
         ? "transition-all duration-300 hover:border-gray-300 hover:shadow-xl hover:shadow-gray-200/50 dark:hover:border-slate-500/70 dark:hover:shadow-slate-950/60"
         : ""
@@ -711,7 +711,7 @@ const Profile: React.FC = () => {
         )}
 
         {/* Hero Card */}
-        <Card className="overflow-hidden dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-2xl dark:shadow-black/50">
+        <Card className="overflow-hidden dark:border-slate-700/50 dark:bg-slate-800 dark:shadow-2xl dark:shadow-black/50">
           {/* Banner */}
           <div className="h-32 bg-linear-to-r from-slate-800 via-slate-700 to-slate-800 sm:h-40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
 
@@ -917,7 +917,7 @@ const Profile: React.FC = () => {
         {isEditing ? (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Sticky save bar */}
-            <div className="sticky top-0 z-20 -mx-1 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/90">
+            <div className="sticky top-0 z-20 -mx-1 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-800">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 Editing Profile
               </p>
@@ -1786,7 +1786,7 @@ const Profile: React.FC = () => {
                             : null;
                         return (
                           <div key={i} className="relative">
-                            <div className="absolute top-1.5 -left-6 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-900" />
+                            <div className="absolute top-1.5 -left-6 flex h-4 w-4 items-center justify-center rounded-full border-2 border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800" />
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-baseline gap-x-2">
                                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -1821,7 +1821,7 @@ const Profile: React.FC = () => {
                 </Card>
               )}
 
-              {/* ── Professional Experience ── */}
+              {/* Professional Experience */}
               {values.experience && values.experience.length > 0 && (
                 <Card className="p-5 sm:p-6">
                   <SectionHeader
@@ -1829,7 +1829,7 @@ const Profile: React.FC = () => {
                     title="Experience"
                   />
                   <div className="relative pl-6">
-                    <div className="absolute top-1 bottom-1 left-2 w-px bg-slate-200 dark:bg-slate-700" />
+                    <div className="absolute top-1 bottom-1 left-2 w-px bg-slate-200 dark:bg-slate-600" />
                     <div className="space-y-6">
                       {values.experience.map((exp, i) => {
                         const endLabel = exp.current
@@ -1840,7 +1840,7 @@ const Profile: React.FC = () => {
                         return (
                           <div key={i} className="relative">
                             <div
-                              className={`absolute top-1.5 -left-6 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-white dark:bg-slate-900 ${exp.current ? "border-slate-500 dark:border-slate-400" : "border-slate-400 dark:border-slate-500"}`}
+                              className={`absolute top-1.5 -left-6 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-white dark:bg-slate-800 ${exp.current ? "border-slate-500 dark:border-slate-400" : "border-slate-400 dark:border-slate-500"}`}
                             />
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
@@ -2013,7 +2013,7 @@ const Profile: React.FC = () => {
             if (!open) setFollowDialogType(null);
           }}
         >
-          <DialogContent className="border-slate-200 bg-white sm:max-w-md dark:border-slate-700 dark:bg-slate-900">
+          <DialogContent className="border-slate-200 bg-white sm:max-w-md dark:border-slate-700 dark:bg-slate-800">
             <DialogHeader>
               <DialogTitle className="text-slate-900 capitalize dark:text-white">
                 {followDialogType}
@@ -2092,7 +2092,7 @@ const Profile: React.FC = () => {
             if (!next) closeOrcidImport();
           }}
         >
-          <DialogContent className="border-slate-200 bg-white sm:max-w-lg dark:border-slate-700 dark:bg-slate-900">
+          <DialogContent className="border-slate-200 bg-white sm:max-w-lg dark:border-slate-700 dark:bg-slate-800">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                 <FaOrcid className="h-4 w-4 text-green-600" /> Import from ORCID
@@ -2250,7 +2250,7 @@ const Profile: React.FC = () => {
             }
           }}
         >
-          <DialogContent className="border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+          <DialogContent className="border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
             <DialogHeader>
               <DialogTitle className="text-slate-900 dark:text-white">
                 Message{" "}

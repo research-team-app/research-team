@@ -50,7 +50,7 @@ export function AcademicStatusPicker({
               "inline-flex w-full min-w-0 items-center gap-2.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-150",
               isOn
                 ? "text-primary-800 dark:text-primary-300 border-gray-300 bg-slate-100 dark:border-gray-700/60 dark:bg-gray-900/20"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700/50"
+                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700/50"
             )}
           >
             {/* Custom checkbox indicator */}

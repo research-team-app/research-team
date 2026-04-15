@@ -77,7 +77,7 @@ const PageHeader = ({
   return (
     <div className="relative mb-5">
       {/* Card */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-900">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-800/90">
         {/* Navy accent bar */}
         <div className="h-1 bg-linear-to-r from-slate-800 via-slate-700 to-slate-600 dark:from-slate-600 dark:via-slate-500 dark:to-slate-700" />
 
@@ -124,8 +124,8 @@ const PageHeader = ({
             {/* Left — icon + text */}
             <div className="flex items-center gap-4">
               {/* Icon — navy in light, slate in dark */}
-              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-800 shadow-sm sm:flex dark:bg-slate-700">
-                <Icon className="h-5 w-5 text-white" />
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-800 shadow-sm sm:flex dark:bg-slate-200">
+                <Icon className="h-5 w-5 text-white dark:text-gray-900" />
               </div>
 
               <div>
@@ -161,7 +161,7 @@ const PageHeader = ({
 
           {/* Stats */}
           {stats && stats.length > 0 && (
-            <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-4 dark:border-slate-800">
+            <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-4 dark:border-slate-700">
               {stats.map((stat, index) => (
                 <div key={index}>
                   <p className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase dark:text-slate-500">
