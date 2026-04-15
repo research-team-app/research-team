@@ -20,6 +20,7 @@ import Toast from "@/components/ui/Toast";
 import Loading from "@/app/loading";
 import Error from "@/app/error";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useToastStore } from "@/store/useToastStore";
 import { API_URL } from "@/data/global";
 import AttachmentChip from "@/components/ui/AttachmentChip";
 import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
@@ -89,6 +90,8 @@ function PostCard({
     showLikers ? post.id : null,
     showLikers
   );
+
+  const { addToast } = useToastStore();
 
   const likeMutation = useLikeFeedPost();
   const unlikeMutation = useUnlikeFeedPost();
@@ -200,6 +203,11 @@ function PostCard({
   const handleDeletePost = async () => {
     if (!isOwnPost) return;
     await deletePostMutation.mutateAsync(post.id);
+    addToast("Post deleted.", {
+      variant: "success",
+      position: "bottom-right",
+      duration: 3000,
+    });
   };
 
   const handleSavePostEdit = async () => {
@@ -953,22 +961,23 @@ export default function FeedPage() {
           subtitle="Share ideas, ask questions, and connect with other researchers."
         />
 
-        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_6px_rgba(0,0,0,0.04)] dark:border-slate-700/60 dark:bg-slate-900">
+        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-900">
+          {/* Accent bar — matches PageHeader */}
+          <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
+
           {user ? (
-            <div className="p-4 sm:p-5">
-              {/* Composer header */}
-              <div className="mb-3 flex items-center gap-3">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  What&apos;s on your mind ?
-                </p>
-              </div>
+            <div className="p-5 sm:p-6">
+              {/* Composer label */}
+              <p className="mb-3 text-[11px] font-semibold tracking-widest text-slate-400 uppercase dark:text-slate-500">
+                New Post
+              </p>
 
               <TextArea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Share an update, question, or idea with the community..."
-                rows={4}
-                resize="none"
+                rows={3}
+                autoGrow
               />
 
               {composerError && (
@@ -987,7 +996,7 @@ export default function FeedPage() {
                 </div>
               )}
 
-              <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
+              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
                 <AttachmentPickerButton
                   onSelect={(file) => {
                     setComposerError(null);

@@ -136,7 +136,7 @@ CREATE INDEX IF NOT EXISTS idx_user_messages_sender ON user_messages (sender_id)
 
 CREATE TABLE IF NOT EXISTS user_message_attachments (
     id TEXT PRIMARY KEY,
-    message_id TEXT NOT NULL REFERENCES user_messages (id) ON DELETE CASCADE,
+    message_id TEXT NOT NULL,
     uploader_id TEXT NOT NULL,
     file_name TEXT NOT NULL,
     content_type TEXT NOT NULL,
@@ -168,16 +168,16 @@ CREATE INDEX IF NOT EXISTS idx_group_memberships_user ON group_memberships (user
 
 CREATE TABLE IF NOT EXISTS group_messages (
     id TEXT PRIMARY KEY,
-    group_id TEXT NOT NULL REFERENCES groups (id) ON DELETE CASCADE,
+    group_id TEXT NOT NULL,
     sender_id TEXT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS group_message_attachments (
+CREATE TABLE group_message_attachments (
     id TEXT PRIMARY KEY,
     group_id TEXT NOT NULL,
-    message_id TEXT NOT NULL REFERENCES group_messages (id) ON DELETE CASCADE,
+    message_id TEXT NOT NULL,
     uploader_id TEXT NOT NULL,
     file_name TEXT NOT NULL,
     content_type TEXT NOT NULL,
@@ -186,10 +186,10 @@ CREATE TABLE IF NOT EXISTS group_message_attachments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS group_message_replies (
+CREATE TABLE group_message_replies (
     id TEXT PRIMARY KEY,
     group_id TEXT NOT NULL,
-    message_id TEXT NOT NULL REFERENCES group_messages (id) ON DELETE CASCADE,
+    message_id TEXT NOT NULL,
     parent_reply_id TEXT,
     sender_id TEXT NOT NULL,
     content TEXT NOT NULL,
@@ -209,7 +209,7 @@ CREATE INDEX IF NOT EXISTS idx_feed_posts_author ON feed_posts (author_id);
 
 CREATE TABLE IF NOT EXISTS feed_post_attachments (
     id TEXT PRIMARY KEY,
-    post_id TEXT NOT NULL REFERENCES feed_posts (id) ON DELETE CASCADE,
+    post_id TEXT NOT NULL,
     uploader_id TEXT NOT NULL,
     file_name TEXT NOT NULL,
     content_type TEXT NOT NULL,
@@ -222,7 +222,7 @@ CREATE INDEX IF NOT EXISTS idx_feed_post_attachments_post_id ON feed_post_attach
 
 CREATE TABLE IF NOT EXISTS feed_comments (
     id TEXT PRIMARY KEY,
-    post_id TEXT NOT NULL REFERENCES feed_posts (id) ON DELETE CASCADE,
+    post_id TEXT NOT NULL,
     author_id TEXT NOT NULL,
     parent_comment_id TEXT,
     content TEXT NOT NULL,

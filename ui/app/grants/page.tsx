@@ -647,9 +647,12 @@ const GrantsExplorer = () => {
         <div ref={grantsTopRef} />
         <PageHeader variant="grants" />
         {/* Toolbar */}
-        <div className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md sm:mb-6 dark:border-slate-700 dark:bg-slate-900 dark:shadow-xl dark:shadow-black/40">
+        <div className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white pb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] sm:mb-6 dark:border-slate-700/70 dark:bg-slate-900 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+          {/* Accent bar — matches PageHeader */}
+          <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
+
           {/* Tab strip */}
-          <div className="px-5 pt-3 pb-2 sm:px-6">
+          <div className="px-5 pt-4 pb-2 sm:px-6">
             <ViewModeTabs
               tabs={tabConfig}
               activeId={viewMode}
@@ -659,12 +662,13 @@ const GrantsExplorer = () => {
           </div>
 
           {/* Search */}
-          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
+          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
             <div className="flex flex-1 flex-col gap-2">
               {viewMode === "ai" ? (
                 <>
                   <div className="flex gap-2">
                     <InputField
+                      className="flex-1"
                       startIcon={<SparklesIcon className="h-5 w-5" />}
                       placeholder="Describe the grants you're searching in plain language (e.g., identifying early-stage cancer biomarkers)..."
                       value={aiQuery}
@@ -712,7 +716,7 @@ const GrantsExplorer = () => {
                         ? "AI Search matches your natural-language query to the grants catalog."
                         : "Suggested Grants uses your profile to rank likely matching opportunities."}
                     </p>
-                    <div className="mt-2 flex items-center gap-3">
+                    <div className="mt-4 flex items-center gap-3">
                       <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
                         Results
                       </span>

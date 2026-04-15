@@ -1,15 +1,16 @@
 "use client";
 
 import { ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import {
   DocumentMagnifyingGlassIcon,
   UsersIcon,
   ChatBubbleLeftRightIcon,
+  UserGroupIcon,
   ArrowTrendingUpIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
+import { cn } from "@/lib/utils";
 
 interface Stat {
   label: string;
@@ -24,7 +25,7 @@ interface Breadcrumb {
 }
 
 interface PageHeaderProps {
-  variant: "grants" | "collaborators" | "feed";
+  variant: "grants" | "collaborators" | "feed" | "teams";
   title?: string;
   subtitle?: string;
   user?: { name?: string; email?: string } | null;
@@ -39,35 +40,23 @@ const variantConfig = {
     defaultTitle: "Grants Explorer",
     defaultSubtitle:
       "Discover and track funding opportunities across all federal agencies",
-    accentFrom: "from-primary-600",
-    accentTo: "to-primary-500",
-    accentFromDark: "dark:from-primary-500",
-    accentToDark: "dark:to-primary-400",
-    iconBg: "bg-slate-200/70 dark:bg-slate-700/60",
-    iconColor: "text-slate-700 dark:text-slate-200",
   },
   collaborators: {
     icon: UsersIcon,
     defaultTitle: "Collaborators",
     defaultSubtitle:
       "Connect with researchers and institutions for your next project",
-    accentFrom: "from-primary-600",
-    accentTo: "to-primary-500",
-    accentFromDark: "dark:from-primary-500",
-    accentToDark: "dark:to-primary-400",
-    iconBg: "bg-slate-200/70 dark:bg-slate-700/60",
-    iconColor: "text-slate-700 dark:text-slate-200",
   },
   feed: {
     icon: ChatBubbleLeftRightIcon,
     defaultTitle: "Community Feed",
     defaultSubtitle: "Discuss ideas, ask questions, and engage with peers",
-    accentFrom: "from-primary-600",
-    accentTo: "to-primary-500",
-    accentFromDark: "dark:from-primary-500",
-    accentToDark: "dark:to-primary-400",
-    iconBg: "bg-slate-200/70 dark:bg-slate-700/60",
-    iconColor: "text-slate-700 dark:text-slate-200",
+  },
+  teams: {
+    icon: UserGroupIcon,
+    defaultTitle: "Research Teams",
+    defaultSubtitle:
+      "Search public teams, request access, and collaborate in real time.",
   },
 };
 
@@ -80,58 +69,47 @@ const PageHeader = ({
   breadcrumbs,
   actions,
 }: PageHeaderProps) => {
-  const reduceMotion = useReducedMotion();
-  const config = variantConfig[variant];
+  const config = variantConfig[variant] ?? variantConfig.collaborators;
   const Icon = config.icon;
-
   const displayTitle = title || config.defaultTitle;
   const displaySubtitle = subtitle || config.defaultSubtitle;
 
   return (
     <div className="relative mb-5">
-      {/* Main Header Container */}
-      <div className="border-border bg-card overflow-hidden rounded-2xl border shadow-sm dark:relative dark:border-slate-700 dark:bg-slate-900/80">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-[0.01] dark:opacity-[0.01]">
-          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern
-                id="header-grid"
-                width="32"
-                height="32"
-                patternUnits="userSpaceOnUse"
-              >
-                <path
-                  d="M0 32V0h32"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#header-grid)" />
-          </svg>
-        </div>
-        {/* Content */}
-        <div className="relative px-6 py-4 sm:px-8 sm:py-5">
+      {/* Card */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-900">
+        {/* Navy accent bar */}
+        <div className="h-1 bg-linear-to-r from-slate-800 via-slate-700 to-slate-600 dark:from-slate-600 dark:via-slate-500 dark:to-slate-700" />
+
+        {/* Subtle dot grid — academic texture */}
+        <div
+          className="pointer-events-none absolute inset-0 top-1 opacity-[0.005] dark:opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, currentColor 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+
+        <div className="relative px-6 py-5 sm:px-8 sm:py-6">
           {/* Breadcrumbs */}
           {breadcrumbs && breadcrumbs.length > 0 && (
             <nav className="mb-4">
-              <ol className="flex items-center gap-2 text-sm">
+              <ol className="flex items-center gap-1.5 text-xs">
                 {breadcrumbs.map((crumb, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={index} className="flex items-center gap-1.5">
                     {index > 0 && (
-                      <ChevronRightIcon className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                      <ChevronRightIcon className="h-3 w-3 text-slate-400 dark:text-slate-500" />
                     )}
                     {crumb.href ? (
                       <a
                         href={crumb.href}
-                        className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                        className="text-slate-400 transition-colors hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-300"
                       >
                         {crumb.label}
                       </a>
                     ) : (
-                      <span className="font-medium text-slate-900 dark:text-slate-100">
+                      <span className="font-medium text-slate-600 dark:text-slate-300">
                         {crumb.label}
                       </span>
                     )}
@@ -141,89 +119,55 @@ const PageHeader = ({
             </nav>
           )}
 
-          {/* Main Header Row */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Left Section - Title & Info */}
-            <div className="flex items-center gap-3">
-              {/* Icon Container */}
-              <motion.div
-                initial={reduceMotion ? {} : { scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className={`hidden rounded-lg p-2 sm:block ${config.iconBg}`}
-              >
-                <Icon className={`h-5 w-5 ${config.iconColor}`} />
-              </motion.div>
+          {/* Main row */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* Left — icon + text */}
+            <div className="flex items-center gap-4">
+              {/* Icon — navy in light, slate in dark */}
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-800 shadow-sm sm:flex dark:bg-slate-700">
+                <Icon className="h-5 w-5 text-white" />
+              </div>
 
-              {/* Title Block */}
               <div>
-                <motion.h1
-                  initial={reduceMotion ? {} : { y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                  className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-50"
-                >
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-50">
                   {displayTitle}
-                </motion.h1>
-
-                <motion.p
-                  initial={reduceMotion ? {} : { y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.15 }}
-                  className="mt-0.5 text-sm text-slate-500 dark:text-slate-400"
-                >
+                </h1>
+                <p className="mt-0.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                   {displaySubtitle}
-                </motion.p>
+                </p>
 
-                {/* User Welcome */}
                 {user && (
-                  <motion.div
-                    initial={reduceMotion ? {} : { y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
-                    className="flex items-center gap-2 pt-2"
-                  >
-                    <CheckBadgeIcon className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                  <div className="mt-2.5 flex items-center gap-1.5">
+                    <CheckBadgeIcon className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                       Welcome back
                       {user.name && (
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
-                          , {user.name}
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
+                          {" "}
+                          {user.name}
                         </span>
                       )}
                     </span>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Right Section - Actions */}
+            {/* Right — actions */}
             {actions && (
-              <motion.div
-                initial={reduceMotion ? {} : { x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-                className="flex shrink-0 items-center gap-3"
-              >
-                {actions}
-              </motion.div>
+              <div className="flex shrink-0 items-center gap-3">{actions}</div>
             )}
           </div>
 
-          {/* Stats Row */}
+          {/* Stats */}
           {stats && stats.length > 0 && (
-            <motion.div
-              initial={reduceMotion ? {} : { y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.25 }}
-              className="border-border mt-6 grid grid-cols-2 gap-4 border-t pt-6 sm:grid-cols-4"
-            >
+            <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-4 dark:border-slate-800">
               {stats.map((stat, index) => (
-                <div key={index} className="space-y-1">
-                  <p className="text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                <div key={index}>
+                  <p className="text-[11px] font-semibold tracking-widest text-slate-400 uppercase dark:text-slate-500">
                     {stat.label}
                   </p>
-                  <div className="flex items-baseline gap-2">
+                  <div className="mt-1 flex items-baseline gap-2">
                     <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                       {typeof stat.value === "number"
                         ? stat.value.toLocaleString()
@@ -231,14 +175,18 @@ const PageHeader = ({
                     </p>
                     {stat.trend && (
                       <span
-                        className={`flex items-center text-xs font-medium ${
+                        className={cn(
+                          "flex items-center gap-0.5 text-xs font-medium",
                           stat.trendUp
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                        }`}
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-red-500 dark:text-red-400"
+                        )}
                       >
                         <ArrowTrendingUpIcon
-                          className={`h-3 w-3 ${!stat.trendUp && "rotate-180"}`}
+                          className={cn(
+                            "h-3 w-3",
+                            !stat.trendUp && "rotate-180"
+                          )}
                         />
                         {stat.trend}
                       </span>
@@ -246,7 +194,7 @@ const PageHeader = ({
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
