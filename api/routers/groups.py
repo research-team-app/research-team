@@ -856,6 +856,91 @@ async def send_group_message(
     }
 
 
+@groups_router.patch("/groups/{group_id}/messages/{message_id}")
+async def update_group_message(
+    group_id: str,
+    message_id: str,
+    req: GroupMessageCreateRequest,
+    auth: dict = Depends(get_verified_user),
+):
+    user_id = (auth.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    await _require_group_access(group_id, user_id, require_active=True)
+
+    message = await _get_group_message(group_id, message_id)
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    if str(message["sender_id"]) != user_id:
+        raise HTTPException(
+            status_code=403, detail="You can only edit your own messages"
+        )
+
+    content = req.content.strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Message content cannot be empty")
+
+    try:
+        row = await db.pool.fetchrow(
+            """
+            UPDATE group_messages SET content = $1
+            WHERE id = $2 AND group_id = $3
+            RETURNING id, group_id, sender_id, content, created_at
+            """,
+            content,
+            message_id,
+            group_id,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Update message failed: {str(e)}")
+
+    return {
+        "id": row["id"],
+        "group_id": row["group_id"],
+        "sender_id": row["sender_id"],
+        "content": row["content"],
+        "created_at": row["created_at"],
+    }
+
+
+@groups_router.delete("/groups/{group_id}/messages/{message_id}")
+async def delete_group_message(
+    group_id: str,
+    message_id: str,
+    auth: dict = Depends(get_verified_user),
+):
+    user_id = (auth.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    group, membership = await _require_group_access(
+        group_id, user_id, require_active=True
+    )
+
+    message = await _get_group_message(group_id, message_id)
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    is_own = str(message["sender_id"]) == user_id
+    is_admin = (membership.get("role") or "") in {"owner", "admin"}
+    if not is_own and not is_admin:
+        raise HTTPException(
+            status_code=403, detail="You can only delete your own messages"
+        )
+
+    try:
+        await db.pool.execute(
+            "DELETE FROM group_messages WHERE id = $1 AND group_id = $2",
+            message_id,
+            group_id,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Delete message failed: {str(e)}")
+
+    return {"status": "deleted", "message_id": message_id}
+
+
 @groups_router.get("/groups/{group_id}/messages/{message_id}/attachment")
 async def download_group_message_attachment(
     group_id: str,

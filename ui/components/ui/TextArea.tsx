@@ -1,4 +1,11 @@
-import React, { forwardRef, useId, type ReactNode } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  type ReactNode,
+} from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import clsx from "clsx";
 
@@ -34,6 +41,7 @@ export interface TextAreaFieldProps extends Omit<
   hintClassName?: string;
   errorClassName?: string;
   resize?: "none" | "vertical" | "horizontal" | "both";
+  autoGrow?: boolean;
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -135,6 +143,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
       size = "md",
       radius = "md",
       resize = "vertical",
+      autoGrow = false,
       className,
       textareaClassName,
       labelClassName,
@@ -144,10 +153,35 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
       id: externalId,
       ...textareaProps
     },
-    ref
+    forwardedRef
   ) => {
     const generatedId = useId();
     const id = externalId || generatedId;
+    const localRef = useRef<HTMLTextAreaElement>(null);
+
+    const setRef = useCallback(
+      (el: HTMLTextAreaElement | null) => {
+        (
+          localRef as React.MutableRefObject<HTMLTextAreaElement | null>
+        ).current = el;
+        if (typeof forwardedRef === "function") forwardedRef(el);
+        else if (forwardedRef) forwardedRef.current = el;
+      },
+      [forwardedRef]
+    );
+
+    const adjustHeight = useCallback((el: HTMLTextAreaElement) => {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }, []);
+
+    useEffect(() => {
+      if (autoGrow && localRef.current) adjustHeight(localRef.current);
+    }, [autoGrow, adjustHeight, textareaProps.value]);
+
+    const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+      if (autoGrow) adjustHeight(e.currentTarget);
+    };
     const descriptionId = `${id}-description`;
     const errorId = `${id}-error`;
     const hintId = `${id}-hint`;
@@ -199,12 +233,13 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
         )}
 
         <textarea
-          ref={ref}
+          ref={setRef}
           id={id}
           disabled={disabled}
           required={required}
           aria-invalid={showError || undefined}
           aria-describedby={describedBy}
+          onInput={handleInput}
           className={clsx(
             // Base
             "block w-full border transition-[border-color,box-shadow] duration-150",
@@ -213,7 +248,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
             radiusClasses[radius],
             sizeClasses[size],
             // Resize
-            resizeClasses[resize],
+            autoGrow ? "resize-none overflow-hidden" : resizeClasses[resize],
             // Background
             bgColorByVariant[variant][intent],
             // Text Color

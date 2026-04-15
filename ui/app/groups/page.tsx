@@ -36,6 +36,8 @@ import {
   useGroups,
   useInviteToGroup,
   useDeleteGroup,
+  useDeleteGroupMessage,
+  useUpdateGroupMessage,
   useLeaveGroup,
   useRemoveGroupMember,
   useRequestJoinGroup,
@@ -46,6 +48,13 @@ import { cn } from "@/lib/utils";
 import AttachmentChip from "@/components/ui/AttachmentChip";
 import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
 import Loading from "@/app/loading";
+
+const GROUP_AVATAR_CLASS =
+  "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200";
+
+function getGroupColor() {
+  return GROUP_AVATAR_CLASS;
+}
 
 function formatWhen(dateIso?: string): string {
   if (!dateIso) return "";
@@ -68,17 +77,45 @@ function TeamMessageCard({
   groupId,
   message,
   currentUserId,
+  isAdmin,
 }: {
   groupId: string;
   message: GroupMessage;
   currentUserId?: string;
+  isAdmin?: boolean;
 }) {
   const [showReplies, setShowReplies] = useState(false);
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(message.content);
   const { data: replies = [], isLoading: loadingReplies } =
     useGroupMessageReplies(groupId, showReplies ? message.id : null);
   const createReplyMutation = useCreateGroupMessageReply();
+  const deleteMessageMutation = useDeleteGroupMessage();
+  const updateMessageMutation = useUpdateGroupMessage();
+
+  const isOwn = message.sender_id === currentUserId;
+  const canEdit = isOwn;
+  const canDelete = isOwn || isAdmin;
+
+  const handleSaveEdit = async () => {
+    const content = editDraft.trim();
+    if (!content || content === message.content) {
+      setIsEditing(false);
+      return;
+    }
+    await updateMessageMutation.mutateAsync({
+      groupId,
+      messageId: message.id,
+      content,
+    });
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    void deleteMessageMutation.mutateAsync({ groupId, messageId: message.id });
+  };
 
   const rootReplies = replies.filter((r) => !r.parent_reply_id);
   const repliesByParent = replies.reduce<Record<string, GroupMessageReply[]>>(
@@ -123,26 +160,89 @@ function TeamMessageCard({
           size={36}
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
-            {message.sender_id === currentUserId
-              ? "You"
-              : message.sender?.name || "Researcher"}
-          </p>
-          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-            {message.sender?.title || "Team member"}
-          </p>
-          <p className="mt-2 text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-100">
-            {message.content}
-          </p>
-          {message.attachment?.download_url && (
-            <AttachmentChip
-              fileName={message.attachment.file_name}
-              contentType={message.attachment.content_type}
-              sizeBytes={message.attachment.size_bytes}
-              href={`${API_URL}${message.attachment.download_url}`}
-              className="mt-2"
-            />
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                {message.sender_id === currentUserId
+                  ? "You"
+                  : message.sender?.name || "Researcher"}
+              </p>
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                {message.sender?.title || "Team member"}
+              </p>
+            </div>
+            {(canEdit || canDelete) && (
+              <div className="flex shrink-0 items-center gap-1">
+                {canEdit && !isEditing && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditDraft(message.content);
+                      setIsEditing(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    intent="danger"
+                    loading={deleteMessageMutation.isPending}
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {isEditing ? (
+            <div className="mt-2 space-y-2">
+              <TextArea
+                value={editDraft}
+                onChange={(e) => setEditDraft(e.target.value)}
+                rows={2}
+                autoGrow
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  intent="primary"
+                  loading={updateMessageMutation.isPending}
+                  onClick={handleSaveEdit}
+                >
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="mt-2 text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-100">
+                {message.content}
+              </p>
+              {message.attachment?.download_url && (
+                <AttachmentChip
+                  fileName={message.attachment.file_name}
+                  contentType={message.attachment.content_type}
+                  sizeBytes={message.attachment.size_bytes}
+                  href={`${API_URL}${message.attachment.download_url}`}
+                  className="mt-2"
+                />
+              )}
+            </>
           )}
+
           <div className="mt-3 flex items-center gap-2">
             <Button
               size="sm"
@@ -634,25 +734,37 @@ export default function GroupsPage() {
                             type="button"
                             onClick={() => setActiveGroupId(group.id)}
                             className={cn(
-                              "w-full rounded-lg px-3 py-2.5 text-left transition",
+                              "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition",
                               resolvedActiveGroupId === group.id
                                 ? "bg-primary-600 text-white"
                                 : "hover:bg-slate-100 dark:hover:bg-slate-800"
                             )}
                           >
-                            <p className="truncate text-sm font-semibold">
-                              {group.name}
-                            </p>
-                            <p
+                            <div
                               className={cn(
-                                "truncate text-xs capitalize",
+                                "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold",
                                 resolvedActiveGroupId === group.id
-                                  ? "text-white/70"
-                                  : "text-slate-500 dark:text-slate-400"
+                                  ? "bg-white/20 text-white"
+                                  : getGroupColor()
                               )}
                             >
-                              {group.visibility} · {group.role}
-                            </p>
+                              {(group.name[0] ?? "T").toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold">
+                                {group.name}
+                              </p>
+                              <p
+                                className={cn(
+                                  "truncate text-xs capitalize",
+                                  resolvedActiveGroupId === group.id
+                                    ? "text-white/70"
+                                    : "text-slate-500 dark:text-slate-400"
+                                )}
+                              >
+                                {group.visibility} · {group.role}
+                              </p>
+                            </div>
                           </button>
                         ))
                       )}
@@ -725,7 +837,6 @@ export default function GroupsPage() {
                       </p>
                     </div>
                     <Button
-                      intent="primary"
                       size="sm"
                       startIcon={<PlusIcon className="h-4 w-4" />}
                       onClick={() => setCreateTeamOpen(true)}
@@ -738,60 +849,70 @@ export default function GroupsPage() {
                     <div className="border-b border-slate-200 p-4 sm:p-5 dark:border-slate-700">
                       {/* Team name + actions row */}
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                              {activeGroup.name}
-                            </h3>
-                            <span
-                              className={cn(
-                                "rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize",
-                                activeGroup.visibility === "public"
-                                  ? "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300"
-                                  : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                              )}
-                            >
-                              {activeGroup.visibility}
-                            </span>
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div
+                            className={cn(
+                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
+                              getGroupColor()
+                            )}
+                          >
+                            {(activeGroup.name[0] ?? "T").toUpperCase()}
                           </div>
-                          {activeGroup.description && (
-                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                              {activeGroup.description}
-                            </p>
-                          )}
-                          {/* Member avatars */}
-                          {activeMembers.length > 0 && (
-                            <div className="mt-2.5 flex items-center gap-2">
-                              <div className="flex -space-x-1.5">
-                                {activeMembers.slice(0, 4).map((m) => (
-                                  <Avatar
-                                    key={`header-member-${m.user_id}`}
-                                    userId={m.user?.id}
-                                    name={m.user?.name}
-                                    firstName={m.user?.first_name}
-                                    lastName={m.user?.last_name}
-                                    src={m.user?.profile_image_url}
-                                    href={
-                                      m.user?.id
-                                        ? `/profile/?id=${encodeURIComponent(m.user.id)}`
-                                        : undefined
-                                    }
-                                    title={m.user?.name || "Researcher"}
-                                    size={22}
-                                    className="ring-2 ring-white dark:ring-slate-900"
-                                  />
-                                ))}
-                              </div>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => setAllMembersOpen(true)}
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                                {activeGroup.name}
+                              </h3>
+                              <span
+                                className={cn(
+                                  "rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize",
+                                  activeGroup.visibility === "public"
+                                    ? "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300"
+                                    : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                                )}
                               >
-                                {activeMembers.length} member
-                                {activeMembers.length !== 1 ? "s" : ""}
-                              </Button>
+                                {activeGroup.visibility}
+                              </span>
                             </div>
-                          )}
+                            {activeGroup.description && (
+                              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                                {activeGroup.description}
+                              </p>
+                            )}
+                            {/* Member avatars */}
+                            {activeMembers.length > 0 && (
+                              <div className="mt-2.5 flex items-center gap-2">
+                                <div className="flex -space-x-1.5">
+                                  {activeMembers.slice(0, 4).map((m) => (
+                                    <Avatar
+                                      key={`header-member-${m.user_id}`}
+                                      userId={m.user?.id}
+                                      name={m.user?.name}
+                                      firstName={m.user?.first_name}
+                                      lastName={m.user?.last_name}
+                                      src={m.user?.profile_image_url}
+                                      href={
+                                        m.user?.id
+                                          ? `/profile/?id=${encodeURIComponent(m.user.id)}`
+                                          : undefined
+                                      }
+                                      title={m.user?.name || "Researcher"}
+                                      size={26}
+                                      className="ring-2 ring-white dark:ring-slate-900"
+                                    />
+                                  ))}
+                                </div>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => setAllMembersOpen(true)}
+                                >
+                                  {activeMembers.length} member
+                                  {activeMembers.length !== 1 ? "s" : ""}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Right-side actions */}
@@ -970,7 +1091,8 @@ export default function GroupsPage() {
                         <div className="flex min-h-0 flex-1 flex-col">
                           <div className="border-b border-slate-200 p-4 dark:border-slate-700">
                             <TextArea
-                              rows={3}
+                              rows={2}
+                              autoGrow
                               placeholder={
                                 canChat
                                   ? "Post a message to this team..."
@@ -1040,6 +1162,7 @@ export default function GroupsPage() {
                                   groupId={resolvedActiveGroupId || ""}
                                   message={m}
                                   currentUserId={user?.id}
+                                  isAdmin={isAdmin}
                                 />
                               ))
                             )}

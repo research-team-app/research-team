@@ -374,6 +374,55 @@ export function useSendGroupMessage() {
   });
 }
 
+export function useDeleteGroupMessage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      groupId,
+      messageId,
+    }: {
+      groupId: string;
+      messageId: string;
+    }) => {
+      const headers = await getAuthHeaders();
+      await axios.delete(
+        `${API_URL}/groups/${encodeURIComponent(groupId)}/messages/${encodeURIComponent(messageId)}`,
+        { headers }
+      );
+      return { groupId, messageId };
+    },
+    onSuccess: ({ groupId }) => {
+      qc.invalidateQueries({ queryKey: ["group-messages", groupId] });
+    },
+  });
+}
+
+export function useUpdateGroupMessage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      groupId,
+      messageId,
+      content,
+    }: {
+      groupId: string;
+      messageId: string;
+      content: string;
+    }) => {
+      const headers = await getAuthHeaders();
+      const { data } = await axios.patch<GroupMessage>(
+        `${API_URL}/groups/${encodeURIComponent(groupId)}/messages/${encodeURIComponent(messageId)}`,
+        { content },
+        { headers }
+      );
+      return data;
+    },
+    onSuccess: (msg) => {
+      qc.invalidateQueries({ queryKey: ["group-messages", msg.group_id] });
+    },
+  });
+}
+
 export function useGroupMessageReplies(
   groupId: string | null,
   messageId: string | null

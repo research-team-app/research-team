@@ -56,8 +56,10 @@ export default function ProfileDropdown() {
     setSettingsLoading(true);
     setSettingsError(null);
     try {
+      const headers = await getAuthHeaders();
       const { data } = await axios.get<{ status?: string }>(
-        `${API_URL}/users/${user.id}`
+        `${API_URL}/users/${user.id}`,
+        { headers }
       );
       setProfileStatus(data?.status === "private" ? "private" : "public");
     } catch {
