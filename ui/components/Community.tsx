@@ -94,9 +94,9 @@ const Community = () => {
                 }}
               >
                 <div
-                  className={`flex h-full items-center gap-4 rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-900 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${stat.accent}`}
+                  className={`flex h-full items-center gap-4 rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${stat.accent}`}
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-700">
                     <Icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </span>
                   <div>
@@ -137,7 +137,7 @@ const Community = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.25, delay: 0.1 + idx * 0.03 }}
               >
-                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-colors hover:border-slate-300 hover:text-slate-800 dark:border-slate-700/60 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-300">
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-colors hover:border-slate-300 hover:text-slate-800 dark:border-slate-700/60 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-300">
                   <span className="bg-primary-400 dark:bg-primary-500 h-1 w-1 rounded-full" />
                   {field}
                 </div>
@@ -157,8 +157,8 @@ const Community = () => {
             ease: [0.22, 0.5, 0.3, 0.9],
           }}
         >
-          <div className="rounded-xl border border-slate-200/80 bg-white p-8 text-center shadow-[0_2px_10px_rgba(0,0,0,0.05)] sm:p-10 dark:border-slate-700/60 dark:bg-slate-900 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-xl border border-slate-200/80 bg-white p-8 text-center shadow-[0_2px_10px_rgba(0,0,0,0.05)] sm:p-10 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 dark:border-slate-700 dark:bg-slate-700">
               <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
               <span className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase dark:text-slate-400">
                 Start Collaborating Today

@@ -259,7 +259,7 @@ const GrantDetail = () => {
         </div>
 
         {/* Main card */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-2xl dark:shadow-black/50">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:shadow-2xl dark:shadow-black/50">
           {/* Header hero */}
           <div className="bg-slate-800 px-5 py-6 sm:px-7 sm:py-8 dark:bg-slate-800">
             <div>
@@ -415,7 +415,7 @@ const GrantDetail = () => {
                     ].map(({ icon, label, value }) => (
                       <div
                         key={label}
-                        className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30"
+                        className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40"
                       >
                         <div className="mb-1.5 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                           {icon}
@@ -439,7 +439,7 @@ const GrantDetail = () => {
                     <h2 className="mb-4 text-sm font-semibold tracking-wider text-slate-400 uppercase dark:text-slate-500">
                       Award Information
                     </h2>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                         <FiDollarSign className="h-4 w-4" />
                       </span>
@@ -465,7 +465,7 @@ const GrantDetail = () => {
                 </h2>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                     <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
                       Agency
                     </p>
@@ -475,7 +475,7 @@ const GrantDetail = () => {
                         "N/A"}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                     <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
                       Department
                     </p>
@@ -494,7 +494,7 @@ const GrantDetail = () => {
                     </h2>
                     <div className="space-y-3">
                       {grant.synopsis?.agencyContactDesc && (
-                        <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                           <p className="text-sm text-slate-700 dark:text-slate-300">
                             {stripHtml(grant.synopsis.agencyContactDesc)}
                           </p>
@@ -502,7 +502,7 @@ const GrantDetail = () => {
                       )}
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {grant.synopsis?.agencyContactEmail && (
-                          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                             <FiMail className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                             <div className="min-w-0">
                               <p className="mb-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -518,7 +518,7 @@ const GrantDetail = () => {
                           </div>
                         )}
                         {grant.synopsis?.agencyContactPhone && (
-                          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700/80 dark:bg-slate-800/30">
+                          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-600/80 dark:bg-slate-700/40">
                             <FiPhone className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                             <div>
                               <p className="mb-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -559,7 +559,7 @@ const GrantDetail = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/60 px-5 py-4 sm:px-7 dark:border-slate-700 dark:bg-slate-900/40">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/60 px-5 py-4 sm:px-7 dark:border-slate-700 dark:bg-slate-700/40">
             <Button
               variant="outline"
               size="sm"

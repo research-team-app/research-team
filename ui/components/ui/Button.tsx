@@ -37,7 +37,7 @@ export interface ButtonProps extends Omit<
   type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
 }
 
-// --- 1. SOLID STYLES ---
+//  SOLID STYLES
 const solidStyles: Record<Intent, string> = {
   default:
     "bg-white text-slate-700 border border-slate-300 shadow-sm " +
@@ -56,10 +56,7 @@ const solidStyles: Record<Intent, string> = {
   info: "bg-sky-500 text-white border border-transparent shadow-sm hover:bg-sky-600 active:bg-sky-700 dark:hover:bg-sky-400",
 };
 
-// --- 2. OUTLINE STYLES
-// Pattern:
-// Light: hover:bg-COLOR-50, active:bg-COLOR-100
-// Dark:  hover:bg-COLOR-950/30, active:bg-COLOR-950/50 (Transparent dark tint, no white flash)
+// OUTLINE STYLES
 const outlineStyles: Record<Intent, string> = {
   default:
     "bg-transparent text-slate-700 border border-slate-300 " +
@@ -91,7 +88,7 @@ const outlineStyles: Record<Intent, string> = {
     "dark:text-sky-400 dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:text-white dark:active:bg-sky-700",
 };
 
-// --- 3. LINK STYLES ---
+// 3. LINK STYLES
 const linkStyles: Record<Intent, string> = {
   default:
     "text-slate-600 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-white",

@@ -51,7 +51,7 @@ const Navbar = () => {
     <>
       <motion.nav className="fixed top-0 right-0 left-0 z-50 shadow-sm transition-all duration-500 dark:shadow-black/20">
         {/* Full width background */}
-        <div className="absolute inset-0 border-b border-slate-200 bg-white shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/95 dark:shadow-none" />
+        <div className="absolute inset-0 border-b border-slate-200 bg-white shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-800/50 dark:shadow-none" />
 
         {/* Content container */}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -68,7 +68,7 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden flex-1 items-center justify-center px-8 pr-10 lg:flex lg:pr-12">
-              <div className="mr-2 inline-flex items-center gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-1 lg:mr-4 dark:border-slate-700/60 dark:bg-slate-800/50">
+              <div className="mr-2 inline-flex items-center gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-1 lg:mr-4 dark:border-slate-700/60 dark:bg-slate-800">
                 {MenuOptions.map((item) => {
                   const active = isActive(item.path);
                   return (

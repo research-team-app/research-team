@@ -647,7 +647,7 @@ const GrantsExplorer = () => {
         <div ref={grantsTopRef} />
         <PageHeader variant="grants" />
         {/* Toolbar */}
-        <div className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white pb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] sm:mb-6 dark:border-slate-700/70 dark:bg-slate-900 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+        <div className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white pb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] sm:mb-6 dark:border-slate-700/70 dark:bg-slate-800 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
           {/* Accent bar — matches PageHeader */}
           <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
 
@@ -662,7 +662,7 @@ const GrantsExplorer = () => {
           </div>
 
           {/* Search */}
-          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
+          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-700">
             <div className="flex flex-1 flex-col gap-2">
               {viewMode === "ai" ? (
                 <>

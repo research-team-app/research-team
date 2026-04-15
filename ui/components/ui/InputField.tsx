@@ -52,7 +52,7 @@ const radiusClasses: Record<Radius, string> = {
 };
 
 const borderColorByIntent: Record<Intent, string> = {
-  default: "border-slate-300 dark:border-slate-600",
+  default: "border-slate-300 dark:border-slate-500",
   primary: "border-[oklch(65%_0.3_200)] dark:border-primary-500/70",
   secondary: "border-[oklch(66%_0.28_290)] dark:border-secondary-500/70",
   success: "border-emerald-300 dark:border-emerald-600/70",
@@ -86,7 +86,7 @@ const textColorByIntent: Record<Intent, string> = {
 
 const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
   outline: {
-    default: "bg-white dark:bg-slate-900/80",
+    default: "bg-white dark:bg-slate-600/20",
     primary: "bg-white dark:bg-slate-900/80",
     secondary: "bg-white dark:bg-slate-900/80",
     success: "bg-white dark:bg-slate-900/80",

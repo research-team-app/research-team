@@ -98,7 +98,7 @@ export function ComboboxFilter({
         <PopoverTrigger asChild>
           <Button
             intent={intent}
-            variant={variant}
+            variant="solid"
             size={size}
             role="combobox"
             aria-expanded={open}
@@ -125,7 +125,7 @@ export function ComboboxFilter({
           className={cn(
             "w-[--radix-popover-trigger-width] p-0",
             // 1. Strict Backgrounds: We enforce colors here on the container
-            "bg-white dark:bg-slate-900",
+            "bg-white dark:bg-slate-800",
             "border-slate-200 dark:border-slate-700",
             // 2. Overflow Hidden: Prevents square white corners from peeking out of rounded borders
             "overflow-hidden"
@@ -135,7 +135,7 @@ export function ComboboxFilter({
           <Command className="w-full bg-transparent!">
             <CommandInput
               placeholder="Search..."
-              className="h-9 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400"
+              className="h-9 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400"
             />
             <CommandList>
               <CommandEmpty>{emptyText}</CommandEmpty>

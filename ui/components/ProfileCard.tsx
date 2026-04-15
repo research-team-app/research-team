@@ -172,8 +172,8 @@ const ProfileCard: FC<{
       className={`group relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-250 hover:-translate-y-1 hover:shadow-md hover:shadow-slate-200/70 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-md dark:shadow-black/30 dark:hover:shadow-lg dark:hover:shadow-black/50`}
       aria-label={`Profile card for ${name}`}
     >
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+      {/* Header */}
+      <div className="border-b border-slate-100 bg-slate-800 px-5 py-4 dark:border-slate-800">
         <div className="flex items-start gap-3.5">
           <Avatar
             userId={String(collaborator.id ?? "")}
@@ -208,7 +208,7 @@ const ProfileCard: FC<{
         </div>
       </div>
 
-      {/* ── Body ───────────────────────────────────────────────── */}
+      {/* Body */}
       <div className="flex flex-1 flex-col px-5 py-4">
         {/* Search match chips */}
         {!!highlightQuery?.trim() && (

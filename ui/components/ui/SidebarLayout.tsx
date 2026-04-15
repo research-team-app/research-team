@@ -44,7 +44,7 @@ const SidebarLayout = ({
     <>
       {/* ── Mobile: collapsible accordion (hidden on lg+) ──────────── */}
       <div className="mb-4 lg:hidden">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {sidebarTitle}
@@ -53,7 +53,7 @@ const SidebarLayout = ({
               type="button"
               aria-label={mobileExpanded ? "Collapse" : "Expand"}
               onClick={() => setMobileExpanded((prev) => !prev)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               <ChevronDownIcon
                 className={`h-4 w-4 transition-transform duration-200 ${
@@ -88,7 +88,7 @@ const SidebarLayout = ({
             type="button"
             onClick={() => onOpenChange(!open)}
             aria-label={open ? "Hide sidebar" : "Show sidebar"}
-            className="absolute top-1 -right-3.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            className="absolute top-1 -right-3.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
           >
             <motion.span
               animate={{ rotate: open ? 0 : 180 }}

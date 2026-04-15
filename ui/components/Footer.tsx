@@ -164,7 +164,7 @@ const Footer = () => {
         </div>
 
         {/* ── Newsletter ── */}
-        <div className="mb-10 rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] sm:p-6 dark:border-slate-700/60 dark:bg-slate-800/50">
+        <div className="mb-10 rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] sm:p-6 dark:border-slate-700/60 dark:bg-slate-800">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">

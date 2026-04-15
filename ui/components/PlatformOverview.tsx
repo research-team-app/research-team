@@ -70,7 +70,7 @@ const PlatformOverview = () => {
               className="group"
             >
               <div
-                className={`relative h-full overflow-hidden rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-900 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${step.accent}`}
+                className={`relative h-full overflow-hidden rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${step.accent}`}
               >
                 <div className="mb-4 flex items-center justify-between">
                   <span className={step.iconColor}>{step.icon}</span>
@@ -116,7 +116,7 @@ const PlatformOverview = () => {
           ].map((cap, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-3 rounded-xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.04)] dark:border-slate-700/60 dark:bg-slate-900 dark:shadow-[0_1px_6px_rgba(0,0,0,0.2)]"
+              className="flex items-start gap-3 rounded-xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.04)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_6px_rgba(0,0,0,0.2)]"
             >
               <div>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
