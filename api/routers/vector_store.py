@@ -33,10 +33,10 @@ async def get_embedding(embeddingModel: EmbeddingModel):
     """Pass list of text and get embedding back"""
     try:
         embeddings = vector_utility.get_embeddings(embeddingModel.text)
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Embedding generation failed: {str(e)}",
+            detail="Embedding generation failed.",
         )
     return {"embeddings": embeddings}
 
@@ -48,10 +48,10 @@ async def get_all_vectors(model: BaseVectorModel):
         vectors = vector_utility.get_all_vectors(
             vector_bucket=model.vector_bucket, vector_index=model.index_name
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Getting all vectors failed: {str(e)}",
+            detail="Getting all vectors failed.",
         )
     return vectors
 
@@ -65,10 +65,10 @@ async def get_vectors(model: VectorModel):
             vector_index=model.index_name,
             keys=model.keys,
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Getting vectors failed: {str(e)}",
+            detail="Getting vectors failed.",
         )
     return vectors
 
@@ -82,10 +82,10 @@ async def delete_vectors(model: VectorModel):
             vector_index=model.index_name,
             keys=model.keys,
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Deleting vectors failed: {str(e)}",
+            detail="Deleting vectors failed.",
         )
     return response
 
@@ -99,9 +99,9 @@ def put_vectors(model: PutVectorModal):
             vector_index=model.index_name,
             data=model.data,
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Vector Put failed: {str(e)}",
+            detail="Vector Put failed.",
         )
     return response

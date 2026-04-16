@@ -8,15 +8,9 @@ import {
 } from "react";
 import clsx from "clsx";
 import { FaSpinner } from "react-icons/fa";
+import type { Intent as SharedIntent } from "./types";
 
-export type Intent =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "danger"
-  | "info";
+export type Intent = SharedIntent;
 
 export type Variant = "solid" | "outline" | "link";
 export type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -48,12 +42,12 @@ const solidStyles: Record<Intent, string> = {
   secondary:
     "bg-secondary-600 text-white border border-transparent shadow-sm hover:bg-secondary-700 active:bg-secondary-800 dark:hover:bg-secondary-500",
   success:
-    "bg-emerald-600 text-white border border-transparent shadow-sm hover:bg-emerald-700 active:bg-emerald-800 dark:hover:bg-emerald-500",
+    "bg-success-600 text-white border border-transparent shadow-sm hover:bg-success-700 active:bg-success-800 dark:hover:bg-success-500",
   warning:
-    "bg-amber-500 text-white border border-transparent shadow-sm hover:bg-amber-600 active:bg-amber-700 dark:hover:bg-amber-400",
+    "bg-warning-500 text-white border border-transparent shadow-sm hover:bg-warning-600 active:bg-warning-700 dark:hover:bg-warning-400",
   danger:
-    "bg-red-600 text-white border border-transparent shadow-sm hover:bg-red-700 active:bg-red-800 dark:hover:bg-red-500",
-  info: "bg-sky-500 text-white border border-transparent shadow-sm hover:bg-sky-600 active:bg-sky-700 dark:hover:bg-sky-400",
+    "bg-danger-600 text-white border border-transparent shadow-sm hover:bg-danger-700 active:bg-danger-800 dark:hover:bg-danger-500",
+  info: "bg-info-500 text-white border border-transparent shadow-sm hover:bg-info-600 active:bg-info-700 dark:hover:bg-info-400",
 };
 
 // OUTLINE STYLES
@@ -71,21 +65,21 @@ const outlineStyles: Record<Intent, string> = {
     "hover:bg-secondary-600 hover:text-white hover:border-secondary-600 active:bg-secondary-700 active:border-secondary-700 " +
     "dark:text-secondary-400 dark:border-secondary-500 dark:hover:bg-secondary-600 dark:hover:text-white dark:active:bg-secondary-700",
   success:
-    "bg-transparent text-emerald-600 border border-emerald-500 " +
-    "hover:bg-emerald-600 hover:text-white hover:border-emerald-600 active:bg-emerald-700 " +
-    "dark:text-emerald-400 dark:border-emerald-500 dark:hover:bg-emerald-600 dark:hover:text-white dark:active:bg-emerald-700",
+    "bg-transparent text-success-600 border border-success-500 " +
+    "hover:bg-success-600 hover:text-white hover:border-success-600 active:bg-success-700 " +
+    "dark:text-success-400 dark:border-success-500 dark:hover:bg-success-600 dark:hover:text-white dark:active:bg-success-700",
   warning:
-    "bg-transparent text-amber-600 border border-amber-500 " +
-    "hover:bg-amber-600 hover:text-white hover:border-amber-600 active:bg-amber-700 " +
-    "dark:text-amber-400 dark:border-amber-500 dark:hover:bg-amber-600 dark:hover:text-white dark:active:bg-amber-700",
+    "bg-transparent text-warning-600 border border-warning-500 " +
+    "hover:bg-warning-600 hover:text-white hover:border-warning-600 active:bg-warning-700 " +
+    "dark:text-warning-400 dark:border-warning-500 dark:hover:bg-warning-600 dark:hover:text-white dark:active:bg-warning-700",
   danger:
-    "bg-transparent text-red-600 border border-red-200 " +
-    "hover:bg-red-50 hover:border-red-300 hover:text-red-700 active:bg-red-100 active:border-red-400 " +
-    "dark:text-red-400 dark:border-red-400 dark:hover:bg-red-950/40 dark:hover:border-red-700/60 dark:hover:text-red-300 dark:active:bg-red-950/60",
+    "bg-transparent text-danger-600 border border-danger-200 " +
+    "hover:bg-danger-50 hover:border-danger-300 hover:text-danger-700 active:bg-danger-100 active:border-danger-400 " +
+    "dark:text-danger-400 dark:border-danger-400 dark:hover:bg-danger-950/40 dark:hover:border-danger-700/60 dark:hover:text-danger-300 dark:active:bg-danger-950/60",
   info:
-    "bg-transparent text-sky-600 border border-sky-500 " +
-    "hover:bg-sky-600 hover:text-white hover:border-sky-600 active:bg-sky-700 " +
-    "dark:text-sky-400 dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:text-white dark:active:bg-sky-700",
+    "bg-transparent text-info-600 border border-info-500 " +
+    "hover:bg-info-600 hover:text-white hover:border-info-600 active:bg-info-700 " +
+    "dark:text-info-400 dark:border-info-500 dark:hover:bg-info-600 dark:hover:text-white dark:active:bg-info-700",
 };
 
 // 3. LINK STYLES
@@ -97,12 +91,12 @@ const linkStyles: Record<Intent, string> = {
   secondary:
     "text-secondary-600 hover:text-secondary-700 hover:underline dark:text-secondary-400 dark:hover:text-secondary-300",
   success:
-    "text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300",
+    "text-success-600 hover:text-success-700 hover:underline dark:text-success-400 dark:hover:text-success-300",
   warning:
-    "text-amber-600 hover:text-amber-700 hover:underline dark:text-amber-400 dark:hover:text-amber-300",
+    "text-warning-600 hover:text-warning-700 hover:underline dark:text-warning-400 dark:hover:text-warning-300",
   danger:
-    "text-red-600 hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300",
-  info: "text-sky-600 hover:text-sky-700 hover:underline dark:text-sky-400 dark:hover:text-sky-300",
+    "text-danger-600 hover:text-danger-700 hover:underline dark:text-danger-400 dark:hover:text-danger-300",
+  info: "text-info-600 hover:text-info-700 hover:underline dark:text-info-400 dark:hover:text-info-300",
 };
 
 const variantStyles = {

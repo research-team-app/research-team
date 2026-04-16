@@ -16,6 +16,17 @@ DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "postgres")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 USE_LOCAL_DATABASE = os.getenv("USE_LOCAL_DATABASE", "false").lower() == "true"
 
+
+def _load_db_pool_max_size() -> int:
+    raw = os.getenv("DB_POOL_MAX_SIZE", "2")
+    try:
+        return max(1, int(raw))
+    except (TypeError, ValueError):
+        return 2
+
+
+DB_POOL_MAX_SIZE = _load_db_pool_max_size()
+
 pool: asyncpg.Pool | None = None
 
 # Only initialise the DSQL client when connecting to AWS (not needed for local dev).
@@ -72,7 +83,7 @@ async def create_db_pool_with_retry(
                     port=5432,
                     ssl="require",
                     min_size=0,
-                    max_size=1,
+                    max_size=DB_POOL_MAX_SIZE,
                     connection_class=DSQLConnection,
                     init=_init_connection_disable_jit,
                 )
@@ -84,7 +95,7 @@ async def create_db_pool_with_retry(
                     database="postgres",
                     port=5432,
                     min_size=0,
-                    max_size=1,
+                    max_size=DB_POOL_MAX_SIZE,
                     statement_cache_size=0,
                 )
         except Exception as e:

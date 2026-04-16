@@ -1,6 +1,6 @@
 "use client";
 
-import Accordion from "@/components/ui/Accordian";
+import Accordion from "@/components/ui/Accordion";
 import Button from "@/components/ui/Button";
 import SectionHeader from "@/components/SectionHeader";
 

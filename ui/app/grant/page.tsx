@@ -69,9 +69,17 @@ const GrantDetail = () => {
   }, [user?.id, fetchWishlistIds]);
 
   useEffect(() => {
+    if (!id) {
+      setError("Missing grant id in URL");
+      setLoading(false);
+      setGrant(null);
+      return;
+    }
+
     const fetchGrantDetails = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await fetch(`${API_URL}/grants/${id}`);
         if (response.ok) {
           const data = await response.json();
@@ -86,7 +94,7 @@ const GrantDetail = () => {
         setLoading(false);
       }
     };
-    if (id) fetchGrantDetails();
+    fetchGrantDetails();
   }, [id]);
 
   const formatDate = (dateString?: string) => {

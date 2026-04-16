@@ -11,10 +11,10 @@ import ProfileCard from "@/components/ProfileCard";
 import { type FilterOptions } from "@/data/profile";
 import PageHeader from "@/components/PageHeader";
 import InputField from "@/components/ui/InputField";
-import ViewModeTabs from "@/components/ui/ViewModeTabs";
-import { AcademicStatusPicker } from "@/components/ui/AcademicStatusPicker";
+import ViewModeTabs from "@/components/ViewModeTabs";
+import { AcademicStatusPicker } from "@/components/AcademicStatusPicker";
 import { Slider } from "@/components/ui/Slider";
-import SidebarLayout from "@/components/ui/SidebarLayout";
+import SidebarLayout from "@/components/SidebarLayout";
 import Loading from "../loading";
 import Error from "@/app/error";
 import Button from "@/components/ui/Button";
@@ -431,7 +431,7 @@ const Collaborators: FC = () => {
           <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
 
           {/* Tab strip */}
-          <div className="px-5 pt-4 pb-2 sm:px-6">
+          <div className="px-5 pt-4 pb-3 sm:px-6">
             <ViewModeTabs
               tabs={tabConfig}
               activeId={viewMode}
@@ -441,67 +441,74 @@ const Collaborators: FC = () => {
           </div>
 
           {/* Search */}
-          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
-            {viewMode === "ai" ? (
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-                  <InputField
-                    className="flex-1"
-                    type="text"
-                    startIcon={<HiSparkles className="size-5" />}
-                    placeholder="Describe the expertise you need (e.g., machine learning for genomics, climate science mentorship..."
-                    value={aiQuery}
-                    onChange={(e) => setAiQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
-                  />
-                  <Button
-                    intent="primary"
-                    onClick={handleAiSearch}
-                    disabled={isAiLoading}
-                    className="shrink-0"
-                    startIcon={<HiSearch className="size-5" />}
-                  >
-                    {isAiLoading ? "Searching..." : "Search"}
-                  </Button>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="space-y-0.5">
-                    <p className="text-xs">
-                      AI Search semantically matches your query against all
-                      collaborator profiles.
-                    </p>
-                    <div className="mt-4 flex items-center gap-3">
-                      <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
-                        Results
-                      </span>
-                      <Slider
-                        min={1}
-                        max={100}
-                        step={1}
-                        value={[resultLimit]}
-                        onValueChange={([val]: number[]) => setResultLimit(val)}
-                        showValue
-                        aria-label="Number of results"
-                      />
+          <div className="border-t border-slate-100 px-5 py-4 sm:px-6 dark:border-slate-700">
+            <p className="mb-2 text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+              {viewMode === "ai" ? "AI Search" : "Keyword Search"}
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {viewMode === "ai" ? (
+                <div className="flex flex-1 flex-col gap-2">
+                  <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+                    <InputField
+                      className="flex-1"
+                      type="text"
+                      startIcon={<HiSparkles className="size-5" />}
+                      placeholder="Describe the expertise you need (e.g., machine learning for genomics, climate science mentorship..."
+                      value={aiQuery}
+                      onChange={(e) => setAiQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
+                    />
+                    <Button
+                      intent="primary"
+                      onClick={handleAiSearch}
+                      disabled={isAiLoading}
+                      className="shrink-0"
+                      startIcon={<HiSearch className="size-5" />}
+                    >
+                      {isAiLoading ? "Searching..." : "Search"}
+                    </Button>
+                  </div>
+                  <div className="mt-1 border-t border-slate-200 pt-2 text-xs text-slate-600 dark:border-slate-700 dark:text-slate-300">
+                    <div className="space-y-2">
+                      <p className="text-xs leading-relaxed">
+                        AI Search semantically matches your query against all
+                        collaborator profiles.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <span className="shrink-0 text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                          Results
+                        </span>
+                        <Slider
+                          min={1}
+                          max={100}
+                          step={1}
+                          value={[resultLimit]}
+                          onValueChange={([val]: number[]) =>
+                            setResultLimit(val)
+                          }
+                          showValue
+                          aria-label="Number of results"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <InputField
-                className="flex-1"
-                type="text"
-                startIcon={<HiSearch className="size-5 text-slate-400" />}
-                placeholder="Search by name, institution, department, or research interests..."
-                value={filters.searchQuery}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    searchQuery: e.target.value,
-                  }))
-                }
-              />
-            )}
+              ) : (
+                <InputField
+                  className="flex-1"
+                  type="text"
+                  startIcon={<HiSearch className="size-5 text-slate-400" />}
+                  placeholder="Search by name, institution, department, or research interests..."
+                  value={filters.searchQuery}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      searchQuery: e.target.value,
+                    }))
+                  }
+                />
+              )}
+            </div>
           </div>
         </div>
 

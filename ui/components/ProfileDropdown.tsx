@@ -34,6 +34,22 @@ import Button from "@/components/ui/Button";
 import Avatar from "@/components/Avatar";
 import { useGroups } from "@/store/useGroupStore";
 
+type MenuIntent = "secondary" | "danger";
+
+const menuBaseItemClass =
+  "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm outline-none transition-colors";
+
+const menuIntentClasses: Record<MenuIntent, string> = {
+  secondary:
+    "text-slate-700 hover:bg-slate-100 focus:bg-slate-100 data-highlighted:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-700/80 dark:focus:bg-slate-700/80 dark:data-highlighted:bg-slate-700/80",
+  danger:
+    "text-red-600 hover:bg-red-50 focus:bg-red-50 data-highlighted:bg-red-50 dark:text-red-300 dark:hover:bg-red-900/35 dark:focus:bg-red-900/35 dark:data-highlighted:bg-red-900/35",
+};
+
+function menuItemClass(intent: MenuIntent = "secondary") {
+  return clsx(menuBaseItemClass, menuIntentClasses[intent]);
+}
+
 export default function ProfileDropdown() {
   const { signOut, user } = useAuthStore();
   const { wishlistIds, fetchWishlistIds } = useWishlistStore();
@@ -204,22 +220,20 @@ export default function ProfileDropdown() {
             sideOffset={10}
             className={clsx(
               "z-50 w-[min(100vw-2rem,20rem)] overflow-hidden rounded-xl shadow-xl",
-              "border border-slate-200/90 bg-white",
-              "dark:border-slate-700 dark:bg-slate-900",
+              "border border-slate-200/90 bg-white dark:border-slate-700 dark:bg-slate-800",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200"
             )}
           >
             <div
               className={clsx(
-                "border-b border-slate-100 bg-linear-to-b from-slate-50/80 to-white px-4 py-3",
-                "dark:border-slate-800 dark:from-slate-800/50 dark:to-slate-900"
+                "border-b border-slate-100 bg-linear-to-b from-slate-50/80 to-white px-4 py-3 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800/95"
               )}
             >
-              <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+              <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                 {displayName}
               </p>
               {email ? (
-                <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-300">
                   {email}
                 </p>
               ) : null}
@@ -229,19 +243,14 @@ export default function ProfileDropdown() {
               <DropdownMenu.Item asChild>
                 <Link
                   href="/saved-grants/"
-                  className={clsx(
-                    "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm",
-                    "text-slate-800 outline-none",
-                    "hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
-                    "focus:bg-slate-100 dark:focus:bg-slate-800"
-                  )}
+                  className={menuItemClass("secondary")}
                   onClick={() => setOpen(false)}
                 >
                   <span className="flex items-center gap-2">
                     <BookmarkIcon className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400/90" />
                     Saved grants
                     {wishlistIds.length > 0 && (
-                      <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                      <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                         {wishlistIds.length}
                       </span>
                     )}
@@ -250,30 +259,25 @@ export default function ProfileDropdown() {
                 </Link>
               </DropdownMenu.Item>
               {wishlistIds.length === 0 && (
-                <p className="px-3 pb-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="px-3 pb-1 text-xs text-slate-500 dark:text-slate-300">
                   Save grants from any card to see them here.
                 </p>
               )}
             </div>
 
-            <DropdownMenu.Separator className="h-px bg-slate-100 dark:bg-slate-800" />
+            <DropdownMenu.Separator className="h-px bg-slate-100 dark:bg-slate-700" />
 
             <div className="px-2 py-2">
               <DropdownMenu.Item asChild>
                 <Link
                   href="/teams/"
-                  className={clsx(
-                    "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm",
-                    "text-slate-800 outline-none",
-                    "hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
-                    "focus:bg-slate-100 dark:focus:bg-slate-800"
-                  )}
+                  className={menuItemClass("secondary")}
                   onClick={() => setOpen(false)}
                 >
                   <span className="flex items-center gap-2">
                     <UserGroupIcon className="text-primary-500 dark:text-primary-400 h-4 w-4 shrink-0" />
                     Teams
-                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                       {myGroups.filter((g) => g.status === "active").length}
                     </span>
                   </span>
@@ -290,7 +294,7 @@ export default function ProfileDropdown() {
                       <Link
                         key={group.id}
                         href="/teams/"
-                        className="block truncate text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                        className="block truncate text-xs text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
                         onClick={() => setOpen(false)}
                       >
                         • {group.name}
@@ -298,13 +302,13 @@ export default function ProfileDropdown() {
                     ))}
                 </div>
               ) : (
-                <p className="px-3 pb-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="px-3 pb-1 text-xs text-slate-500 dark:text-slate-300">
                   Join or create a team to collaborate faster.
                 </p>
               )}
             </div>
 
-            <DropdownMenu.Separator className="h-px bg-slate-100 dark:bg-slate-800" />
+            <DropdownMenu.Separator className="h-px bg-slate-100 dark:bg-slate-700" />
 
             <div className="p-1.5">
               <DropdownMenu.Item asChild>
@@ -315,10 +319,8 @@ export default function ProfileDropdown() {
                     window.dispatchEvent(new CustomEvent("open-chat-dock"));
                   }}
                   className={clsx(
-                    "flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm",
-                    "text-slate-800 outline-none",
-                    "hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
-                    "data-highlighted:bg-slate-100 dark:data-highlighted:bg-slate-800"
+                    "w-full cursor-pointer",
+                    menuItemClass("secondary")
                   )}
                 >
                   <span className="flex items-center gap-3">
@@ -341,16 +343,14 @@ export default function ProfileDropdown() {
                       ? `/profile/?id=${encodeURIComponent(user.id)}`
                       : "/profile/"
                   }
-                  className={clsx(
-                    "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
-                    "text-slate-800 outline-none",
-                    "hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
-                    "data-highlighted:bg-slate-100 dark:data-highlighted:bg-slate-800"
-                  )}
+                  className={clsx(menuItemClass("secondary"), "cursor-pointer")}
                   onClick={() => setOpen(false)}
                 >
-                  <UserCircleIcon className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-                  <span>Your profile</span>
+                  <span className="flex items-center gap-3">
+                    <UserCircleIcon className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                    <span>Your profile</span>
+                  </span>
+                  <ChevronRightIcon className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                 </Link>
               </DropdownMenu.Item>
 
@@ -360,15 +360,13 @@ export default function ProfileDropdown() {
                   setOpen(false);
                   setSettingsOpen(true);
                 }}
-                className={clsx(
-                  "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
-                  "text-slate-800 outline-none",
-                  "hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
-                  "data-highlighted:bg-slate-100 dark:data-highlighted:bg-slate-800"
-                )}
+                className={clsx(menuItemClass("secondary"), "cursor-pointer")}
               >
-                <Cog6ToothIcon className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-                <span>Account settings</span>
+                <span className="flex items-center gap-3">
+                  <Cog6ToothIcon className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                  <span>Account settings</span>
+                </span>
+                <ChevronRightIcon className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               </DropdownMenu.Item>
 
               <DropdownMenu.Item
@@ -377,15 +375,13 @@ export default function ProfileDropdown() {
                   await signOut();
                   window.location.href = "/";
                 }}
-                className={clsx(
-                  "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
-                  "text-red-600 outline-none",
-                  "hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30",
-                  "data-highlighted:bg-red-50 dark:data-highlighted:bg-red-950/30"
-                )}
+                className={clsx(menuItemClass("danger"), "cursor-pointer")}
               >
-                <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
-                <span>Sign out</span>
+                <span className="flex items-center gap-3">
+                  <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
+                  <span>Sign out</span>
+                </span>
+                <ChevronRightIcon className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               </DropdownMenu.Item>
             </div>
           </DropdownMenu.Content>
@@ -394,7 +390,7 @@ export default function ProfileDropdown() {
 
       {/* Account settings dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto border-slate-200 bg-white sm:max-w-md dark:border-slate-700 dark:bg-slate-900">
+        <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto border-slate-200 bg-white sm:max-w-md dark:border-slate-700 dark:bg-slate-800">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-white">
               Account settings
@@ -514,7 +510,7 @@ export default function ProfileDropdown() {
 
       {/* Delete confirmation */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="max-w-sm border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+        <DialogContent className="max-w-sm border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-white">
               Delete profile?

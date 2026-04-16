@@ -21,6 +21,7 @@ export default function AttachmentPickerButton({
   className = "",
 }: AttachmentPickerButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const maxSizeMb = Math.max(1, Math.round(maxSizeBytes / (1024 * 1024)));
 
   return (
     <>
@@ -33,7 +34,7 @@ export default function AttachmentPickerButton({
           const selected = e.target.files?.[0] ?? null;
           if (!selected) return;
           if (selected.size > maxSizeBytes) {
-            onError?.("Attachment must be 25MB or smaller.");
+            onError?.(`Attachment must be ${maxSizeMb}MB or smaller.`);
             e.currentTarget.value = "";
             return;
           }

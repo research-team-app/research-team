@@ -35,7 +35,7 @@ async def get_wishlist_ids(id: UUID, _: str = Depends(require_self_id)):
         return {"user_id": str(id), "wishlist_grant_ids": wishlist_ids}
     except Exception as e:
         logger.exception("GET wishlist failed: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Unexpected server error.")
 
 
 # 2. ADD Item (Idempotent, owner only)
@@ -59,7 +59,7 @@ async def add_to_wishlist(
         return {"status": "added", "grant_id": req.grant_id}
     except Exception as e:
         logger.exception("POST wishlist failed: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Unexpected server error.")
 
 
 # 3. REMOVE Item (Idempotent, owner only)
@@ -82,7 +82,7 @@ async def remove_from_wishlist(
         return {"status": "removed", "grant_id": req.grant_id}
     except Exception as e:
         logger.exception("DELETE wishlist failed: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Unexpected server error.")
 
 
 @router.post("/wishlist-grants/{id}")
@@ -102,4 +102,4 @@ async def get_wishlist_details(id: UUID, _: str = Depends(require_self_id)):
         return [dict(row) for row in rows]
     except Exception as e:
         logger.exception("POST wishlist-grants failed: %s", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Unexpected server error.")

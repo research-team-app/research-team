@@ -5,31 +5,14 @@ import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface SidebarLayoutProps {
-  /** Content rendered inside the sidebar panel */
   sidebar: ReactNode;
-  /** Label shown in the mobile accordion header */
   sidebarTitle?: string;
-  /** Main page content */
   children: ReactNode;
-  /** Controlled open state */
   open: boolean;
-  /** Called when the toggle button is clicked */
   onOpenChange: (open: boolean) => void;
-  /** Sidebar width in px on desktop. Default: 280 */
   sidebarWidth?: number;
 }
 
-/**
- * Generic responsive sidebar layout.
- *
- * Desktop: animated sliding sidebar with a circular chevron toggle at its edge.
- * Mobile:  collapsible accordion above the main content.
- *
- * Usage:
- *   <SidebarLayout sidebar={<Filters />} sidebarTitle="Filters" open={open} onOpenChange={setOpen}>
- *     <MainContent />
- *   </SidebarLayout>
- */
 const SidebarLayout = ({
   sidebar,
   sidebarTitle = "Filters",
@@ -42,7 +25,7 @@ const SidebarLayout = ({
 
   return (
     <>
-      {/* ── Mobile: collapsible accordion (hidden on lg+) ──────────── */}
+      {/* Mobile: collapsible accordion (hidden on large screen) */}
       <div className="mb-4 lg:hidden">
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="mb-2 flex items-center justify-between">
@@ -66,7 +49,7 @@ const SidebarLayout = ({
         </div>
       </div>
 
-      {/* ── Desktop: flex layout with animated sidebar ─────────────── */}
+      {/* Desktop: flex layout with animated sidebar */}
       <div className="flex items-start">
         {/* Sidebar panel */}
         <div className="relative hidden shrink-0 lg:block">

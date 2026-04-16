@@ -45,7 +45,7 @@ const variantConfig = {
     icon: UsersIcon,
     defaultTitle: "Collaborators",
     defaultSubtitle:
-      "Connect with researchers and institutions for your next project",
+      "Find researchers, institutions, and expertise for your next project",
   },
   feed: {
     icon: ChatBubbleLeftRightIcon,
@@ -73,6 +73,8 @@ const PageHeader = ({
   const Icon = config.icon;
   const displayTitle = title || config.defaultTitle;
   const displaySubtitle = subtitle || config.defaultSubtitle;
+  const showCollaboratorMeta =
+    variant === "collaborators" && !title && !subtitle;
 
   return (
     <div className="relative mb-5">
@@ -81,9 +83,9 @@ const PageHeader = ({
         {/* Navy accent bar */}
         <div className="h-1 bg-linear-to-r from-slate-800 via-slate-700 to-slate-600 dark:from-slate-600 dark:via-slate-500 dark:to-slate-700" />
 
-        {/* Subtle dot grid — academic texture */}
+        {/* Subtle dot grid  */}
         <div
-          className="pointer-events-none absolute inset-0 top-1 opacity-[0.005] dark:opacity-[0.04]"
+          className="pointer-events-none absolute inset-0 top-1 opacity-[0.06] dark:opacity-[0.06]"
           style={{
             backgroundImage:
               "radial-gradient(circle, currentColor 1px, transparent 1px)",
@@ -124,7 +126,7 @@ const PageHeader = ({
             {/* Left — icon + text */}
             <div className="flex items-center gap-4">
               {/* Icon — navy in light, slate in dark */}
-              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-800 shadow-sm sm:flex dark:bg-slate-200">
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-700 shadow-sm sm:flex dark:bg-slate-200">
                 <Icon className="h-5 w-5 text-white dark:text-gray-900" />
               </div>
 
@@ -135,6 +137,23 @@ const PageHeader = ({
                 <p className="mt-0.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                   {displaySubtitle}
                 </p>
+
+                {showCollaboratorMeta && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {[
+                      "Research directory",
+                      "Institution profiles",
+                      "AI matching",
+                    ].map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {user && (
                   <div className="mt-2.5 flex items-center gap-1.5">

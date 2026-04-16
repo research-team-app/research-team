@@ -1,6 +1,7 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
 from starlette.middleware.cors import CORSMiddleware
 
 from db import lifespan
@@ -66,6 +67,28 @@ fastapi_app.include_router(messages_router, tags=["messages"])
 fastapi_app.include_router(groups_router, tags=["groups"])
 fastapi_app.include_router(follows_router, tags=["follows"])
 fastapi_app.include_router(admin_router, tags=["admin"])
+
+
+@fastapi_app.exception_handler(HTTPException)
+async def log_http_exceptions(request: Request, exc: HTTPException):
+    # Keep client-facing messages generic while still logging the original exception chain.
+    if exc.status_code >= 500:
+        logger.error(
+            "HTTP %s at %s: %s",
+            exc.status_code,
+            request.url.path,
+            exc.detail,
+            exc_info=(type(exc), exc, exc.__traceback__),
+        )
+        cause = exc.__cause__ or exc.__context__
+        if cause is not None:
+            logger.error(
+                "Root cause for HTTP %s at %s",
+                exc.status_code,
+                request.url.path,
+                exc_info=(type(cause), cause, cause.__traceback__),
+            )
+    return await http_exception_handler(request, exc)
 
 
 @fastapi_app.get("/health")

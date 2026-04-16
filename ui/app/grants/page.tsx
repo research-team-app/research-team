@@ -15,7 +15,7 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Slider } from "@/components/ui/Slider";
-import SidebarLayout from "@/components/ui/SidebarLayout";
+import SidebarLayout from "@/components/SidebarLayout";
 import axios from "axios";
 
 // Store & Utils
@@ -34,7 +34,7 @@ import GrantSummaryCard, { Grant } from "@/components/GrantSummaryCard";
 import PageHeader from "@/components/PageHeader";
 import InputField from "@/components/ui/InputField";
 import Button from "@/components/ui/Button";
-import ViewModeTabs from "@/components/ui/ViewModeTabs";
+import ViewModeTabs from "@/components/ViewModeTabs";
 import { ComboboxFilter } from "@/components/ui/Combobox";
 import Pagination from "@/components/Pagination";
 import Error from "@/app/error";
@@ -652,7 +652,7 @@ const GrantsExplorer = () => {
           <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
 
           {/* Tab strip */}
-          <div className="px-5 pt-4 pb-2 sm:px-6">
+          <div className="px-5 pt-4 pb-3 sm:px-6">
             <ViewModeTabs
               tabs={tabConfig}
               activeId={viewMode}
@@ -662,77 +662,88 @@ const GrantsExplorer = () => {
           </div>
 
           {/* Search */}
-          <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-700">
-            <div className="flex flex-1 flex-col gap-2">
-              {viewMode === "ai" ? (
-                <>
-                  <div className="flex gap-2">
-                    <InputField
-                      className="flex-1"
-                      startIcon={<SparklesIcon className="h-5 w-5" />}
-                      placeholder="Describe the grants you're searching in plain language (e.g., identifying early-stage cancer biomarkers)..."
-                      value={aiQuery}
-                      onChange={(e) => {
-                        setAiQuery(e.target.value);
-                        if (aiSearchError) setAiSearchError(null);
-                      }}
-                      onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
-                    />
-                    <Button
-                      intent="primary"
-                      onClick={handleAiSearch}
-                      disabled={isAiLoading}
-                      className="shrink-0"
-                      startIcon={<MagnifyingGlassIcon className="size-5" />}
-                    >
-                      {isAiLoading ? "Analyzing..." : "Search"}
-                    </Button>
-                  </div>
-                  {aiSearchError && (
-                    <p
-                      className="text-sm text-red-600 dark:text-red-400"
-                      role="alert"
-                    >
-                      {aiSearchError}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <InputField
-                  startIcon={
-                    <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-                  }
-                  placeholder="Search by title, agency name, grant number, or keyword..."
-                  value={filters.searchTerm}
-                  onChange={(e) => updateFilter("searchTerm", e.target.value)}
-                />
-              )}
-
-              {(viewMode === "ai" || viewMode === "recommended") && (
-                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="space-y-0.5">
-                    <p className="text-xs">
-                      {viewMode === "ai"
-                        ? "AI Search matches your natural-language query to the grants catalog."
-                        : "Suggested Grants uses your profile to rank likely matching opportunities."}
-                    </p>
-                    <div className="mt-4 flex items-center gap-3">
-                      <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
-                        Results
-                      </span>
-                      <Slider
-                        min={1}
-                        max={100}
-                        step={1}
-                        value={[resultLimit]}
-                        onValueChange={([val]: number[]) => setResultLimit(val)}
-                        showValue
-                        aria-label="Number of results"
+          <div className="border-t border-slate-100 px-5 py-4 sm:px-6 dark:border-slate-700">
+            <p className="mb-2 text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+              {viewMode === "ai"
+                ? "AI Search"
+                : viewMode === "recommended"
+                  ? "Suggested Grants"
+                  : "Keyword Search"}
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-1 flex-col gap-2">
+                {viewMode === "ai" ? (
+                  <>
+                    <div className="flex gap-2">
+                      <InputField
+                        className="flex-1"
+                        startIcon={<SparklesIcon className="h-5 w-5" />}
+                        placeholder="Describe the grants you're searching in plain language (e.g., identifying early-stage cancer biomarkers)..."
+                        value={aiQuery}
+                        onChange={(e) => {
+                          setAiQuery(e.target.value);
+                          if (aiSearchError) setAiSearchError(null);
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
                       />
+                      <Button
+                        intent="primary"
+                        onClick={handleAiSearch}
+                        disabled={isAiLoading}
+                        className="shrink-0"
+                        startIcon={<MagnifyingGlassIcon className="size-5" />}
+                      >
+                        {isAiLoading ? "Analyzing..." : "Search"}
+                      </Button>
+                    </div>
+                    {aiSearchError && (
+                      <p
+                        className="text-sm text-red-600 dark:text-red-400"
+                        role="alert"
+                      >
+                        {aiSearchError}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <InputField
+                    startIcon={
+                      <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
+                    }
+                    placeholder="Search by title, agency name, grant number, or keyword..."
+                    value={filters.searchTerm}
+                    onChange={(e) => updateFilter("searchTerm", e.target.value)}
+                  />
+                )}
+
+                {(viewMode === "ai" || viewMode === "recommended") && (
+                  <div className="mt-1 border-t border-slate-200 pt-2 text-xs text-slate-600 dark:border-slate-700 dark:text-slate-300">
+                    <div className="space-y-2">
+                      <p className="text-xs leading-relaxed">
+                        {viewMode === "ai"
+                          ? "AI Search matches your natural-language query to the grants catalog."
+                          : "Suggested Grants uses your profile to rank likely matching opportunities."}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <span className="shrink-0 text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                          Results
+                        </span>
+                        <Slider
+                          min={1}
+                          max={100}
+                          step={1}
+                          value={[resultLimit]}
+                          onValueChange={([val]: number[]) =>
+                            setResultLimit(val)
+                          }
+                          showValue
+                          aria-label="Number of results"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

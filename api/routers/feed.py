@@ -192,9 +192,7 @@ async def list_post_likes(post_id: str, limit: int = Query(200, ge=1, le=1000)):
     except Exception as e:
         if is_missing_relation_error(e, "feed_likes"):
             return {"post_id": post_id, "items": [], "total": 0}
-        raise HTTPException(
-            status_code=500, detail=f"Post likes query failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Post likes query failed.")
 
     items = []
     for r in rows:
@@ -462,7 +460,7 @@ async def create_feed_post(
                 status_code=503,
                 detail="Feed schema is not initialized yet",
             ) from e
-        raise HTTPException(status_code=500, detail=f"Create post failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Create post failed.")
 
     user = await db.pool.fetchrow(
         """
@@ -677,7 +675,7 @@ async def list_feed_comments(
     except Exception as e:
         if is_missing_relation_error(e, "feed_comments"):
             return {"items": [], "total": 0}
-        raise HTTPException(status_code=500, detail=f"Comments query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Comments query failed.")
 
     items = []
     for r in rows:
@@ -821,7 +819,7 @@ async def list_user_likes(user_id: str, auth: dict = Depends(get_verified_user))
     except Exception as e:
         if is_missing_relation_error(e, "feed_likes"):
             return {"user_id": user_id, "post_ids": []}
-        raise HTTPException(status_code=500, detail=f"Likes query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Likes query failed.")
     return {"user_id": user_id, "post_ids": [r["post_id"] for r in rows]}
 
 
@@ -842,7 +840,7 @@ async def list_user_dislikes(user_id: str, auth: dict = Depends(get_verified_use
     except Exception as e:
         if is_missing_relation_error(e, "feed_dislikes"):
             return {"user_id": user_id, "post_ids": []}
-        raise HTTPException(status_code=500, detail=f"Dislikes query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Dislikes query failed.")
     return {"user_id": user_id, "post_ids": [r["post_id"] for r in rows]}
 
 
@@ -908,7 +906,7 @@ async def remove_like(
                 status_code=503,
                 detail="Feed likes table is not initialized yet",
             )
-        raise HTTPException(status_code=500, detail=f"Remove like failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Remove like failed.")
     return {"status": "unliked", "post_id": req.post_id}
 
 
@@ -975,7 +973,7 @@ async def remove_dislike(
                 status_code=503,
                 detail="Feed dislikes table is not initialized yet",
             )
-        raise HTTPException(status_code=500, detail=f"Remove dislike failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Remove dislike failed.")
     return {"status": "undisliked", "post_id": req.post_id}
 
 
@@ -1015,6 +1013,6 @@ async def report_feed_post(
             reporter_id,
             e,
         )
-        raise HTTPException(status_code=500, detail=f"Report failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Report failed.")
 
     return {"status": "reported", "post_id": post_id}

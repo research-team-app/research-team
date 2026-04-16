@@ -27,8 +27,8 @@ async def follow_user(
             follower_id,
             target_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to follow user: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to follow user.")
     return {"message": "Followed successfully"}
 
 
@@ -48,10 +48,8 @@ async def unfollow_user(
             follower_id,
             target_id,
         )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to unfollow user: {str(e)}"
-        )
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to unfollow user.")
     return {"message": "Unfollowed successfully"}
 
 
@@ -128,9 +126,7 @@ async def get_followers(user_id: str = Path(...)):
         # If table doesn't exist, return empty list
         if "user_follows" in str(e).lower() and "does not exist" in str(e).lower():
             return {"followers": []}
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get followers: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Failed to get followers.")
 
 
 @follows_router.get("/follows/{user_id}/following")
@@ -174,6 +170,4 @@ async def get_following(user_id: str = Path(...)):
         # If table doesn't exist, return empty list
         if "user_follows" in str(e).lower() and "does not exist" in str(e).lower():
             return {"following": []}
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get following: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Failed to get following.")

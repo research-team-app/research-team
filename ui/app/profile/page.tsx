@@ -46,11 +46,11 @@ import Badge from "@/components/ui/Badge";
 import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import InputField from "@/components/ui/InputField";
-import { AcademicStatusPicker } from "@/components/ui/AcademicStatusPicker";
+import { AcademicStatusPicker } from "@/components/AcademicStatusPicker";
 import Link from "next/link";
 import TextArea from "@/components/ui/TextArea";
-import AttachmentChip from "@/components/ui/AttachmentChip";
-import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
+import AttachmentChip from "@/components/AttachmentChip";
+import AttachmentPickerButton from "@/components/AttachmentPickerButton";
 import Avatar from "@/components/Avatar";
 import {
   Dialog,

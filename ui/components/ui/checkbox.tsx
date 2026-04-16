@@ -17,8 +17,10 @@ const checkboxVariants = cva(
           "border-primary-600 data-[state=checked]:bg-primary-600 text-white",
         secondary:
           "border-secondary-500 data-[state=checked]:bg-secondary-500 text-white",
+        danger:
+          "border-danger-500 data-[state=checked]:bg-danger-500 text-white",
         destructive:
-          "border-red-500 data-[state=checked]:bg-red-500 text-white",
+          "border-danger-500 data-[state=checked]:bg-danger-500 text-white",
       },
       size: {
         sm: "size-4 rounded-[3px]", // 16px
