@@ -8,7 +8,7 @@ import {
   UserMinusIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/outline";
-import SidebarLayout from "@/components/ui/SidebarLayout";
+import SidebarLayout from "@/components/SidebarLayout";
 import PageHeader from "@/components/PageHeader";
 import Button from "@/components/ui/Button";
 import InputField from "@/components/ui/InputField";
@@ -45,8 +45,8 @@ import {
 } from "@/store/useGroupStore";
 import { API_URL } from "@/data/global";
 import { cn } from "@/lib/utils";
-import AttachmentChip from "@/components/ui/AttachmentChip";
-import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
+import AttachmentChip from "@/components/AttachmentChip";
+import AttachmentPickerButton from "@/components/AttachmentPickerButton";
 import Loading from "@/app/loading";
 
 const GROUP_AVATAR_CLASS =

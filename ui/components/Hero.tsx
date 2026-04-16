@@ -27,7 +27,7 @@ const formatNumber = (num: number): string => {
 };
 
 const StatsSkeleton = () => (
-  <div className="grid animate-pulse grid-cols-3 gap-3">
+  <div className="grid animate-pulse grid-cols-1 gap-3 sm:grid-cols-3">
     {[1, 2, 3].map((i) => (
       <div key={i} className="h-24 rounded-xl bg-slate-100 dark:bg-slate-800" />
     ))}
@@ -102,7 +102,7 @@ const Hero = () => {
     <div className="relative overflow-hidden">
       <div className="relative z-10 container mx-auto px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-14">
-          {/* ── LEFT COLUMN ── */}
+          {/* LEFT COLUMN */}
           <motion.div
             initial={{ opacity: 0, y: reduceMotion ? 0 : 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ const Hero = () => {
               {isLoadingStats ? (
                 <StatsSkeleton />
               ) : (
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
                     {
                       label: "Added This Week",
@@ -201,24 +201,26 @@ const Hero = () => {
                       <motion.div
                         key={idx}
                         whileHover={{ y: -2 }}
-                        className={`flex flex-col gap-1 rounded-xl border border-l-2 border-slate-200/80 bg-white p-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] sm:gap-1.5 sm:p-3.5 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.45)] ${stat.accent}`}
+                        className={`flex flex-col gap-2 rounded-xl border border-l-2 border-slate-200/80 bg-white p-3 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] sm:gap-1.5 sm:p-3.5 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.45)] ${stat.accent}`}
                       >
-                        <div className="flex items-center gap-1 sm:gap-1.5">
-                          <Icon
-                            className={`h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5 ${stat.iconCls}`}
-                          />
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-700/70">
+                            <Icon
+                              className={`h-3.5 w-3.5 shrink-0 sm:h-3.5 sm:w-3.5 ${stat.iconCls}`}
+                            />
+                          </span>
                           <span
-                            className={`text-[9px] leading-tight font-semibold sm:text-[10px] sm:tracking-wide ${stat.labelCls}`}
+                            className={`text-[11px] leading-tight font-semibold sm:text-[10px] sm:tracking-wide ${stat.labelCls}`}
                           >
                             {stat.label}
                           </span>
                         </div>
                         <p
-                          className={`text-lg leading-none font-black tabular-nums sm:text-2xl ${stat.num}`}
+                          className={`text-2xl leading-none font-black tabular-nums sm:text-2xl ${stat.num}`}
                         >
                           {formatNumber(stat.value)}
                         </p>
-                        <p className={`text-[9px] sm:text-xs ${stat.subCls}`}>
+                        <p className={`text-[11px] sm:text-xs ${stat.subCls}`}>
                           {stat.sub}
                         </p>
                       </motion.div>
@@ -241,7 +243,7 @@ const Hero = () => {
             className="order-2 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_2px_4px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.08),0_24px_56px_rgba(0,0,0,0.07)] ring-1 ring-slate-900/5 dark:border-slate-700/50 dark:bg-slate-800 dark:shadow-[0_2px_4px_rgba(0,0,0,0.2),0_8px_24px_rgba(0,0,0,0.3),0_24px_56px_rgba(0,0,0,0.35)] dark:ring-white/6"
           >
             {/* Panel header */}
-            <div className="flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80">
+            <div className="relative flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-700">
                   <HiOutlineChartBar className="h-4 w-4 text-slate-700 dark:text-slate-200" />
@@ -284,19 +286,23 @@ const Hero = () => {
                           label: "Active",
                           value: grantStats?.active || 0,
                           dot: "bg-emerald-500",
-                          num: "text-slate-600 dark:text-slate-200",
-                          top: "border-t-gray-500",
+                          num: "text-slate-600 dark:text-emerald-100",
+                          top: "border-t-emerald-500/80",
                           badge: "bg-emerald-50 dark:bg-emerald-900/30",
-                          labelCls: "text-emerald-600 dark:text-emerald-400",
+                          labelCls: "text-emerald-600 dark:text-emerald-300",
+                          darkCard:
+                            "dark:border-emerald-700/45 dark:from-emerald-950/35 dark:to-slate-800/80",
                         },
                         {
                           label: "Closed",
                           value: grantStats?.closed || 0,
                           dot: "bg-red-500",
-                          num: "text-slate-600 dark:text-slate-200",
-                          top: "border-t-gray-500",
+                          num: "text-slate-600 dark:text-red-100",
+                          top: "border-t-red-500/80",
                           badge: "bg-red-50 dark:bg-red-900/30",
-                          labelCls: "text-red-600 dark:text-red-400",
+                          labelCls: "text-red-600 dark:text-red-300",
+                          darkCard:
+                            "dark:border-red-800/45 dark:from-red-950/30 dark:to-slate-800/80",
                         },
                         {
                           label: "Archived",
@@ -310,7 +316,7 @@ const Hero = () => {
                       ].map((stat, idx) => (
                         <div
                           key={idx}
-                          className={`flex flex-col gap-2 rounded-lg border border-t-2 border-slate-100 bg-slate-50/80 p-3 dark:border-slate-700/40 dark:bg-slate-700/50 ${stat.top}`}
+                          className={`flex flex-col gap-2 rounded-lg border border-t-2 border-slate-100 bg-linear-to-b from-slate-50/95 to-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.12)] dark:border-slate-700/40 dark:from-slate-700/70 dark:to-slate-800/75 dark:shadow-[0_1px_2px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.38)] ${stat.top} ${stat.darkCard ?? ""}`}
                         >
                           <div
                             className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 ${stat.badge}`}
@@ -368,28 +374,28 @@ const Hero = () => {
                           label: "Health & Medicine",
                           value: grantStats?.byCategory.health || 0,
                           icon: HiOutlineHeart,
-                          bar: "bg-gray-900/70 dark:bg-gray-200/80",
+                          bar: "bg-emerald-500/85 dark:bg-emerald-400/75",
                           iconCls: "text-slate-600 dark:text-slate-300",
                         },
                         {
                           label: "Science & Tech",
                           value: grantStats?.byCategory.scienceTech || 0,
                           icon: HiOutlineChip,
-                          bar: "bg-gray-900/60 dark:bg-gray-200/70",
+                          bar: "bg-primary-600/80 dark:bg-primary-400/70",
                           iconCls: "text-slate-600 dark:text-slate-300",
                         },
                         {
                           label: "Education",
                           value: grantStats?.byCategory.education || 0,
                           icon: HiOutlineAcademicCap,
-                          bar: "bg-gray-900/50 dark:bg-gray-200/60",
+                          bar: "bg-secondary-600/70 dark:bg-secondary-400/65",
                           iconCls: "text-slate-600 dark:text-slate-300",
                         },
                         {
                           label: "Agriculture",
                           value: grantStats?.byCategory.agriculture || 0,
                           icon: HiOutlineGlobeAlt,
-                          bar: "bg-gray-900/40 dark:bg-gray-200/50",
+                          bar: "bg-warning-600/70 dark:bg-warning-400/65",
                           iconCls: "text-slate-600 dark:text-slate-300",
                         },
                       ];
@@ -445,7 +451,7 @@ const Hero = () => {
                   {FEATURES.map(({ icon: Icon, label, desc }, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 rounded-lg border border-slate-100 bg-slate-50/60 p-3 dark:border-slate-700/40 dark:bg-slate-700/40"
+                      className="flex items-start gap-2.5 rounded-lg border border-slate-100 bg-slate-50/70 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-200 hover:bg-white hover:shadow-[0_8px_18px_rgba(15,23,42,0.08)] dark:border-slate-700/40 dark:bg-slate-700/40 dark:hover:border-slate-600/60 dark:hover:bg-slate-700/60 dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.28)]"
                     >
                       <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-600/60">
                         <Icon className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
@@ -464,7 +470,7 @@ const Hero = () => {
               </div>
 
               {/* CTA */}
-              <div className="flex items-center justify-between px-5 py-4">
+              <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-700 dark:bg-slate-800/70">
                 <div>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                     Ready to get started?

@@ -70,7 +70,7 @@ const PlatformOverview = () => {
               className="group"
             >
               <div
-                className={`relative h-full overflow-hidden rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${step.accent}`}
+                className={`relative h-full overflow-hidden rounded-2xl border border-l-2 border-slate-200/80 bg-white/85 p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_6px_rgba(0,0,0,0.22)] dark:hover:shadow-[0_10px_28px_rgba(0,0,0,0.35)] ${step.accent}`}
               >
                 <div className="mb-4 flex items-center justify-between">
                   <span className={step.iconColor}>{step.icon}</span>
@@ -95,39 +95,35 @@ const PlatformOverview = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45, delay: 0.3 }}
-          className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3"
+          className="mt-5"
         >
-          {[
-            {
-              title: "Team Spaces",
-              desc: "Focused collaboration with shared context and access control.",
-              iconCls: "text-slate-600 dark:text-slate-300",
-            },
-            {
-              title: "Global Discovery",
-              desc: "Cross-platform visibility for grants, collaborators, and research updates.",
-              iconCls: "text-slate-600 dark:text-slate-300",
-            },
-            {
-              title: "Real-time Coordination",
-              desc: "Structured discussions to keep teams aligned and execution-ready.",
-              iconCls: "text-slate-600 dark:text-slate-300",
-            },
-          ].map((cap, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-3 rounded-xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.04)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_6px_rgba(0,0,0,0.2)]"
-            >
-              <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {cap.title}
-                </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                  {cap.desc}
-                </p>
-              </div>
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-[0_1px_8px_rgba(0,0,0,0.05)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_8px_rgba(0,0,0,0.24)]">
+            <div className="grid grid-cols-1 divide-y divide-slate-200/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-slate-600">
+              {[
+                {
+                  title: "Team Spaces",
+                  desc: "Focused collaboration with shared context and access control.",
+                },
+                {
+                  title: "Global Discovery",
+                  desc: "Cross-platform visibility for grants, collaborators, and research updates.",
+                },
+                {
+                  title: "Real-time Coordination",
+                  desc: "Structured discussions to keep teams aligned and execution-ready.",
+                },
+              ].map((cap, idx) => (
+                <div key={idx} className="p-4 sm:p-5">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    {cap.title}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                    {cap.desc}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </motion.div>
       </div>
     </section>

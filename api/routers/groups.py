@@ -195,8 +195,8 @@ async def create_group(
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Group create failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Group create failed.")
 
     return {"group": dict(group_row)}
 
@@ -275,7 +275,7 @@ async def list_groups(
     except Exception as e:
         if is_missing_relation_error(e, "groups"):
             return {"items": []}
-        raise HTTPException(status_code=500, detail=f"Group list failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Group list failed.")
 
     return {"items": [dict(r) for r in rows]}
 
@@ -311,8 +311,8 @@ async def request_to_join_group(group_id: str, auth: dict = Depends(get_verified
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Join request failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Join request failed.")
 
     return {"status": "pending"}
 
@@ -380,8 +380,8 @@ async def invite_to_group(
             group_id,
             target_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Invite failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Invite failed.")
 
     return {"status": "active", "user_id": target_id}
 
@@ -422,8 +422,8 @@ async def decline_member_request(
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Decline failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Decline failed.")
 
     return {"status": "declined", "user_id": user_id}
 
@@ -459,8 +459,8 @@ async def approve_member(
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Approve failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Approve failed.")
 
     return {"status": "active", "user_id": user_id}
 
@@ -544,8 +544,8 @@ async def leave_group(group_id: str, auth: dict = Depends(get_verified_user)):
             )
             await db.pool.execute("DELETE FROM groups WHERE id = $1", group_id)
             return {"status": "left", "group_id": group_id, "group_deleted": True}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Leave group failed: {str(e)}")
+        except Exception:
+            raise HTTPException(status_code=500, detail="Leave group failed.")
 
     try:
         await db.pool.execute(
@@ -553,8 +553,8 @@ async def leave_group(group_id: str, auth: dict = Depends(get_verified_user)):
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Leave group failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Leave group failed.")
 
     return {"status": "left", "group_id": group_id}
 
@@ -605,8 +605,8 @@ async def remove_group_member(
             group_id,
             user_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Remove member failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Remove member failed.")
 
     return {"status": "removed", "group_id": group_id, "user_id": user_id}
 
@@ -635,8 +635,8 @@ async def delete_group(group_id: str, auth: dict = Depends(get_verified_user)):
             "DELETE FROM group_memberships WHERE group_id = $1", group_id
         )
         await db.pool.execute("DELETE FROM groups WHERE id = $1", group_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Delete team failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Delete team failed.")
 
     return {"status": "deleted", "group_id": group_id}
 
@@ -833,9 +833,7 @@ async def send_group_message(
                 status_code=503,
                 detail="Groups service unavailable. Please try again later.",
             ) from e
-        raise HTTPException(
-            status_code=500, detail=f"Send group message failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Send group message failed.")
 
     return {
         "id": row["id"],
@@ -892,8 +890,8 @@ async def update_group_message(
             message_id,
             group_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Update message failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Update message failed.")
 
     return {
         "id": row["id"],
@@ -935,8 +933,8 @@ async def delete_group_message(
             message_id,
             group_id,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Delete message failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Delete message failed.")
 
     return {"status": "deleted", "message_id": message_id}
 
@@ -1113,8 +1111,8 @@ async def create_group_message_reply(
             user_id,
             content,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Create reply failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Create reply failed.")
 
     return {
         "id": row["id"],

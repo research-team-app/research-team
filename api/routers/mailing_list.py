@@ -20,9 +20,10 @@ async def get_mailing_list():
             "SELECT email FROM mailing_list ORDER BY created_at DESC"
         )
         return [row["email"] for row in result]
-    except Exception as e:
+    except Exception:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected server error.",
         )
 
 
@@ -49,7 +50,7 @@ async def subscribe_mailing_list(item: MailingListSubscribe):
             }
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e),
+            detail="Unexpected server error.",
         )
 
 
@@ -69,8 +70,8 @@ async def remove_from_mailing_list(email: str):
         return {"message": "Email removed from mailing list"}
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e),
+            detail="Unexpected server error.",
         )

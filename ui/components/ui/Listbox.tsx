@@ -5,14 +5,8 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/16/solid";
 import clsx from "clsx";
+import type { Intent } from "./types";
 
-type Intent =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "danger";
 type Variant = "outline" | "subtle" | "solid";
 type Size = "sm" | "md" | "lg";
 type Radius = "sm" | "md" | "lg" | "full";
@@ -66,24 +60,23 @@ const radiusClasses: Record<Radius, string> = {
 // Border colors for normal state
 const borderColorByIntent: Record<Intent, string> = {
   default: "border-zinc-300 dark:border-zinc-700",
-  primary: "border-[oklch(75%_0.2_200)/70] dark:border-[oklch(55%_0.3_200)/70]",
-  secondary:
-    "border-[oklch(76%_0.23_40)/70] dark:border-[oklch(56%_0.33_40)/70]",
-  success: "border-emerald-300 dark:border-emerald-700",
-  warning: "border-amber-300 dark:border-amber-700",
-  danger: "border-rose-300 dark:border-rose-700",
+  primary: "border-primary-300 dark:border-primary-500/70",
+  secondary: "border-secondary-300 dark:border-secondary-500/70",
+  success: "border-success-300 dark:border-success-700",
+  warning: "border-warning-300 dark:border-warning-700",
+  info: "border-info-300 dark:border-info-700",
+  danger: "border-danger-300 dark:border-danger-700",
 };
 
 // Border colors for hover state
 const hoverBorderColorByIntent: Record<Intent, string> = {
   default: "hover:border-zinc-400 dark:hover:border-zinc-600",
-  primary:
-    "hover:border-[oklch(55%_0.3_200)] dark:hover:border-[oklch(65%_0.25_200)]",
-  secondary:
-    "hover:border-[oklch(56%_0.33_40)] dark:hover:border-[oklch(66%_0.28_40)]",
-  success: "hover:border-emerald-500 dark:hover:border-emerald-600",
-  warning: "hover:border-amber-500 dark:hover:border-amber-600",
-  danger: "hover:border-rose-500 dark:hover:border-rose-600",
+  primary: "hover:border-primary-500 dark:hover:border-primary-400",
+  secondary: "hover:border-secondary-500 dark:hover:border-secondary-400",
+  success: "hover:border-success-500 dark:hover:border-success-600",
+  warning: "hover:border-warning-500 dark:hover:border-warning-600",
+  info: "hover:border-info-500 dark:hover:border-info-600",
+  danger: "hover:border-danger-500 dark:hover:border-danger-600",
 };
 
 // Background colors by variant and intent
@@ -94,50 +87,54 @@ const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
     secondary: "bg-transparent",
     success: "bg-transparent",
     warning: "bg-transparent",
+    info: "bg-transparent",
     danger: "bg-transparent",
   },
   subtle: {
     default:
       "bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200/70 dark:hover:bg-white/10",
     primary:
-      "bg-[oklch(93%_0.1_200)] dark:bg-[oklch(25%_0.15_200)/15] hover:bg-[oklch(88%_0.12_200)] dark:hover:bg-[oklch(25%_0.15_200)/25]",
+      "bg-primary-50 dark:bg-primary-900/15 hover:bg-primary-100 dark:hover:bg-primary-900/25",
     secondary:
-      "bg-[oklch(94%_0.12_40)] dark:bg-[oklch(26%_0.16_40)/15] hover:bg-[oklch(90%_0.15_40)] dark:hover:bg-[oklch(26%_0.16_40)/25]",
+      "bg-secondary-50 dark:bg-secondary-900/15 hover:bg-secondary-100 dark:hover:bg-secondary-900/25",
     success:
-      "bg-emerald-50 dark:bg-emerald-900/10 hover:bg-emerald-100 dark:hover:bg-emerald-900/20",
+      "bg-success-50 dark:bg-success-900/10 hover:bg-success-100 dark:hover:bg-success-900/20",
     warning:
-      "bg-amber-50 dark:bg-amber-900/10 hover:bg-amber-100 dark:hover:bg-amber-900/20",
+      "bg-warning-50 dark:bg-warning-900/10 hover:bg-warning-100 dark:hover:bg-warning-900/20",
+    info: "bg-info-50 dark:bg-info-900/10 hover:bg-info-100 dark:hover:bg-info-900/20",
     danger:
-      "bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-100 dark:hover:bg-rose-900/20",
+      "bg-danger-50 dark:bg-danger-900/10 hover:bg-danger-100 dark:hover:bg-danger-900/20",
   },
   solid: {
     default:
       "bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700",
     primary:
-      "bg-white dark:bg-zinc-800 hover:bg-[oklch(97%_0.05_200)] dark:hover:bg-[oklch(15%_0.1_200)/50]",
+      "bg-white dark:bg-zinc-800 hover:bg-primary-50/70 dark:hover:bg-primary-900/20",
     secondary:
-      "bg-white dark:bg-zinc-800 hover:bg-[oklch(98%_0.06_40)] dark:hover:bg-[oklch(16%_0.1_40)/50]",
+      "bg-white dark:bg-zinc-800 hover:bg-secondary-50/70 dark:hover:bg-secondary-900/20",
     success:
-      "bg-white dark:bg-zinc-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10",
+      "bg-white dark:bg-zinc-800 hover:bg-success-50/50 dark:hover:bg-success-900/10",
     warning:
-      "bg-white dark:bg-zinc-800 hover:bg-amber-50/50 dark:hover:bg-amber-900/10",
+      "bg-white dark:bg-zinc-800 hover:bg-warning-50/50 dark:hover:bg-warning-900/10",
+    info: "bg-white dark:bg-zinc-800 hover:bg-info-50/50 dark:hover:bg-info-900/10",
     danger:
-      "bg-white dark:bg-zinc-800 hover:bg-rose-50/50 dark:hover:bg-rose-900/10",
+      "bg-white dark:bg-zinc-800 hover:bg-danger-50/50 dark:hover:bg-danger-900/10",
   },
 };
 
 // Text color by intent
 const textColorByIntent: Record<Intent, string> = {
   default: "text-zinc-900 dark:text-zinc-100",
-  primary: "text-[oklch(45%_0.28_200)] dark:text-[oklch(75%_0.2_200)]",
-  secondary: "text-[oklch(46%_0.3_40)] dark:text-[oklch(76%_0.23_40)]",
-  success: "text-emerald-700 dark:text-emerald-400",
-  warning: "text-amber-700 dark:text-amber-400",
-  danger: "text-rose-700 dark:text-rose-400",
+  primary: "text-primary-800 dark:text-primary-300",
+  secondary: "text-secondary-800 dark:text-secondary-300",
+  success: "text-success-700 dark:text-success-400",
+  warning: "text-warning-700 dark:text-warning-400",
+  info: "text-info-700 dark:text-info-400",
+  danger: "text-danger-700 dark:text-danger-400",
 };
 
 // Error state colors
-const errorClasses = "border-rose-500 text-rose-700 dark:text-rose-400";
+const errorClasses = "border-danger-500 text-danger-700 dark:text-danger-400";
 
 const Listbox = ({
   options,
@@ -188,17 +185,19 @@ const Listbox = ({
           className={clsx(
             "mb-1.5 block text-sm font-medium",
             intent === "primary"
-              ? "text-[oklch(45%_0.28_200)] dark:text-[oklch(75%_0.2_200)]"
+              ? "text-primary-800 dark:text-primary-300"
               : intent === "secondary"
-                ? "text-[oklch(46%_0.3_40)] dark:text-[oklch(76%_0.23_40)]"
-                : "text-zinc-800 dark:text-zinc-200",
+                ? "text-secondary-800 dark:text-secondary-300"
+                : intent === "info"
+                  ? "text-info-800 dark:text-info-300"
+                  : "text-zinc-800 dark:text-zinc-200",
             disabled && "cursor-not-allowed opacity-60",
             labelClassName
           )}
         >
           <span className="align-middle">{label}</span>
           {required && (
-            <span className="ml-1 align-middle text-rose-600 dark:text-rose-400">
+            <span className="text-danger-600 dark:text-danger-400 ml-1 align-middle">
               *
             </span>
           )}
@@ -281,10 +280,12 @@ const Listbox = ({
                 "h-4 w-4 transition-transform duration-200",
                 "group-data-[state=open]:rotate-180",
                 intent === "primary"
-                  ? "text-[oklch(55%_0.3_200)/70] dark:text-[oklch(65%_0.25_200)/70]"
+                  ? "text-primary-500/70 dark:text-primary-400/70"
                   : intent === "secondary"
-                    ? "text-[oklch(56%_0.33_40)/70] dark:text-[oklch(66%_0.28_40)/70]"
-                    : "text-zinc-500 dark:text-zinc-400"
+                    ? "text-secondary-500/70 dark:text-secondary-400/70"
+                    : intent === "info"
+                      ? "text-info-500/70 dark:text-info-400/70"
+                      : "text-zinc-500 dark:text-zinc-400"
               )}
               aria-hidden="true"
             />
@@ -324,16 +325,20 @@ const Listbox = ({
                       "relative flex w-full cursor-default items-center justify-between rounded-sm px-3 py-2 text-sm outline-none select-none",
                       // Highlighted state (equivalent to active)
                       intent === "primary"
-                        ? "data-[highlighted]:bg-[oklch(93%_0.1_200)] dark:data-[highlighted]:bg-[oklch(25%_0.15_200)/30]"
+                        ? "data-[highlighted]:bg-primary-50 dark:data-[highlighted]:bg-primary-900/30"
                         : intent === "secondary"
-                          ? "data-[highlighted]:bg-[oklch(94%_0.12_40)] dark:data-[highlighted]:bg-[oklch(26%_0.16_40)/30]"
-                          : "data-[highlighted]:bg-zinc-100 dark:data-[highlighted]:bg-zinc-700",
+                          ? "data-[highlighted]:bg-secondary-50 dark:data-[highlighted]:bg-secondary-900/30"
+                          : intent === "info"
+                            ? "data-[highlighted]:bg-info-50 dark:data-[highlighted]:bg-info-900/30"
+                            : "data-[highlighted]:bg-zinc-100 dark:data-[highlighted]:bg-zinc-700",
                       // Selected state
                       intent === "primary"
-                        ? "data-[state=checked]:bg-[oklch(88%_0.12_200)] dark:data-[state=checked]:bg-[oklch(25%_0.15_200)/40]"
+                        ? "data-[state=checked]:bg-primary-100 dark:data-[state=checked]:bg-primary-900/40"
                         : intent === "secondary"
-                          ? "data-[state=checked]:bg-[oklch(90%_0.15_40)] dark:data-[state=checked]:bg-[oklch(26%_0.16_40)/40]"
-                          : "data-[state=checked]:bg-zinc-200 dark:data-[state=checked]:bg-zinc-600",
+                          ? "data-[state=checked]:bg-secondary-100 dark:data-[state=checked]:bg-secondary-900/40"
+                          : intent === "info"
+                            ? "data-[state=checked]:bg-info-100 dark:data-[state=checked]:bg-info-900/40"
+                            : "data-[state=checked]:bg-zinc-200 dark:data-[state=checked]:bg-zinc-600",
 
                       option.disabled && "pointer-events-none opacity-50",
                       optionClassName
@@ -353,10 +358,12 @@ const Listbox = ({
                         className={clsx(
                           "h-4 w-4",
                           intent === "primary"
-                            ? "text-[oklch(55%_0.3_200)] dark:text-[oklch(65%_0.25_200)]"
+                            ? "text-primary-600 dark:text-primary-400"
                             : intent === "secondary"
-                              ? "text-[oklch(56%_0.33_40)] dark:text-[oklch(66%_0.28_40)]"
-                              : "text-zinc-700 dark:text-zinc-300"
+                              ? "text-secondary-600 dark:text-secondary-400"
+                              : intent === "info"
+                                ? "text-info-600 dark:text-info-400"
+                                : "text-zinc-700 dark:text-zinc-300"
                         )}
                       />
                     </SelectPrimitive.ItemIndicator>
@@ -371,7 +378,7 @@ const Listbox = ({
       {error && (
         <p
           className={clsx(
-            "mt-1 text-xs text-rose-600 dark:text-rose-400",
+            "text-danger-600 dark:text-danger-400 mt-1 text-xs",
             errorClassName
           )}
         >

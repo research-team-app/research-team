@@ -332,7 +332,8 @@ def admin(f: Callable) -> Callable:
 
 def verify_admin_token(token: str) -> dict:
     """Verify a raw Bearer token string and confirm the sub is in ADMIN_SUBS.
-    Used by query-param protected endpoints (e.g. /admin/docs). Raises HTTPException on failure."""
+    Used by query-param protected endpoints (e.g. /admin/docs). Raises HTTPException on failure.
+    """
     payload = _verify_token(token)
     if _is_internal(payload):
         return payload

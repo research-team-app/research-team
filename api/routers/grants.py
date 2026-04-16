@@ -237,10 +237,10 @@ async def _search_grants_ai_impl(params: GrantSearchFuzzyParams):
         vectors = vector_utility.query_vectors(
             keyword=params.keyword.strip(), topK=params.top_k
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"AI search grant failed: {str(e)}",
+            detail="AI search grant failed.",
         )
     ids = [str(item["key"]) for item in vectors]
     return {"ids": ids}

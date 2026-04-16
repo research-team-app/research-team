@@ -167,7 +167,7 @@ async def send_message(
                 status_code=503,
                 detail="Messaging service unavailable. Please try again later.",
             ) from e
-        raise HTTPException(status_code=500, detail=f"Send message failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Send message failed.")
 
     return {
         "id": row["id"],
@@ -241,7 +241,7 @@ async def list_inbox_messages(
     except Exception as e:
         if is_missing_relation_error(e, "user_messages"):
             return {"items": [], "total": 0, "unread_count": 0}
-        raise HTTPException(status_code=500, detail=f"Inbox query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Inbox query failed.")
 
     items = []
     for r in rows:
@@ -320,7 +320,7 @@ async def list_sent_messages(
     except Exception as e:
         if is_missing_relation_error(e, "user_messages"):
             return {"items": [], "total": 0}
-        raise HTTPException(status_code=500, detail=f"Sent query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Sent query failed.")
 
     items = []
     for r in rows:
@@ -502,7 +502,7 @@ async def get_conversation_thread(
     except Exception as e:
         if is_missing_relation_error(e, "user_messages"):
             return {"items": [], "total": 0}
-        raise HTTPException(status_code=500, detail=f"Thread query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Thread query failed.")
 
     items = [
         {
@@ -544,9 +544,7 @@ async def mark_thread_as_read(
     except Exception as e:
         if is_missing_relation_error(e, "user_messages"):
             return {"status": "ok", "updated": 0}
-        raise HTTPException(
-            status_code=500, detail=f"Mark thread read failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Mark thread read failed.")
 
     return {"status": "ok"}
 
@@ -565,9 +563,7 @@ async def get_unread_count(auth: dict = Depends(get_verified_user)):
     except Exception as e:
         if is_missing_relation_error(e, "user_messages"):
             return {"unread_count": 0}
-        raise HTTPException(
-            status_code=500, detail=f"Unread count query failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail="Unread count query failed.")
 
     return {"unread_count": int(unread_count or 0)}
 

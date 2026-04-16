@@ -7,8 +7,9 @@ import { API_URL } from "@/data/global";
 import { getAuthHeaders } from "@/lib/apiAuth";
 import { useAuthStore } from "@/store/useAuthStore";
 import Button from "@/components/ui/Button";
-import AttachmentChip from "@/components/ui/AttachmentChip";
-import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
+import TextArea from "@/components/ui/TextArea";
+import AttachmentChip from "@/components/AttachmentChip";
+import AttachmentPickerButton from "@/components/AttachmentPickerButton";
 import Link from "next/link";
 import {
   ChatBubbleLeftRightIcon,
@@ -17,6 +18,7 @@ import {
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
   MinusSmallIcon,
+  PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 import Avatar from "@/components/Avatar";
 
@@ -241,7 +243,7 @@ export default function ChatDock() {
       {open && (
         <div
           className={clsx(
-            "pointer-events-auto flex overflow-hidden border border-slate-200/90 bg-slate-50/95 shadow-2xl dark:border-slate-700/90 dark:bg-slate-900/95",
+            "pointer-events-auto flex overflow-hidden border border-slate-200/90 bg-white/95 shadow-[0_12px_36px_rgba(15,23,42,0.2)] backdrop-blur-sm dark:border-slate-700/90 dark:bg-slate-800/95 dark:shadow-[0_14px_38px_rgba(0,0,0,0.45)]",
             isFullscreen
               ? "fixed inset-3 z-80 h-auto max-h-none w-auto rounded-2xl sm:inset-5"
               : "mb-3 h-[70vh] max-h-155 w-full rounded-2xl sm:h-145 sm:w-[min(92vw,860px)]"
@@ -253,8 +255,8 @@ export default function ChatDock() {
               showListOnMobile ? "block" : "hidden sm:block"
             )}
           >
-            <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+            <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
+              <p className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
                 Messages
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -267,115 +269,122 @@ export default function ChatDock() {
                   Loading...
                 </p>
               ) : conversationItems.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
-                  No conversations yet.
-                </p>
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    No conversations yet
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Start a chat from any profile to begin messaging.
+                  </p>
+                </div>
               ) : (
-                conversationItems.map((conv) => {
-                  const pid = String(conv.user?.id ?? "");
-                  const isActive = activePeerId === pid;
-                  return (
-                    <button
-                      key={pid}
-                      type="button"
-                      onClick={() => setActivePeerId(pid)}
-                      className={clsx(
-                        "w-full border-b border-slate-100 px-4 py-3 text-left transition dark:border-slate-800",
-                        isActive
-                          ? "border-l-4 border-l-slate-500 bg-slate-100 pl-3 shadow-sm dark:border-l-slate-300 dark:bg-slate-800/80"
-                          : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span
-                          role="link"
-                          tabIndex={0}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.location.href = `/profile/?id=${encodeURIComponent(pid)}`;
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
+                <div className="space-y-1 p-2">
+                  {conversationItems.map((conv) => {
+                    const pid = String(conv.user?.id ?? "");
+                    const isActive = activePeerId === pid;
+                    return (
+                      <button
+                        key={pid}
+                        type="button"
+                        onClick={() => setActivePeerId(pid)}
+                        className={clsx(
+                          "w-full rounded-xl border px-3 py-3 text-left transition",
+                          isActive
+                            ? "border-slate-300 bg-slate-100 shadow-sm ring-1 ring-slate-200/80 dark:border-slate-600 dark:bg-slate-700/90 dark:ring-slate-600/60"
+                            : "border-transparent bg-transparent hover:border-slate-200 hover:bg-slate-50 dark:hover:border-slate-600 dark:hover:bg-slate-700/70"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            onClick={(e) => {
                               e.stopPropagation();
                               window.location.href = `/profile/?id=${encodeURIComponent(pid)}`;
-                            }
-                          }}
-                          className="cursor-pointer"
-                          aria-label={`Open ${conv.user?.name || "researcher"} profile`}
-                          title={`View ${conv.user?.name || "researcher"} profile`}
-                        >
-                          <Avatar
-                            userId={pid}
-                            name={conv.user?.name}
-                            profileTitle={conv.user?.title}
-                            size={36}
-                            className={clsx(
-                              "mt-0.5 transition",
-                              isActive
-                                ? "shadow-sm ring-2 ring-slate-300 dark:ring-slate-500/60"
-                                : "ring-1 ring-slate-200 dark:ring-slate-700"
-                            )}
-                            fallbackClassName={clsx(
-                              isActive
-                                ? "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-100"
-                                : "bg-linear-to-br from-slate-100 to-slate-200 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-slate-200"
-                            )}
-                            textClassName="text-[11px] font-semibold"
-                          />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <p
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/profile/?id=${encodeURIComponent(pid)}`;
+                              }
+                            }}
+                            className="cursor-pointer"
+                            aria-label={`Open ${conv.user?.name || "researcher"} profile`}
+                            title={`View ${conv.user?.name || "researcher"} profile`}
+                          >
+                            <Avatar
+                              userId={pid}
+                              name={conv.user?.name}
+                              profileTitle={conv.user?.title}
+                              size={36}
                               className={clsx(
-                                "truncate text-sm font-semibold",
+                                "mt-0.5 transition",
                                 isActive
-                                  ? "text-slate-900 dark:text-slate-100"
-                                  : "text-slate-900 dark:text-white"
+                                  ? "shadow-sm ring-2 ring-slate-300 dark:ring-slate-500/60"
+                                  : "ring-1 ring-slate-200 dark:ring-slate-700"
                               )}
-                            >
-                              {conv.user?.name || "Researcher"}
-                            </p>
-                            {(conv.unread_count ?? 0) > 0 && (
-                              <span
+                              fallbackClassName={clsx(
+                                isActive
+                                  ? "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-100"
+                                  : "bg-linear-to-br from-slate-100 to-slate-200 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-slate-200"
+                              )}
+                              textClassName="text-[11px] font-semibold"
+                            />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <p
                                 className={clsx(
-                                  "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                                  "truncate text-sm font-semibold",
                                   isActive
-                                    ? "bg-slate-700 text-white dark:bg-slate-500"
-                                    : "bg-slate-700 text-white dark:bg-slate-600"
+                                    ? "text-slate-900 dark:text-slate-100"
+                                    : "text-slate-900 dark:text-white"
                                 )}
                               >
-                                {conv.unread_count}
-                              </span>
+                                {conv.user?.name || "Researcher"}
+                              </p>
+                              {(conv.unread_count ?? 0) > 0 && (
+                                <span
+                                  className={clsx(
+                                    "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                                    isActive
+                                      ? "bg-slate-700 text-white dark:bg-slate-500"
+                                      : "bg-slate-700 text-white dark:bg-slate-600"
+                                  )}
+                                >
+                                  {conv.unread_count}
+                                </span>
+                              )}
+                            </div>
+                            {conv.user?.title && (
+                              <p
+                                className={clsx(
+                                  "truncate text-[11px]",
+                                  isActive
+                                    ? "text-slate-700 dark:text-slate-300"
+                                    : "text-slate-500 dark:text-slate-400"
+                                )}
+                              >
+                                {conv.user.title}
+                              </p>
                             )}
-                          </div>
-                          {conv.user?.title && (
                             <p
                               className={clsx(
-                                "truncate text-[11px]",
+                                "mt-0.5 truncate text-xs",
                                 isActive
-                                  ? "text-slate-700 dark:text-slate-300"
+                                  ? "text-slate-600 dark:text-slate-300"
                                   : "text-slate-500 dark:text-slate-400"
                               )}
                             >
-                              {conv.user.title}
+                              {conv.last_message?.content || "Start chatting"}
                             </p>
-                          )}
-                          <p
-                            className={clsx(
-                              "mt-0.5 truncate text-xs",
-                              isActive
-                                ? "text-slate-600 dark:text-slate-400"
-                                : "text-slate-500 dark:text-slate-400"
-                            )}
-                          >
-                            {conv.last_message?.content || "Start chatting"}
-                          </p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  );
-                })
+                      </button>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
@@ -386,13 +395,13 @@ export default function ChatDock() {
               showListOnMobile ? "hidden sm:flex" : "flex"
             )}
           >
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-100/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-900/75">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/85 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setActivePeerId(null)}
-                    className="rounded p-1 text-slate-500 hover:bg-slate-100 sm:hidden dark:text-slate-300 dark:hover:bg-slate-800"
+                    className="rounded p-1 text-slate-500 hover:bg-slate-100 sm:hidden dark:text-slate-300 dark:hover:bg-slate-700"
                     aria-label="Back to people"
                   >
                     <ArrowLeftIcon className="h-4 w-4" />
@@ -426,6 +435,9 @@ export default function ChatDock() {
                             {activeConversation.user.title}
                           </p>
                         )}
+                        <p className="mt-0.5 text-[10px] font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-300">
+                          Active conversation
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -439,7 +451,7 @@ export default function ChatDock() {
                 <button
                   type="button"
                   onClick={() => setIsFullscreen((v) => !v)}
-                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                   aria-label={
                     isFullscreen ? "Exit full screen" : "Enter full screen"
                   }
@@ -456,7 +468,7 @@ export default function ChatDock() {
                     setOpen(false);
                     setIsFullscreen(false);
                   }}
-                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                   aria-label="Minimize chat"
                 >
                   <MinusSmallIcon className="h-5 w-5" />
@@ -467,7 +479,7 @@ export default function ChatDock() {
                     setOpen(false);
                     setIsFullscreen(false);
                   }}
-                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                   aria-label="Close chat"
                 >
                   <XMarkIcon className="h-5 w-5" />
@@ -477,20 +489,30 @@ export default function ChatDock() {
 
             <div
               ref={threadScrollRef}
-              className="flex-1 space-y-2 overflow-y-auto bg-slate-100/60 p-3 dark:bg-slate-950/35"
+              className="flex-1 space-y-2 overflow-y-auto bg-slate-50/65 p-3 dark:bg-slate-800/80"
             >
               {error ? (
                 <p className="text-sm text-red-600 dark:text-red-400">
                   {error}
                 </p>
               ) : !activePeerId ? (
-                <p className="text-sm text-slate-600 dark:text-slate-300">
-                  Select a person from the list.
-                </p>
+                <div className="mx-auto mt-10 max-w-sm rounded-xl border border-slate-200 bg-white px-4 py-5 text-center shadow-sm dark:border-slate-600 dark:bg-slate-700/70">
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    Select a conversation
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Choose a person from the left panel to start chatting.
+                  </p>
+                </div>
               ) : threadItems.length === 0 ? (
-                <p className="text-sm text-slate-600 dark:text-slate-300">
-                  No messages yet. Say hello 👋
-                </p>
+                <div className="mx-auto mt-10 max-w-sm rounded-xl border border-slate-200 bg-white px-4 py-5 text-center shadow-sm dark:border-slate-600 dark:bg-slate-700/70">
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                    No messages yet
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Send the first message to begin this conversation.
+                  </p>
+                </div>
               ) : (
                 threadItems.map((msg) => {
                   const mine = msg.sender_id === user?.id;
@@ -498,10 +520,10 @@ export default function ChatDock() {
                     <div
                       key={msg.id}
                       className={clsx(
-                        "max-w-[88%] rounded-lg px-3 py-2 text-sm shadow-sm",
+                        "max-w-[88%] rounded-2xl border px-3 py-2 text-sm shadow-sm",
                         mine
-                          ? "ml-auto bg-slate-700 text-white dark:bg-slate-600"
-                          : "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-100"
+                          ? "border-primary-700/30 bg-primary-700 dark:border-primary-600/40 dark:bg-primary-600 text-white"
+                          : "border-slate-200 bg-white text-slate-800 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
                       )}
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -531,9 +553,9 @@ export default function ChatDock() {
               )}
             </div>
 
-            <div className="border-t border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900/90">
+            <div className="border-t border-slate-200 bg-white/95 p-2.5 dark:border-slate-700 dark:bg-slate-800">
               <div className="flex items-end gap-2">
-                <textarea
+                <TextArea
                   value={threadDraft}
                   onChange={(e) => setThreadDraft(e.target.value)}
                   onKeyDown={(e) => {
@@ -548,9 +570,15 @@ export default function ChatDock() {
                       }
                     }
                   }}
+                  intent="default"
+                  variant="subtle"
+                  size="sm"
+                  radius="lg"
+                  resize="none"
                   rows={2}
                   placeholder="Type a message..."
-                  className="focus:border-primary-500 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:border-slate-600 dark:text-slate-100"
+                  className="w-full"
+                  textareaClassName="min-h-[44px] leading-relaxed placeholder:text-slate-500 dark:placeholder:text-slate-300"
                 />
                 <AttachmentPickerButton
                   onSelect={(file) => {
@@ -565,6 +593,7 @@ export default function ChatDock() {
                   size="sm"
                   intent="primary"
                   variant="solid"
+                  endIcon={<PaperAirplaneIcon className="h-3.5 w-3.5" />}
                   onClick={sendThreadMessage}
                   disabled={
                     !activePeerId ||

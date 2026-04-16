@@ -8,14 +8,8 @@ import React, {
 } from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import clsx from "clsx";
+import type { Intent } from "./types";
 
-type Intent =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "danger";
 type Variant = "outline" | "subtle" | "solid";
 type Size = "sm" | "md" | "lg";
 type Radius = "sm" | "md" | "lg";
@@ -65,11 +59,12 @@ const resizeClasses = {
 
 const borderColorByIntent: Record<Intent, string> = {
   default: "border-slate-300 dark:border-slate-600",
-  primary: "border-[oklch(65%_0.3_200)] dark:border-primary-500/70",
-  secondary: "border-[oklch(76%_0.23_40)/50] dark:border-secondary-500/70",
-  success: "border-emerald-300 dark:border-emerald-600/70",
-  warning: "border-amber-300 dark:border-amber-600/70",
-  danger: "border-rose-300 dark:border-rose-600/70",
+  primary: "border-primary-300 dark:border-primary-500/70",
+  secondary: "border-secondary-300 dark:border-secondary-500/70",
+  success: "border-success-300 dark:border-success-600/70",
+  warning: "border-warning-300 dark:border-warning-600/70",
+  info: "border-info-300 dark:border-info-600/70",
+  danger: "border-danger-300 dark:border-danger-600/70",
 };
 
 const focusRingByIntent: Record<Intent, string> = {
@@ -78,13 +73,14 @@ const focusRingByIntent: Record<Intent, string> = {
   primary:
     "focus:outline-none focus:ring-0 focus:border-primary-500 dark:focus:border-primary-400",
   secondary:
-    "focus:outline-none focus:ring-0 focus:border-[oklch(56%_0.26_290)] dark:focus:border-[oklch(66%_0.28_290)]",
+    "focus:outline-none focus:ring-0 focus:border-secondary-500 dark:focus:border-secondary-400",
   success:
-    "focus:outline-none focus:ring-0 focus:border-emerald-500 dark:focus:border-emerald-400",
+    "focus:outline-none focus:ring-0 focus:border-success-500 dark:focus:border-success-400",
   warning:
-    "focus:outline-none focus:ring-0 focus:border-amber-500 dark:focus:border-amber-400",
+    "focus:outline-none focus:ring-0 focus:border-warning-500 dark:focus:border-warning-400",
+  info: "focus:outline-none focus:ring-0 focus:border-info-500 dark:focus:border-info-400",
   danger:
-    "focus:outline-none focus:ring-0 focus:border-rose-500 dark:focus:border-rose-400",
+    "focus:outline-none focus:ring-0 focus:border-danger-500 dark:focus:border-danger-400",
 };
 
 const textColorByIntent: Record<Intent, string> = {
@@ -93,6 +89,7 @@ const textColorByIntent: Record<Intent, string> = {
   secondary: "text-slate-900 dark:text-slate-100",
   success: "text-slate-900 dark:text-slate-100",
   warning: "text-slate-900 dark:text-slate-100",
+  info: "text-slate-900 dark:text-slate-100",
   danger: "text-slate-900 dark:text-slate-100",
 };
 
@@ -103,15 +100,17 @@ const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
     secondary: "bg-white dark:bg-slate-900/80",
     success: "bg-white dark:bg-slate-900/80",
     warning: "bg-white dark:bg-slate-900/80",
+    info: "bg-white dark:bg-slate-900/80",
     danger: "bg-white dark:bg-slate-900/80",
   },
   subtle: {
     default: "bg-slate-100 dark:bg-slate-800/70",
-    primary: "bg-[oklch(93%_0.1_200)] dark:bg-[oklch(25%_0.15_200)/15]",
-    secondary: "bg-[oklch(94%_0.12_40)] dark:bg-[oklch(26%_0.16_40)/15]",
-    success: "bg-emerald-50 dark:bg-emerald-900/10",
-    warning: "bg-amber-50 dark:bg-amber-900/10",
-    danger: "bg-rose-50 dark:bg-rose-900/10",
+    primary: "bg-primary-50 dark:bg-primary-900/15",
+    secondary: "bg-secondary-50 dark:bg-secondary-900/15",
+    success: "bg-success-50 dark:bg-success-900/10",
+    warning: "bg-warning-50 dark:bg-warning-900/10",
+    info: "bg-info-50 dark:bg-info-900/10",
+    danger: "bg-danger-50 dark:bg-danger-900/10",
   },
   solid: {
     default: "bg-white dark:bg-slate-900",
@@ -119,15 +118,16 @@ const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
     secondary: "bg-white dark:bg-slate-900",
     success: "bg-white dark:bg-slate-900",
     warning: "bg-white dark:bg-slate-900",
+    info: "bg-white dark:bg-slate-900",
     danger: "bg-white dark:bg-slate-900",
   },
 };
 
 const errorFocusClasses =
-  "border-rose-500 dark:border-rose-500 focus:border-rose-500 dark:focus:border-rose-500 focus:ring-0";
+  "border-danger-500 dark:border-danger-500 focus:border-danger-500 dark:focus:border-danger-500 focus:ring-0";
 
 const errorPlaceholderClasses =
-  "placeholder:text-rose-500/50 dark:placeholder:text-rose-400/50";
+  "placeholder:text-danger-500/50 dark:placeholder:text-danger-400/50";
 
 const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
   (
@@ -203,9 +203,9 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
             className={clsx(
               "mb-1.5 block text-sm font-medium",
               intent === "primary"
-                ? "text-[oklch(45%_0.28_200)] dark:text-[oklch(75%_0.2_200)]"
+                ? "text-primary-800 dark:text-primary-300"
                 : intent === "secondary"
-                  ? "text-[oklch(46%_0.3_40)] dark:text-[oklch(76%_0.23_40)]"
+                  ? "text-secondary-800 dark:text-secondary-300"
                   : "text-slate-800 dark:text-slate-200",
               disabled && "cursor-not-allowed opacity-60",
               labelClassName
@@ -213,7 +213,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
           >
             <span className="align-middle">{label}</span>
             {required && (
-              <span className="ml-1 align-middle text-rose-600 dark:text-rose-400">
+              <span className="text-danger-600 dark:text-danger-400 ml-1 align-middle">
                 *
               </span>
             )}
@@ -285,7 +285,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
           <p
             id={errorId}
             className={clsx(
-              "mt-1 text-xs text-rose-600 dark:text-rose-400",
+              "text-danger-600 dark:text-danger-400 mt-1 text-xs",
               errorClassName
             )}
           >

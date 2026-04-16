@@ -173,7 +173,7 @@ const ProfileCard: FC<{
       aria-label={`Profile card for ${name}`}
     >
       {/* Header */}
-      <div className="border-b border-slate-100 bg-slate-800 px-5 py-4 dark:border-slate-800">
+      <div className="border-b border-slate-700/80 bg-slate-800 px-5 py-4 dark:border-slate-700/80">
         <div className="flex items-start gap-3.5">
           <Avatar
             userId={String(collaborator.id ?? "")}
@@ -190,14 +190,14 @@ const ProfileCard: FC<{
           />
 
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            <h3 className="truncate text-base font-semibold tracking-tight text-white">
               {highlightText(name, highlightQuery)}
             </h3>
-            <p className="mt-0.5 truncate text-xs font-medium text-slate-600 dark:text-slate-400">
+            <p className="mt-0.5 truncate text-xs font-medium text-slate-200">
               {title ? highlightText(title, highlightQuery) : "Researcher"}
             </p>
             {orgLine && (
-              <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-300">
                 <HiOfficeBuilding className="h-3 w-3 shrink-0" />
                 <span className="truncate">
                   {highlightText(orgLine, highlightQuery)}
@@ -213,20 +213,20 @@ const ProfileCard: FC<{
         {/* Search match chips */}
         {!!highlightQuery?.trim() && (
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase dark:text-slate-500">
+            <span className="text-[11px] font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-300">
               {isAiResult ? "AI matched" : "Matched"} in
             </span>
             {matchedFields.length > 0 ? (
               matchedFields.slice(0, 3).map((field) => (
                 <span
                   key={field}
-                  className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300"
+                  className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-600/50 dark:bg-amber-900/25 dark:text-amber-200"
                 >
                   {field}
                 </span>
               ))
             ) : (
-              <span className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300">
+              <span className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-600/50 dark:bg-amber-900/25 dark:text-amber-200">
                 semantic profile similarity
               </span>
             )}

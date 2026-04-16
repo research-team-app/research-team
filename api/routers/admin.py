@@ -48,7 +48,7 @@ async def list_post_reports(
     except Exception as e:
         if is_missing_relation_error(e, "post_reports"):
             return {"items": [], "total": 0, "page": page, "page_size": page_size}
-        raise HTTPException(status_code=500, detail=f"Reports query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Reports query failed.")
 
     items = []
     for r in rows:
@@ -82,7 +82,7 @@ async def list_post_reports(
 
 
 @admin_router.get("/admin/docs", include_in_schema=False)
-async def admin_docs(request: Request, token: str = Query(...)):
+async def admin_docs(token: str = Query(...)):
     verify_admin_token(token)
     return get_swagger_ui_html(
         openapi_url=f"/admin/openapi.json?token={token}",
@@ -130,7 +130,7 @@ async def admin_delete_post(
                     except Exception:
                         pass
                 await conn.execute("DELETE FROM feed_posts WHERE id = $1", post_id)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Delete failed.")
 
     return {"status": "deleted", "post_id": post_id}

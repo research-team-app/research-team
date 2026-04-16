@@ -51,7 +51,7 @@ def mock_pool():
 async def client(mock_pool):
     """
     Full FastAPI app with:
-    - lifespan replaced by a mock that injects mock_pool into db.pool
+    - lifespan started explicitly so db.pool is initialized with mock_pool
     - no real AWS or database connections
 
     Yields (AsyncClient, mock_pool) so tests can both make HTTP calls
@@ -60,8 +60,9 @@ async def client(mock_pool):
     with patch("db.create_db_pool_with_retry", AsyncMock(return_value=mock_pool)):
         from main import app
 
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test",
-        ) as ac:
-            yield ac, mock_pool
+        async with app.router.lifespan_context(app):
+            async with AsyncClient(
+                transport=ASGITransport(app=app),
+                base_url="http://test",
+            ) as ac:
+                yield ac, mock_pool

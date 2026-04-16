@@ -6,11 +6,11 @@ type Variant = "primary" | "secondary" | "hero" | "footer" | "navbar";
 
 // PRIMARY: restrained academic tones
 const BG_PRIMARY =
-  "relative isolate overflow-hidden bg-gradient-to-b from-white via-primary-50/35 to-slate-50/70 dark:from-slate-950 dark:via-slate-900/70 dark:to-slate-950";
+  "relative isolate overflow-hidden bg-gradient-to-b from-white via-slate-50/55 to-slate-100/60 dark:from-slate-950 dark:via-slate-900/45 dark:to-slate-950";
 
 // SECONDARY: Clean, minimal with just a hint of color
 const BG_SECONDARY =
-  "relative isolate bg-gradient-to-b from-slate-100/70 via-white to-slate-50/60 dark:from-slate-900/90 dark:via-slate-950 dark:to-slate-950";
+  "relative isolate bg-gradient-to-b from-slate-100/85 via-white to-slate-50/80 dark:from-slate-900/70 dark:via-slate-950 dark:to-slate-950";
 
 const BG_HERO_BASE =
   "relative isolate overflow-hidden bg-white dark:bg-slate-950";
@@ -108,16 +108,16 @@ export function Container({
         {...rest}
       >
         {/* Subtle section separators */}
-        <div className="via-primary-200/80 dark:via-primary-800/40 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-slate-300/80 to-transparent dark:via-slate-700/45" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-slate-200/80 to-transparent dark:via-slate-700/40" />
 
         {/* Subtle dot pattern */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"
+          className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.02]"
           style={{
             backgroundImage:
-              "radial-gradient(circle, oklch(55% 0.04 240 / 0.5) 1px, transparent 1px)",
+              "radial-gradient(circle, oklch(55% 0.01 257 / 0.45) 1px, transparent 1px)",
             backgroundSize: "36px 36px",
           }}
         />
@@ -125,15 +125,15 @@ export function Container({
         {/* Soft vertical wash */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05] dark:opacity-[0.04]"
+          className="pointer-events-none absolute inset-0 opacity-[0.05] dark:opacity-[0.03]"
           style={{
             backgroundImage: `
               linear-gradient(
                 to bottom,
-                oklch(97% 0.01 240 / 0.9) 0%,
+                oklch(97% 0.005 257 / 0.9) 0%,
                 transparent 28%,
                 transparent 72%,
-                oklch(97% 0.01 240 / 0.9) 100%
+                oklch(97% 0.005 257 / 0.9) 100%
               )
             `,
           }}
@@ -142,11 +142,11 @@ export function Container({
         {/* Soft corner gradients */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.15] dark:opacity-[0.08]"
+          className="pointer-events-none absolute inset-0 opacity-[0.15] dark:opacity-[0.05]"
           style={{
             backgroundImage: `
-              radial-gradient(circle at 0% 0%, oklch(92% 0.015 245 / 0.8) 0%, transparent 52%),
-              radial-gradient(circle at 100% 100%, oklch(90% 0.012 245 / 0.7) 0%, transparent 52%)
+              radial-gradient(circle at 0% 0%, oklch(92% 0.008 257 / 0.8) 0%, transparent 52%),
+              radial-gradient(circle at 100% 100%, oklch(90% 0.007 257 / 0.7) 0%, transparent 52%)
             `,
           }}
         />
@@ -169,10 +169,10 @@ export function Container({
       {/* Very subtle texture */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.012]"
+        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.01]"
         style={{
           backgroundImage:
-            "radial-gradient(circle, oklch(55% 0.02 240 / 0.45) 0.5px, transparent 0.5px)",
+            "radial-gradient(circle, oklch(55% 0.01 257 / 0.45) 0.5px, transparent 0.5px)",
           backgroundSize: "28px 28px",
         }}
       />

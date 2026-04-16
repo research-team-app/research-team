@@ -22,8 +22,8 @@ import Error from "@/app/error";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastStore } from "@/store/useToastStore";
 import { API_URL } from "@/data/global";
-import AttachmentChip from "@/components/ui/AttachmentChip";
-import AttachmentPickerButton from "@/components/ui/AttachmentPickerButton";
+import AttachmentChip from "@/components/AttachmentChip";
+import AttachmentPickerButton from "@/components/AttachmentPickerButton";
 import {
   type FeedPost,
   useCreateFeedComment,
@@ -316,7 +316,7 @@ function PostCard({
   return (
     <article
       id={`post-${post.id}`}
-      className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)]"
+      className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-5 shadow-[0_1px_6px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(15,23,42,0.12)] dark:border-slate-700/60 dark:bg-slate-800/95 dark:shadow-[0_1px_6px_rgba(0,0,0,0.28)] dark:hover:shadow-[0_10px_28px_rgba(0,0,0,0.42)]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
@@ -438,7 +438,7 @@ function PostCard({
         </>
       )}
 
-      <div className="mt-4 flex items-center gap-1 border-t border-slate-100 pt-3 dark:border-slate-800">
+      <div className="mt-4 flex items-center gap-1.5 border-t border-slate-200/80 pt-3.5 dark:border-slate-700/70">
         <button
           type="button"
           onClick={handleLike}
@@ -449,10 +449,10 @@ function PostCard({
             dislikeMutation.isPending ||
             undislikeMutation.isPending
           }
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
             isLiked
-              ? "bg-primary-50 text-primary-700 dark:bg-primary-950/30 dark:text-primary-400"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              ? "border-primary-200 bg-primary-50 text-primary-700 dark:border-primary-800/40 dark:bg-primary-950/30 dark:text-primary-400"
+              : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           }`}
         >
           <HandThumbUpIcon className="h-4 w-4" />
@@ -470,10 +470,10 @@ function PostCard({
             dislikeMutation.isPending ||
             undislikeMutation.isPending
           }
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
             isDisliked
-              ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              ? "border-danger-200 bg-danger-50 text-danger-600 dark:border-danger-800/40 dark:bg-danger-950/30 dark:text-danger-400"
+              : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           }`}
         >
           <HandThumbDownIcon className="h-4 w-4" />
@@ -484,10 +484,10 @@ function PostCard({
         <button
           type="button"
           onClick={() => setShowComments((prev) => !prev)}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors ${
             showComments
-              ? "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              ? "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           }`}
         >
           <ChatBubbleLeftRightIcon className="h-4 w-4" />
@@ -500,7 +500,7 @@ function PostCard({
           onClick={() => {
             void handleSharePost();
           }}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
         >
           <ArrowUpOnSquareIcon className="h-4 w-4" />
           <span>Share</span>
@@ -513,10 +513,10 @@ function PostCard({
               setShowReportForm((p) => !p);
               setReportSubmitted(false);
             }}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-semibold transition-colors ${
               showReportForm
-                ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
-                : "text-slate-400 hover:bg-slate-100 hover:text-red-500 dark:text-slate-600 dark:hover:bg-slate-800"
+                ? "border-danger-200 bg-danger-50 text-danger-600 dark:border-danger-800/40 dark:bg-danger-950/30 dark:text-danger-400"
+                : "hover:text-danger-500 text-slate-400 hover:border-slate-200 hover:bg-slate-50 dark:text-slate-600 dark:hover:border-slate-700 dark:hover:bg-slate-800"
             }`}
             title="Report post"
           >
@@ -967,10 +967,17 @@ export default function FeedPage() {
 
           {user ? (
             <div className="p-5 sm:p-6">
-              {/* Composer label */}
-              <p className="mb-3 text-[11px] font-semibold tracking-widest text-slate-400 uppercase dark:text-slate-500">
-                New Post
-              </p>
+              <div className="mb-3 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    New Post
+                  </p>
+                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                    Share an update, question, or idea with the research
+                    community.
+                  </p>
+                </div>
+              </div>
 
               <TextArea
                 value={draft}
@@ -978,6 +985,7 @@ export default function FeedPage() {
                 placeholder="Share an update, question, or idea with the community..."
                 rows={3}
                 autoGrow
+                className="bg-white dark:bg-slate-800"
               />
 
               {composerError && (
@@ -996,7 +1004,7 @@ export default function FeedPage() {
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700/70">
                 <AttachmentPickerButton
                   onSelect={(file) => {
                     setComposerError(null);

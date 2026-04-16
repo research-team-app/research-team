@@ -52,7 +52,6 @@ export function ComboboxFilter({
   placeholder = "Select...",
   emptyText = "No results found.",
   intent = "default",
-  variant = "outline",
   size = "md",
   className,
   containerClassName,
