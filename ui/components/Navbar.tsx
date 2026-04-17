@@ -51,7 +51,7 @@ const Navbar = () => {
           className={`absolute inset-0 transition-all duration-300 ${
             isScrolled
               ? "border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950 dark:shadow-none"
-              : "border-b border-transparent bg-transparent shadow-none backdrop-blur-0"
+              : "backdrop-blur-0 border-b border-transparent bg-transparent shadow-none"
           }`}
         />
 
