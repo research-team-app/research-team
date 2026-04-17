@@ -19,9 +19,13 @@ export async function ensureUserProfile(user: AuthUser | null): Promise<void> {
   const userId = String(user.id).trim();
   if (!userId) return;
 
+  const headers = await getAuthHeaders();
+
   const hasProfileById = async (): Promise<boolean> => {
     try {
-      await axios.get(`${API_URL}/users/${encodeURIComponent(userId)}`);
+      await axios.get(`${API_URL}/users/${encodeURIComponent(userId)}`, {
+        headers,
+      });
       return true;
     } catch (e: unknown) {
       const status = (e as { response?: { status?: number } })?.response
@@ -45,7 +49,6 @@ export async function ensureUserProfile(user: AuthUser | null): Promise<void> {
   const lastName = (user.attributes?.family_name || "").trim() || "User";
   const usernameBase = buildUsernameBase(email, user.username);
 
-  const headers = await getAuthHeaders();
   if (!headers.Authorization) {
     throw new Error("Missing auth token; cannot create profile");
   }

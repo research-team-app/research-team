@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiSun, FiMoon, FiX, FiMenu, FiChevronRight } from "react-icons/fi";
+import {
+  FiSun,
+  FiMoon,
+  FiX,
+  FiMenu,
+  FiChevronRight,
+  FiLogIn,
+} from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useThemeStore } from "../store/useThemeStore";
 import Logo from "./Logo";
@@ -147,11 +154,15 @@ const Navbar = () => {
                 </motion.div>
               ) : (
                 <Button
+                  intent="default"
                   variant="solid"
-                  className="rounded-xl px-4 py-2 shadow-sm"
+                  className="group rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm tracking-wide text-slate-800 shadow-[0_8px_20px_rgba(15,23,42,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 hover:shadow-[0_12px_24px_rgba(15,23,42,0.12)] dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-white/30 dark:hover:bg-slate-800"
                   onClick={() => router.push("/login")}
                 >
-                  Login
+                  <span className="inline-flex items-center gap-2">
+                    <FiLogIn className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                    <span>Log in</span>
+                  </span>
                 </Button>
               )}
             </div>
@@ -297,10 +308,15 @@ const Navbar = () => {
 
                   {!user && (
                     <Button
+                      intent="default"
                       variant="solid"
+                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white py-2.5 text-sm tracking-wide text-slate-800 shadow-[0_8px_20px_rgba(15,23,42,0.08)] hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-white/30 dark:hover:bg-slate-800"
                       onClick={() => router.push("/login")}
                     >
-                      Login
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <FiLogIn className="h-4 w-4" />
+                        <span>Log in</span>
+                      </span>
                     </Button>
                   )}
                 </div>

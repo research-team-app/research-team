@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { API_URL } from "@/data/global";
 import Toast, { type ToastVariant } from "@/components/ui/Toast";
 import { ensureUserProfile } from "@/lib/ensureUserProfile";
+import { getAuthHeaders } from "@/lib/apiAuth";
 
 type View = "signup" | "login" | "forgot" | "confirmForgot" | "verifyEmail";
 
@@ -129,8 +130,16 @@ export default function Login() {
       notify(`Login success. Welcome ${user?.username}!`, "success");
       // Best-effort — providers.tsx will retry on mount if this fails.
       await ensureUserProfile(user ?? null).catch(() => {});
-      fetch(`${API_URL}/users/${user?.id}`)
-        .then((res) => res.json())
+      getAuthHeaders()
+        .then((headers) =>
+          fetch(`${API_URL}/users/${user?.id}`, {
+            headers,
+          })
+        )
+        .then((res) => {
+          if (!res.ok) throw new Error(`Failed to load profile: ${res.status}`);
+          return res.json();
+        })
         .then((data: Record<string, unknown>) => {
           const normalized: ResearcherProfile = {
             ...RESEARCHER_DEFAULT_VALUES,

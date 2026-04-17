@@ -409,8 +409,12 @@ export default function GroupsPage() {
     mineOnly: false,
     search: teamSearch,
     publicOnly: true,
+    enabled: !!user?.id,
   });
-  const { data: myGroups = [] } = useGroups(true);
+  const { data: myGroups = [] } = useGroups({
+    mineOnly: true,
+    enabled: !!user?.id,
+  });
   const myActiveGroups = useMemo(
     () => myGroups.filter((g) => g.status === "active"),
     [myGroups]

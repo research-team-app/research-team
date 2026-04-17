@@ -50,7 +50,7 @@ export default function Accordion({
                   "group-data-[state=open]:text-primary-600 dark:group-data-[state=open]:text-primary-400"
                 )}
               >
-                <span className="group-data-[state=open]:text-primary-600 dark:group-data-[state=open]:text-primary-400 sm:text-md pr-8 text-base font-semibold text-slate-900 transition-colors duration-150 dark:text-slate-100">
+                <span className="group-data-[state=open]:text-primary-600 dark:group-data-[state=open]:text-primary-400 sm:text-md pr-8 text-base font-medium text-slate-900 transition-colors duration-150 dark:text-slate-100">
                   {item.question}
                 </span>
 
