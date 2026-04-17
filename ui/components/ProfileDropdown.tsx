@@ -53,7 +53,10 @@ function menuItemClass(intent: MenuIntent = "secondary") {
 export default function ProfileDropdown() {
   const { signOut, user } = useAuthStore();
   const { wishlistIds, fetchWishlistIds } = useWishlistStore();
-  const { data: myGroups = [] } = useGroups(true);
+  const { data: myGroups = [] } = useGroups({
+    mineOnly: true,
+    enabled: !!user?.id,
+  });
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);

@@ -1,9 +1,5 @@
 import NextLink from "next/link";
-import type {
-  ReactNode,
-  MouseEventHandler,
-  AnchorHTMLAttributes,
-} from "react";
+import type { ReactNode, MouseEventHandler, AnchorHTMLAttributes } from "react";
 
 type LinkProps = {
   href: string;

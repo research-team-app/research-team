@@ -77,16 +77,18 @@ type UseGroupsOptions = {
   mineOnly?: boolean;
   search?: string;
   publicOnly?: boolean;
+  enabled?: boolean;
 };
 
 export function useGroups(options: boolean | UseGroupsOptions = false) {
   const normalized: Required<UseGroupsOptions> =
     typeof options === "boolean"
-      ? { mineOnly: options, search: "", publicOnly: false }
+      ? { mineOnly: options, search: "", publicOnly: false, enabled: true }
       : {
           mineOnly: !!options?.mineOnly,
           search: (options?.search ?? "").trim(),
           publicOnly: !!options?.publicOnly,
+          enabled: options?.enabled ?? true,
         };
 
   return useQuery({
@@ -98,6 +100,11 @@ export function useGroups(options: boolean | UseGroupsOptions = false) {
     ],
     queryFn: async () => {
       const headers = await getAuthHeaders();
+      // "mine_only" requires a valid token; if auth session isn't ready,
+      // avoid firing a guaranteed 401 request.
+      if (normalized.mineOnly && !headers.Authorization) {
+        return [] as GroupItem[];
+      }
       const query = new URLSearchParams({
         mine_only: normalized.mineOnly ? "true" : "false",
         public_only: normalized.publicOnly ? "true" : "false",
@@ -112,6 +119,7 @@ export function useGroups(options: boolean | UseGroupsOptions = false) {
       return Array.isArray(data?.items) ? data.items : [];
     },
     staleTime: 15 * 1000,
+    enabled: normalized.enabled,
   });
 }
 

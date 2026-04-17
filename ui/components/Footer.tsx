@@ -161,7 +161,9 @@ const Footer = () => {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      target={link.href.startsWith("http") ? "_blank" : undefined}
+                      target={
+                        link.href.startsWith("http") ? "_blank" : undefined
+                      }
                       rel={
                         link.href.startsWith("http")
                           ? "noopener noreferrer"
