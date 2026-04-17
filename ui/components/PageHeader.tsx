@@ -79,9 +79,9 @@ const PageHeader = ({
   return (
     <div className="relative mb-5">
       {/* Card */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-800/90">
-        {/* Navy accent bar */}
-        <div className="h-1 bg-linear-to-r from-slate-800 via-slate-700 to-slate-600 dark:from-slate-600 dark:via-slate-500 dark:to-slate-700" />
+      <div className="overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm dark:border-slate-700/60 dark:bg-slate-800/75">
+        {/* Accent bar — soft slate, not heavy navy */}
+        <div className="h-0.5 bg-linear-to-r from-slate-400/80 via-slate-300/60 to-slate-200/40 dark:from-slate-500 dark:via-slate-600 dark:to-slate-700/90" />
 
         {/* Subtle dot grid  */}
         <div
@@ -125,9 +125,9 @@ const PageHeader = ({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Left — icon + text */}
             <div className="flex items-center gap-4">
-              {/* Icon — navy in light, slate in dark */}
-              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-700 shadow-sm sm:flex dark:bg-slate-200">
-                <Icon className="h-5 w-5 text-white dark:text-gray-900" />
+              {/* Icon — slate in light, slate in dark */}
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-700 shadow-sm ring-1 ring-slate-400/30 sm:flex dark:bg-slate-200 dark:ring-slate-500/40">
+                <Icon className="h-5 w-5 text-slate-100 dark:text-slate-700" /> 
               </div>
 
               <div>

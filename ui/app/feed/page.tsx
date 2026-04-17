@@ -961,28 +961,20 @@ export default function FeedPage() {
           subtitle="Share ideas, ask questions, and connect with other researchers."
         />
 
-        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/70 dark:bg-slate-800">
-          {/* Accent bar — matches PageHeader */}
-          <div className="h-0.5 bg-linear-to-r from-slate-300 via-slate-200 to-transparent dark:from-slate-600 dark:via-slate-700 dark:to-transparent" />
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-slate-800/80 dark:shadow-[0_2px_14px_rgba(0,0,0,0.25)]">
+          <div className="h-0.5 bg-linear-to-r from-slate-400/50 via-slate-200/80 to-transparent dark:from-slate-500/70 dark:via-slate-600/80 dark:to-transparent" />
 
           {user ? (
             <div className="p-5 sm:p-6">
-              <div className="mb-3 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    New Post
-                  </p>
-                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                    Share an update, question, or idea with the research
-                    community.
-                  </p>
-                </div>
-              </div>
+              <p className="text-slate-600 dark:text-slate-400 mb-4 max-w-2xl text-sm leading-relaxed">
+                Your post is visible to the community. Share updates, ask
+                questions, or start a discussion, keep it respectful.
+              </p>
 
               <TextArea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Share an update, question, or idea with the community..."
+                placeholder="What would you like to share?"
                 rows={3}
                 autoGrow
                 className="bg-white dark:bg-slate-800"
@@ -1004,7 +996,7 @@ export default function FeedPage() {
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700/70">
+              <div className="border-slate-100 dark:border-slate-700/80 mt-5 flex items-center justify-between border-t pt-4">
                 <AttachmentPickerButton
                   onSelect={(file) => {
                     setComposerError(null);
@@ -1012,7 +1004,7 @@ export default function FeedPage() {
                   }}
                   onError={(msg) => setComposerError(msg)}
                   disabled={createPostMutation.isPending}
-                  title="Attach file"
+                  title="Add attachment"
                 />
                 <Button
                   intent="primary"
