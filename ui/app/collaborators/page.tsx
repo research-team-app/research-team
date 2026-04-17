@@ -435,8 +435,8 @@ const Collaborators: FC = () => {
           hint={
             viewMode === "ai" ? (
               <>
-                Semantic search matches your query against researcher profiles in
-                the directory.
+                Semantic search matches your query against researcher profiles
+                in the directory.
               </>
             ) : undefined
           }

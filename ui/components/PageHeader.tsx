@@ -127,7 +127,7 @@ const PageHeader = ({
             <div className="flex items-center gap-4">
               {/* Icon — slate in light, slate in dark */}
               <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-700 shadow-sm ring-1 ring-slate-400/30 sm:flex dark:bg-slate-200 dark:ring-slate-500/40">
-                <Icon className="h-5 w-5 text-slate-100 dark:text-slate-700" /> 
+                <Icon className="h-5 w-5 text-slate-100 dark:text-slate-700" />
               </div>
 
               <div>

@@ -966,7 +966,7 @@ export default function FeedPage() {
 
           {user ? (
             <div className="p-5 sm:p-6">
-              <p className="text-slate-600 dark:text-slate-400 mb-4 max-w-2xl text-sm leading-relaxed">
+              <p className="mb-4 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 Your post is visible to the community. Share updates, ask
                 questions, or start a discussion, keep it respectful.
               </p>
@@ -996,7 +996,7 @@ export default function FeedPage() {
                 </div>
               )}
 
-              <div className="border-slate-100 dark:border-slate-700/80 mt-5 flex items-center justify-between border-t pt-4">
+              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700/80">
                 <AttachmentPickerButton
                   onSelect={(file) => {
                     setComposerError(null);
