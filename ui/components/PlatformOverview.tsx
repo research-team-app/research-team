@@ -1,7 +1,6 @@
 "use client";
 
-import { FiSearch } from "react-icons/fi";
-import { HiOutlineDocumentReport, HiOutlineUserGroup } from "react-icons/hi";
+import { FiCompass, FiUsers, FiBriefcase } from "react-icons/fi";
 import { motion, useReducedMotion } from "framer-motion";
 import SectionHeader from "./SectionHeader";
 
@@ -10,30 +9,30 @@ const PlatformOverview = () => {
 
   const steps = [
     {
-      icon: <FiSearch className="h-5 w-5" />,
+      icon: <FiCompass className="h-5 w-5" />,
       step: "01",
       title: "Discover Opportunities",
       description:
         "Search grants and funding from universities, government agencies, and private foundations.",
-      iconColor: "text-primary-700 dark:text-primary-300",
+      iconColor: "text-slate-700 dark:text-slate-200",
       delay: 0,
     },
     {
-      icon: <HiOutlineUserGroup className="h-5 w-5" />,
+      icon: <FiUsers className="h-5 w-5" />,
       step: "02",
       title: "Connect with Researchers",
       description:
         "Find collaborators who share your research interests and build your team.",
-      iconColor: "text-secondary-700 dark:text-secondary-300",
+      iconColor: "text-slate-700 dark:text-slate-200",
       delay: 0.1,
     },
     {
-      icon: <HiOutlineDocumentReport className="h-5 w-5" />,
+      icon: <FiBriefcase className="h-5 w-5" />,
       step: "03",
       title: "Collaborate & Innovate",
       description:
         "Use integrated tools to write proposals, share resources, and track progress together.",
-      iconColor: "text-emerald-700 dark:text-emerald-300",
+      iconColor: "text-slate-700 dark:text-slate-200",
       delay: 0.2,
     },
   ];

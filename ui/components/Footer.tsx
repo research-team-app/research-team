@@ -29,6 +29,10 @@ const NAV_COLUMNS = [
     title: "Company",
     links: [
       { name: "Contact us", href: "/#contact-us-section" },
+      {
+        name: "Contribute on GitHub",
+        href: "https://github.com/research-team-app/research-team",
+      },
       { name: "Report a bug", href: "/report-bug" },
       { name: "FAQs", href: "/faqs" },
     ],
@@ -155,7 +159,17 @@ const Footer = () => {
               <ul className="mt-3 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href}>{link.name}</Link>
+                    <Link
+                      href={link.href}
+                      target={link.href.startsWith("http") ? "_blank" : undefined}
+                      rel={
+                        link.href.startsWith("http")
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
+                    >
+                      {link.name}
+                    </Link>
                   </li>
                 ))}
               </ul>
