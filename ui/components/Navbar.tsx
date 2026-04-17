@@ -43,15 +43,17 @@ const Navbar = () => {
     <>
       <motion.nav
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled ? "shadow-sm dark:shadow-black/20" : "shadow-none"
+          isScrolled
+            ? "shadow-lg shadow-slate-900/5 dark:shadow-black/20"
+            : "shadow-none"
         }`}
       >
         {/* Full width background */}
         <div
           className={`absolute inset-0 transition-all duration-300 ${
             isScrolled
-              ? "border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950 dark:shadow-none"
-              : "backdrop-blur-0 border-b border-transparent bg-transparent shadow-none"
+              ? "border-b border-white/50 bg-white/65 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/60 dark:shadow-none"
+              : "border-b border-transparent bg-transparent shadow-none backdrop-blur-sm"
           }`}
         />
 
@@ -70,7 +72,7 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden flex-1 items-center justify-center px-8 pr-10 lg:flex lg:pr-12">
-              <div className="mr-2 inline-flex items-center gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-1 lg:mr-4 dark:border-slate-700/60 dark:bg-slate-800">
+              <div className="mr-2 inline-flex items-center gap-1 rounded-2xl border border-slate-300/80 bg-white/60 p-1.5 shadow-[0_8px_20px_rgba(15,23,42,0.07)] backdrop-blur-xl lg:mr-4 dark:border-white/10 dark:bg-slate-900/50 dark:shadow-[0_8px_24px_rgba(2,6,23,0.45)]">
                 {MenuOptions.map((item) => {
                   const active = isActive(item.path);
                   return (
@@ -81,13 +83,13 @@ const Navbar = () => {
                       hoverUnderline={false}
                     >
                       {active && (
-                        <div className="absolute inset-0 rounded-lg bg-gray-700 shadow-sm transition-all duration-200 dark:bg-slate-200" />
+                        <div className="absolute inset-0 rounded-xl bg-slate-100/75 backdrop-blur-xl dark:bg-slate-800/60" />
                       )}
                       <span
-                        className={`relative z-10 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 ${
+                        className={`relative z-10 flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium tracking-wide transition-all duration-200 ${
                           active
-                            ? "text-white dark:text-slate-900"
-                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-slate-100"
+                            ? "text-primary-700 dark:text-primary-300"
+                            : "text-slate-600 hover:bg-white/70 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60 dark:hover:text-slate-100"
                         }`}
                       >
                         <span>{item.name}</span>
@@ -104,7 +106,7 @@ const Navbar = () => {
               <motion.button
                 type="button"
                 onClick={toggleDarkMode}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300/80 bg-white/60 text-slate-600 shadow-[0_6px_18px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-colors hover:bg-white/80 hover:text-slate-900 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 whileTap={{ scale: 0.95 }}
                 aria-label={
                   darkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -167,7 +169,7 @@ const Navbar = () => {
               <motion.button
                 type="button"
                 onClick={toggleDarkMode}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300/80 bg-white/60 text-slate-600 shadow-[0_6px_18px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-colors hover:bg-white/80 hover:text-slate-900 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 whileTap={{ scale: 0.95 }}
                 aria-label={
                   darkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -200,7 +202,7 @@ const Navbar = () => {
 
               <motion.button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="rounded-xl border border-slate-300/80 bg-white/60 p-2.5 text-slate-700 shadow-[0_6px_18px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-colors hover:bg-white/80 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800"
                 whileTap={{ scale: 0.95 }}
                 aria-label="Menu"
               >
@@ -244,9 +246,9 @@ const Navbar = () => {
             className="fixed top-18 right-0 left-0 z-40 sm:top-20 lg:hidden"
           >
             <div className="mx-4 mb-4">
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200 shadow-xl dark:border-slate-800 dark:shadow-black/50">
+              <div className="relative overflow-hidden rounded-2xl border border-slate-300/80 shadow-[0_12px_30px_rgba(15,23,42,0.18)] dark:border-white/10 dark:shadow-black/50">
                 {/* Background */}
-                <div className="absolute inset-0 bg-white/95 backdrop-blur-xl dark:bg-slate-950/95" />
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-2xl dark:bg-slate-950/70" />
 
                 {/* Menu items */}
                 <div className="relative space-y-1 p-3">
@@ -270,22 +272,22 @@ const Navbar = () => {
                         >
                           {/* Active background */}
                           {active && (
-                            <div className="absolute inset-0 bg-gray-700 shadow-sm transition-all duration-200 dark:bg-slate-200" />
+                            <div className="absolute inset-0 rounded-xl bg-slate-100/75 backdrop-blur-xl dark:bg-slate-800/60" />
                           )}
 
                           {/* Hover background */}
                           {!active && (
-                            <div className="absolute inset-0 bg-gray-700 opacity-0 transition-opacity hover:opacity-100 dark:bg-slate-200" />
+                            <div className="absolute inset-0 rounded-xl bg-white/60 opacity-0 transition-opacity hover:opacity-100 dark:bg-slate-800/60" />
                           )}
 
                           <div className="relative flex items-center justify-between px-4 py-3.5">
                             <span
-                              className={`font-medium ${active ? "text-white dark:text-slate-900" : "text-slate-700 dark:text-slate-200"}`}
+                              className={`font-medium ${active ? "text-primary-700 dark:text-primary-300" : "text-slate-700 dark:text-slate-200"}`}
                             >
                               {item.name}
                             </span>
                             <FiChevronRight
-                              className={`h-5 w-5 ${active ? "text-white dark:text-slate-900" : "text-slate-400 dark:text-slate-500"}`}
+                              className={`h-5 w-5 ${active ? "text-primary-600 dark:text-primary-300" : "text-slate-400 dark:text-slate-500"}`}
                             />
                           </div>
                         </motion.span>

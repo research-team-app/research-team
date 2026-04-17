@@ -155,7 +155,7 @@ const Hero = () => {
               </Button>
             </div>
 
-            {/* Stat cards — white bg, left accent border, proper shadow */}
+            {/* Stat cards — frosted glass style */}
             <div className="mt-9 w-full">
               {isLoadingStats ? (
                 <StatsSkeleton />
@@ -167,44 +167,42 @@ const Hero = () => {
                       value: grantStats?.recent7Days || 0,
                       icon: HiOutlineCalendar,
                       sub: "Recently posted",
-                      accent: "border-l-slate-400 dark:border-l-slate-500",
-                      num: "text-gray-700 dark:text-gray-100",
-                      iconCls: "text-slate-500 dark:text-slate-300",
+                      num: "text-slate-900 dark:text-slate-100",
+                      iconCls: "text-primary-700 dark:text-primary-300",
                       subCls: "text-slate-500 dark:text-slate-300",
-                      labelCls: "text-slate-600 dark:text-slate-200",
+                      labelCls: "text-slate-700 dark:text-slate-200",
                     },
                     {
                       label: "Forecasted",
                       value: grantStats?.forecasted || 0,
                       icon: HiOutlineCalendar,
                       sub: "Expected soon",
-                      accent: "border-l-slate-400 dark:border-l-slate-500",
-                      num: "text-gray-700 dark:text-gray-100",
-                      iconCls: "text-slate-500 dark:text-slate-300",
+                      num: "text-slate-900 dark:text-slate-100",
+                      iconCls: "text-secondary-700 dark:text-secondary-300",
                       subCls: "text-slate-500 dark:text-slate-300",
-                      labelCls: "text-slate-600 dark:text-slate-200",
+                      labelCls: "text-slate-700 dark:text-slate-200",
                     },
                     {
                       label: "Total Grants",
                       value: grantStats?.total || 0,
                       icon: HiOutlineAcademicCap,
                       sub: "Across all statuses",
-                      accent: "border-l-slate-400 dark:border-l-slate-500",
-                      num: "text-gray-700 dark:text-gray-100",
-                      iconCls: "text-slate-500 dark:text-slate-300",
+                      num: "text-slate-900 dark:text-slate-100",
+                      iconCls: "text-emerald-700 dark:text-emerald-300",
                       subCls: "text-slate-500 dark:text-slate-300",
-                      labelCls: "text-slate-600 dark:text-slate-200",
+                      labelCls: "text-slate-700 dark:text-slate-200",
                     },
                   ].map((stat, idx) => {
                     const Icon = stat.icon;
                     return (
                       <motion.div
                         key={idx}
-                        whileHover={{ y: -2 }}
-                        className={`flex flex-col gap-2 rounded-xl border border-l-2 border-slate-200/80 bg-white p-3 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] sm:gap-1.5 sm:p-3.5 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.45)] ${stat.accent}`}
+                        whileHover={{ y: 0 }}
+                        className="relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-white/60 bg-white/60 p-3 shadow-[0_10px_24px_rgba(15,23,42,0.10)] backdrop-blur-xl transition-all duration-300 sm:gap-1.5 sm:p-3.5 dark:border-white/10 dark:bg-slate-800 dark:shadow-[0_12px_28px_rgba(2,6,23,0.5)]"
                       >
+                        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/85 to-transparent dark:via-white/20" />
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 dark:bg-slate-700/70">
+                          <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/70 bg-white/70 backdrop-blur-sm dark:border-white/10 dark:bg-slate-800/70">
                             <Icon
                               className={`h-3.5 w-3.5 shrink-0 sm:h-3.5 sm:w-3.5 ${stat.iconCls}`}
                             />
