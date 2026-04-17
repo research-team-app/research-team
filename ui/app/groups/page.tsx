@@ -542,9 +542,9 @@ export default function GroupsPage() {
     <div className="min-h-screen bg-linear-to-b from-slate-50 to-white px-4 py-8 sm:px-6 lg:px-8 dark:from-slate-950 dark:to-slate-900">
       <div className="mx-auto max-w-7xl">
         <PageHeader
-          variant="collaborators"
+          variant="teams"
           title="Research Teams"
-          subtitle="Search public teams, request access, and collaborate in real time."
+          subtitle="Find public teams, request access, and collaborate in one place."
         />
 
         {!user?.id ? (
@@ -571,39 +571,50 @@ export default function GroupsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <div className="flex flex-col gap-3">
+            <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-slate-800/80 dark:shadow-[0_2px_14px_rgba(0,0,0,0.25)]">
+              <div className="h-0.5 bg-linear-to-r from-slate-400/50 via-slate-200/80 to-transparent dark:from-slate-500/70 dark:via-slate-600/80 dark:to-transparent" />
+              <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-700/80">
+                <h2 className="text-slate-500 dark:text-slate-400 mb-1 text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  Find public teams
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Only teams with public visibility appear here. Search by name
+                  or description, then request to join.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 p-4 sm:p-5">
                 <InputField
                   startIcon={
                     <MagnifyingGlassIcon className="h-4 w-4 text-slate-400" />
                   }
-                  placeholder="Search public teams by name or description"
+                  placeholder="Search by team name or description…"
                   value={teamSearch}
                   onChange={(e) => setTeamSearch(e.target.value)}
                 />
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Private teams do not appear in search.
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-slate-500 dark:text-slate-400 max-w-md text-xs leading-relaxed">
+                    Private and invite-only teams are never listed in this
+                    search.
                   </p>
-                  <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <p className="text-slate-700 dark:text-slate-300 shrink-0 text-xs font-medium tabular-nums">
                     {shouldShowSearchResults
-                      ? `${groups.length} result${groups.length === 1 ? "" : "s"}`
-                      : "Type at least 2 characters"}
+                      ? `${groups.length} ${groups.length === 1 ? "result" : "results"}`
+                      : "Enter 2 or more characters"}
                   </p>
                 </div>
               </div>
-              <div className="mt-3 grid max-h-[32vh] grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid max-h-[32vh] grid-cols-1 gap-1.5 overflow-y-auto border-t border-slate-100 px-4 pb-4 sm:grid-cols-2 sm:px-5 lg:grid-cols-3 dark:border-slate-700/80">
                 {!shouldShowSearchResults ? (
-                  <p className="px-1 py-2 text-sm text-slate-500">
-                    Search to find teams and request access.
+                  <p className="text-slate-500 dark:text-slate-400 col-span-full px-1 py-3 text-sm">
+                    Start typing to browse public teams and send a join request.
                   </p>
                 ) : loadingGroups ? (
-                  <p className="px-1 py-2 text-sm text-slate-500">
-                    Loading teams...
+                  <p className="text-slate-500 dark:text-slate-400 col-span-full px-1 py-3 text-sm">
+                    Loading teams…
                   </p>
                 ) : groups.length === 0 ? (
-                  <p className="px-1 py-2 text-sm text-slate-500">
-                    No public teams found.
+                  <p className="text-slate-500 dark:text-slate-400 col-span-full px-1 py-3 text-sm">
+                    No public teams match your search.
                   </p>
                 ) : (
                   groups.map((group: GroupItem) => {

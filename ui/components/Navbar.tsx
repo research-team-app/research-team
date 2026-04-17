@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiSun, FiMoon, FiX, FiMenu, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useThemeStore } from "../store/useThemeStore";
@@ -10,35 +10,20 @@ import { useAuthStore } from "../store/useAuthStore";
 import ProfileDropdown from "./ProfileDropdown";
 import Button from "@/components/ui/Button";
 import Link from "@/components/ui/Link";
-import { FaFileInvoiceDollar, FaHome, FaUsers } from "react-icons/fa";
-import {
-  HiMiniUserGroup,
-  HiMiniArrowRightStartOnRectangle,
-  HiOutlineChatBubbleOvalLeftEllipsis,
-} from "react-icons/hi2";
-
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useThemeStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
 
-  // Navbar options
   const MenuOptions = [
-    { name: "Home", path: "/", icon: <FaHome /> },
-    { name: "Grants", path: "/grants/", icon: <FaFileInvoiceDollar /> },
-    { name: "Collaborators", path: "/collaborators/", icon: <FaUsers /> },
-    {
-      name: "Feed",
-      path: "/feed/",
-      icon: <HiOutlineChatBubbleOvalLeftEllipsis />,
-    },
-    {
-      name: "Teams",
-      path: "/teams/",
-      icon: <HiMiniUserGroup />,
-    },
+    { name: "Home", path: "/" },
+    { name: "Grants", path: "/grants/" },
+    { name: "Collaborators", path: "/collaborators/" },
+    { name: "Feed", path: "/feed/" },
+    { name: "Teams", path: "/teams/" },
   ];
 
   // Normalize paths (trailing slash) so active state matches on client navigation
@@ -47,11 +32,28 @@ const Navbar = () => {
   const isActive = (path: string) =>
     normalize(pathname ?? "") === normalize(path);
 
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 8);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
-      <motion.nav className="fixed top-0 right-0 left-0 z-50 shadow-sm transition-all duration-500 dark:shadow-black/20">
+      <motion.nav
+        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
+          isScrolled ? "shadow-sm dark:shadow-black/20" : "shadow-none"
+        }`}
+      >
         {/* Full width background */}
-        <div className="absolute inset-0 border-b border-slate-200 bg-white shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-800/50 dark:shadow-none" />
+        <div
+          className={`absolute inset-0 transition-all duration-300 ${
+            isScrolled
+              ? "border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950 dark:shadow-none"
+              : "border-b border-transparent bg-transparent shadow-none backdrop-blur-0"
+          }`}
+        />
 
         {/* Content container */}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -79,16 +81,15 @@ const Navbar = () => {
                       hoverUnderline={false}
                     >
                       {active && (
-                        <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 rounded-lg shadow-sm transition-all duration-200" />
+                        <div className="absolute inset-0 rounded-lg bg-gray-700 shadow-sm transition-all duration-200 dark:bg-slate-200" />
                       )}
                       <span
                         className={`relative z-10 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors duration-200 ${
                           active
-                            ? "text-white"
+                            ? "text-white dark:text-slate-900"
                             : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-slate-100"
                         }`}
                       >
-                        <span className="text-base">{item.icon}</span>
                         <span>{item.name}</span>
                       </span>
                     </Link>
@@ -144,9 +145,6 @@ const Navbar = () => {
                 </motion.div>
               ) : (
                 <Button
-                  startIcon={
-                    <HiMiniArrowRightStartOnRectangle className="size-5" />
-                  }
                   variant="solid"
                   className="rounded-xl px-4 py-2 shadow-sm"
                   onClick={() => router.push("/login")}
@@ -272,22 +270,22 @@ const Navbar = () => {
                         >
                           {/* Active background */}
                           {active && (
-                            <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 shadow-sm transition-all duration-200" />
+                            <div className="absolute inset-0 bg-gray-700 shadow-sm transition-all duration-200 dark:bg-slate-200" />
                           )}
 
                           {/* Hover background */}
                           {!active && (
-                            <div className="bg-primary-700 dark:bg-primary-600 absolute inset-0 opacity-0 transition-opacity hover:opacity-100" />
+                            <div className="absolute inset-0 bg-gray-700 opacity-0 transition-opacity hover:opacity-100 dark:bg-slate-200" />
                           )}
 
                           <div className="relative flex items-center justify-between px-4 py-3.5">
                             <span
-                              className={`font-medium ${active ? "text-white" : "text-slate-700 dark:text-slate-200"}`}
+                              className={`font-medium ${active ? "text-white dark:text-slate-900" : "text-slate-700 dark:text-slate-200"}`}
                             >
                               {item.name}
                             </span>
                             <FiChevronRight
-                              className={`h-5 w-5 ${active ? "text-white" : "text-slate-400 dark:text-slate-500"}`}
+                              className={`h-5 w-5 ${active ? "text-white dark:text-slate-900" : "text-slate-400 dark:text-slate-500"}`}
                             />
                           </div>
                         </motion.span>
@@ -297,7 +295,6 @@ const Navbar = () => {
 
                   {!user && (
                     <Button
-                      intent="primary"
                       variant="solid"
                       onClick={() => router.push("/login")}
                     >
@@ -312,7 +309,7 @@ const Navbar = () => {
       </AnimatePresence>
 
       {/* Spacer div to prevent content from going under navbar */}
-      <div className="h-16 sm:h-20" />
+      <div className="bg-background h-16 sm:h-20" />
     </>
   );
 };
