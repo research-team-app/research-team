@@ -12,30 +12,21 @@ import Button from "@/components/ui/Button";
 
 const stats = [
   {
-    value: "",
     label: "Active Researchers",
     description: "Collaborating worldwide",
     icon: HiOutlineUserGroup,
-    iconColor: "",
-    accent: "border-l-gray-400 dark:border-l-gray-600",
     delay: 0,
   },
   {
-    value: "",
     label: "Universities",
     description: "Global institutions",
     icon: HiOutlineAcademicCap,
-    iconColor: "",
-    accent: "border-l-gray-400 dark:border-l-gray-600",
     delay: 0.08,
   },
   {
-    value: "",
     label: "Collaborations",
     description: "Active partnerships",
     icon: HiOutlineLightningBolt,
-    iconColor: "",
-    accent: "border-l-gray-400 dark:border-l-gray-600",
     delay: 0.16,
   },
 ];
@@ -88,15 +79,11 @@ const Community = () => {
                   delay: stat.delay,
                   ease: [0.22, 0.5, 0.3, 0.9],
                 }}
-                whileHover={{
-                  y: reduceMotion ? 0 : -3,
-                  transition: { duration: 0.2 },
-                }}
+                whileHover={{ y: 0 }}
               >
-                <div
-                  className={`flex h-full items-center gap-4 rounded-xl border border-l-2 border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)] dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${stat.accent}`}
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-700">
+                <div className="relative flex h-full items-center gap-4 overflow-hidden rounded-2xl border border-slate-300/75 bg-white/65 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-800 dark:shadow-[0_12px_30px_rgba(2,6,23,0.5)]">
+                  <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/90 to-transparent dark:via-white/20" />
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-300/75 bg-white/75 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/70">
                     <Icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </span>
                   <div>
@@ -137,7 +124,7 @@ const Community = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.25, delay: 0.1 + idx * 0.03 }}
               >
-                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-colors hover:border-slate-300 hover:text-slate-800 dark:border-slate-700/60 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-300">
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-300/75 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-[0_1px_4px_rgba(0,0,0,0.04)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-800 dark:text-slate-300">
                   <span className="bg-primary-400 dark:bg-primary-500 h-1 w-1 rounded-full" />
                   {field}
                 </div>
@@ -157,8 +144,9 @@ const Community = () => {
             ease: [0.22, 0.5, 0.3, 0.9],
           }}
         >
-          <div className="rounded-xl border border-slate-200/80 bg-white p-8 text-center shadow-[0_2px_10px_rgba(0,0,0,0.05)] sm:p-10 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 dark:border-slate-700 dark:bg-slate-700">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-300/75 bg-white/65 p-8 text-center shadow-[0_10px_26px_rgba(15,23,42,0.10)] backdrop-blur-2xl sm:p-10 dark:border-white/10 dark:bg-slate-800 dark:shadow-[0_12px_30px_rgba(2,6,23,0.5)]">
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/90 to-transparent dark:via-white/20" />
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-300/75 bg-white/70 px-3.5 py-1.5 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/70">
               <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
               <span className="text-[11px] font-semibold tracking-widest text-slate-500 uppercase dark:text-slate-400">
                 Start Collaborating Today

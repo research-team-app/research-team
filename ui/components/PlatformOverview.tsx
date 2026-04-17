@@ -15,8 +15,7 @@ const PlatformOverview = () => {
       title: "Discover Opportunities",
       description:
         "Search grants and funding from universities, government agencies, and private foundations.",
-      iconColor: "text-slate-600 dark:text-slate-300",
-      accent: "border-l-slate-300 dark:border-l-slate-600",
+      iconColor: "text-primary-700 dark:text-primary-300",
       delay: 0,
     },
     {
@@ -25,8 +24,7 @@ const PlatformOverview = () => {
       title: "Connect with Researchers",
       description:
         "Find collaborators who share your research interests and build your team.",
-      iconColor: "text-slate-600 dark:text-slate-300",
-      accent: "border-l-slate-300 dark:border-l-slate-600",
+      iconColor: "text-secondary-700 dark:text-secondary-300",
       delay: 0.1,
     },
     {
@@ -35,8 +33,7 @@ const PlatformOverview = () => {
       title: "Collaborate & Innovate",
       description:
         "Use integrated tools to write proposals, share resources, and track progress together.",
-      iconColor: "text-slate-600 dark:text-slate-300",
-      accent: "border-l-slate-300 dark:border-l-slate-600",
+      iconColor: "text-emerald-700 dark:text-emerald-300",
       delay: 0.2,
     },
   ];
@@ -64,17 +61,18 @@ const PlatformOverview = () => {
                 ease: [0.22, 0.5, 0.3, 0.9],
               }}
               whileHover={{
-                y: reduceMotion ? 0 : -3,
+                y: 0,
                 transition: { duration: 0.2 },
               }}
               className="group"
             >
-              <div
-                className={`relative h-full overflow-hidden rounded-2xl border border-l-2 border-slate-200/80 bg-white/85 p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_6px_rgba(0,0,0,0.22)] dark:hover:shadow-[0_10px_28px_rgba(0,0,0,0.35)] ${step.accent}`}
-              >
+              <div className="relative h-full overflow-hidden rounded-2xl border border-slate-300/75 bg-white/65 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.10)] backdrop-blur-2xl transition-all dark:border-white/10 dark:bg-slate-800 dark:shadow-[0_12px_30px_rgba(2,6,23,0.5)]">
+                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/90 to-transparent dark:via-white/20" />
                 <div className="mb-4 flex items-center justify-between">
-                  <span className={step.iconColor}>{step.icon}</span>
-                  <span className="text-2xl font-black text-slate-100 tabular-nums dark:text-slate-800">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/70 bg-white/75 shadow-[0_4px_14px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-800/70 dark:shadow-[0_8px_20px_rgba(2,6,23,0.35)]">
+                    <span className={step.iconColor}>{step.icon}</span>
+                  </span>
+                  <span className="text-2xl font-black text-slate-300/60 tabular-nums dark:text-slate-600/55">
                     {step.step}
                   </span>
                 </div>
@@ -97,8 +95,9 @@ const PlatformOverview = () => {
           transition={{ duration: 0.45, delay: 0.3 }}
           className="mt-5"
         >
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-[0_1px_8px_rgba(0,0,0,0.05)] dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-[0_1px_8px_rgba(0,0,0,0.24)]">
-            <div className="grid grid-cols-1 divide-y divide-slate-200/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-slate-600">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-300/75 bg-white/60 shadow-[0_12px_28px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-800 dark:shadow-[0_14px_30px_rgba(2,6,23,0.45)]">
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/90 to-transparent dark:via-white/20" />
+            <div className="grid grid-cols-1 divide-y divide-slate-300/65 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-slate-700/70">
               {[
                 {
                   title: "Team Spaces",
