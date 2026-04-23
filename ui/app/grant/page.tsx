@@ -139,6 +139,14 @@ const GrantDetail = () => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const goBackToGrants = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/grants");
+  };
+
   const TruncatedText = ({
     text,
     maxLength = 300,
@@ -195,8 +203,8 @@ const GrantDetail = () => {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 dark:bg-red-950/30">
-            <FiAlertCircle className="h-8 w-8 text-red-500" />
+          <div className="bg-danger-50 dark:bg-danger-950/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+            <FiAlertCircle className="text-danger-500 h-8 w-8" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Could not load grant
@@ -208,7 +216,7 @@ const GrantDetail = () => {
             className="mt-6"
             variant="outline"
             startIcon={<FiArrowLeft className="h-4 w-4" />}
-            onClick={() => router.back()}
+            onClick={goBackToGrants}
           >
             Go Back
           </Button>
@@ -224,11 +232,11 @@ const GrantDetail = () => {
       <span
         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
           dueRemainingDays < 0
-            ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
+            ? "bg-danger-100 text-danger-700 dark:bg-danger-900/40 dark:text-danger-400"
             : dueRemainingDays === 0
-              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+              ? "bg-warning-100 text-warning-700 dark:bg-warning-900/40 dark:text-warning-400"
               : dueRemainingDays < 14
-                ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                ? "bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
                 : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"
         }`}
       >
@@ -256,7 +264,7 @@ const GrantDetail = () => {
           <Button
             variant="outline"
             className="h-9 w-9 shrink-0 p-0!"
-            onClick={() => router.back()}
+            onClick={goBackToGrants}
             aria-label="Go back"
           >
             <FiArrowLeft className="h-4 w-4" />
@@ -572,7 +580,7 @@ const GrantDetail = () => {
               variant="outline"
               size="sm"
               startIcon={<FiArrowLeft className="h-4 w-4" />}
-              onClick={() => router.back()}
+              onClick={goBackToGrants}
             >
               Back to Grants
             </Button>
@@ -589,7 +597,7 @@ const GrantDetail = () => {
                   }
                   className={
                     isInWishlist(id)
-                      ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                      ? "border-danger-300 bg-danger-50 text-danger-700 hover:bg-danger-100 dark:border-danger-800 dark:bg-danger-900/30 dark:text-danger-300 dark:hover:bg-danger-900/50"
                       : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }
                   startIcon={

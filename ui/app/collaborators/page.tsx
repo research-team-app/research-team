@@ -30,8 +30,8 @@ import {
 
 const ITEMS_PER_PAGE = 12;
 type ViewMode = "all" | "ai";
-const COLLABORATOR_UI_STATE_KEY = "collaborators-ui-state-v1";
 const DEFAULT_RESULT_LIMIT = 25;
+const COLLABORATOR_UI_STATE_KEY = "collaborator_ui_state_v1";
 
 const DEFAULT_FILTERS: FilterOptions = {
   searchQuery: "",
@@ -218,12 +218,13 @@ const Collaborators: FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [aiQuery, setAiQuery] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiSearchError, setAiSearchError] = useState<string | null>(null);
   const [aiResultIds, setAiResultIds] = useState<string[] | null>(null);
   const [resultLimit, setResultLimit] = useState(DEFAULT_RESULT_LIMIT);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [hasHydratedState, setHasHydratedState] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({ ...DEFAULT_FILTERS });
+  const [hasHydratedState, setHasHydratedState] = useState(false);
 
   const isAllView = viewMode === "all";
   const {
@@ -339,6 +340,7 @@ const Collaborators: FC = () => {
   const clearFilters = () => {
     setFilters({ ...DEFAULT_FILTERS });
     setAiResultIds(null);
+    setAiSearchError(null);
     setAiQuery("");
     setResultLimit(DEFAULT_RESULT_LIMIT);
     setViewMode("all");
@@ -348,6 +350,7 @@ const Collaborators: FC = () => {
   const handleAiSearch = async () => {
     if (!aiQuery.trim()) return;
     setIsAiLoading(true);
+    setAiSearchError(null);
     try {
       await fetchAll();
       const res = await axios.post<{ ids: string[] }>(
@@ -359,8 +362,18 @@ const Collaborators: FC = () => {
       );
       setAiResultIds((res.data?.ids ?? []).map(String));
       setCurrentPage(1);
-    } catch {
-      setAiResultIds([]);
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string }; status?: number };
+        message?: string;
+      };
+      const message =
+        err.response?.data?.detail ??
+        (typeof err.response?.data === "string" ? err.response.data : null) ??
+        err.message ??
+        "AI search failed. Try again.";
+      setAiSearchError(message);
+      setAiResultIds(null);
     } finally {
       setIsAiLoading(false);
     }
@@ -369,6 +382,7 @@ const Collaborators: FC = () => {
   const handleViewModeChange = (nextMode: ViewMode) => {
     if (nextMode === "ai" && viewMode !== "ai") {
       setAiResultIds(null);
+      setAiSearchError(null);
       setAiQuery("");
     }
     setViewMode(nextMode);
@@ -405,12 +419,12 @@ const Collaborators: FC = () => {
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
           Filter by status
         </h3>
-        {hasActiveFilters(filters) && (
+        {viewMode !== "ai" && hasActiveFilters(filters) && (
           <Button
             onClick={clearFilters}
             variant="outline"
             intent="danger"
-            size="xs"
+            size="xxs"
             className="shrink-0"
             startIcon={<HiX className="size-3" />}
           >
@@ -418,12 +432,21 @@ const Collaborators: FC = () => {
           </Button>
         )}
       </div>
+      {viewMode === "ai" && (
+        <p
+          className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+          role="status"
+        >
+          Filters narrow the AI results, combine semantic matching with the
+          sidebar to refine further.
+        </p>
+      )}
       <FilterPanel filters={filters} setFilters={setFilters} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 px-3 py-6 sm:px-6 sm:py-8 lg:px-8 dark:bg-slate-950">
+    <div className="min-h-screen px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto max-w-6xl lg:max-w-7xl">
         <PageHeader variant="collaborators" />
 
@@ -457,29 +480,44 @@ const Collaborators: FC = () => {
           }
         >
           {viewMode === "ai" ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-              <InputField
-                className="min-w-0 flex-1"
-                type="text"
-                startIcon={<HiSparkles className="size-5" />}
-                placeholder="e.g. machine learning for genomics, climate science mentorship…"
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
-              />
-              <Button
-                intent="primary"
-                onClick={handleAiSearch}
-                disabled={isAiLoading}
-                className="shrink-0 sm:self-stretch"
-                startIcon={<HiSearch className="size-5" />}
-              >
-                {isAiLoading ? "Searching…" : "Search"}
-              </Button>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                <InputField
+                  className="min-w-0 flex-1"
+                  inputClassName="bg-transparent dark:bg-transparent"
+                  type="text"
+                  startIcon={<HiSparkles className="size-5" />}
+                  placeholder="e.g. machine learning for genomics, climate science mentorship…"
+                  value={aiQuery}
+                  onChange={(e) => {
+                    setAiQuery(e.target.value);
+                    if (aiSearchError) setAiSearchError(null);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
+                />
+                <Button
+                  intent="primary"
+                  onClick={handleAiSearch}
+                  disabled={isAiLoading || !aiQuery.trim()}
+                  className="shrink-0 sm:self-stretch"
+                  startIcon={<HiSearch className="size-5" />}
+                >
+                  {isAiLoading ? "Searching…" : "Search"}
+                </Button>
+              </div>
+              {aiSearchError && (
+                <p
+                  className="text-danger-600 dark:text-danger-400 text-sm"
+                  role="alert"
+                >
+                  {aiSearchError}
+                </p>
+              )}
             </div>
           ) : (
             <InputField
               className="w-full"
+              inputClassName="bg-transparent dark:bg-transparent"
               type="text"
               startIcon={<HiSearch className="size-5 text-slate-400" />}
               placeholder="Name, institution, department, or research interests…"
@@ -530,15 +568,15 @@ const Collaborators: FC = () => {
                   </span>{" "}
                   {totalCount === 1 ? "researcher" : "researchers"} found
                 </p>
-                {hasActiveFilters(filters) && (
+                {(hasActiveFilters(filters) || viewMode === "ai") && (
                   <Button
                     onClick={clearFilters}
                     intent="danger"
-                    size="xs"
+                    size="xxs"
                     variant="outline"
                     endIcon={<HiX className="size-3" />}
                   >
-                    Clear Filters
+                    {viewMode === "ai" ? "Reset" : "Clear Filters"}
                   </Button>
                 )}
               </div>

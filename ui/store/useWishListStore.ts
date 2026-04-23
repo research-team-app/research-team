@@ -165,7 +165,8 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
       });
       // Show success toast
       useToastStore.getState().addToast("Grant removed from saved grants", {
-        variant: "info",
+        variant: "success",
+        appearance: "outline",
         position: "top-right",
         duration: 3000,
       });

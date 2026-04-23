@@ -233,7 +233,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             aria-describedby={describedBy}
             className={clsx(
               // Base
-              "block w-full border transition-[border-color,box-shadow] duration-150",
+              "block w-full border-[1.5px] transition-[border-color,box-shadow] duration-150",
               "outline-none",
               // Shape & Size
               radiusClasses[radius],

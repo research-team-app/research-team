@@ -188,7 +188,7 @@ const Hero = () => {
                       icon: HiOutlineAcademicCap,
                       sub: "Across all statuses",
                       num: "text-slate-900 dark:text-slate-100",
-                      iconCls: "text-emerald-700 dark:text-emerald-300",
+                      iconCls: "text-success-700 dark:text-success-300",
                       subCls: "text-slate-500 dark:text-slate-300",
                       labelCls: "text-slate-700 dark:text-slate-200",
                     },
@@ -283,24 +283,24 @@ const Hero = () => {
                         {
                           label: "Active",
                           value: grantStats?.active || 0,
-                          dot: "bg-emerald-500",
-                          num: "text-slate-600 dark:text-emerald-100",
-                          top: "border-t-emerald-500/80",
-                          badge: "bg-emerald-50 dark:bg-emerald-900/30",
-                          labelCls: "text-emerald-600 dark:text-emerald-300",
+                          dot: "bg-success-500",
+                          num: "text-slate-600 dark:text-success-100",
+                          top: "border-t-success-500/80",
+                          badge: "bg-success-50 dark:bg-success-900/30",
+                          labelCls: "text-success-600 dark:text-success-300",
                           darkCard:
-                            "dark:border-emerald-700/45 dark:from-emerald-950/35 dark:to-slate-800/80",
+                            "dark:border-success-700/45 dark:from-success-950/35 dark:to-slate-800/80",
                         },
                         {
                           label: "Closed",
                           value: grantStats?.closed || 0,
-                          dot: "bg-red-500",
-                          num: "text-slate-600 dark:text-red-100",
-                          top: "border-t-red-500/80",
-                          badge: "bg-red-50 dark:bg-red-900/30",
-                          labelCls: "text-red-600 dark:text-red-300",
+                          dot: "bg-danger-500",
+                          num: "text-slate-600 dark:text-danger-100",
+                          top: "border-t-danger-500/80",
+                          badge: "bg-danger-50 dark:bg-danger-900/30",
+                          labelCls: "text-danger-600 dark:text-danger-300",
                           darkCard:
-                            "dark:border-red-800/45 dark:from-red-950/30 dark:to-slate-800/80",
+                            "dark:border-danger-800/45 dark:from-danger-950/30 dark:to-slate-800/80",
                         },
                         {
                           label: "Archived",
@@ -372,7 +372,7 @@ const Hero = () => {
                           label: "Health & Medicine",
                           value: grantStats?.byCategory.health || 0,
                           icon: HiOutlineHeart,
-                          bar: "bg-emerald-500/85 dark:bg-emerald-400/75",
+                          bar: "bg-success-500/85 dark:bg-success-400/75",
                           iconCls: "text-slate-600 dark:text-slate-300",
                         },
                         {
@@ -428,7 +428,7 @@ const Hero = () => {
                                   delay: idx * 0.08,
                                   ease: [0.22, 1, 0.36, 1] as const,
                                 }}
-                                viewport={{ once: true }}
+                                viewport={{ once: false }}
                                 className={`h-full rounded-full ${field.bar}`}
                               />
                             </div>

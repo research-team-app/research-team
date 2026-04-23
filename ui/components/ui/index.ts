@@ -4,6 +4,17 @@ export { default as Alert } from "./Alert";
 export { default as Badge } from "./Badge";
 export { default as Button } from "./Button";
 export type { ButtonProps, Intent, Variant, Size } from "./Button";
+export { default as IconButton } from "./IconButton";
+export type {
+  IconButtonProps,
+  IconButtonSize,
+  IconButtonVariant,
+} from "./IconButton";
+export { default as DatePickerField, YearDatePicker } from "./DatePickerField";
+export type {
+  DatePickerFieldProps,
+  YearDatePickerProps,
+} from "./DatePickerField";
 export type { Intent as SharedIntent } from "./types";
 export { Checkbox } from "./checkbox";
 export { ComboboxFilter } from "./Combobox";

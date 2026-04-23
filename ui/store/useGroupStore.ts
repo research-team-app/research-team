@@ -75,7 +75,6 @@ export interface GroupMessageReply {
 
 type UseGroupsOptions = {
   mineOnly?: boolean;
-  search?: string;
   publicOnly?: boolean;
   enabled?: boolean;
 };
@@ -83,10 +82,9 @@ type UseGroupsOptions = {
 export function useGroups(options: boolean | UseGroupsOptions = false) {
   const normalized: Required<UseGroupsOptions> =
     typeof options === "boolean"
-      ? { mineOnly: options, search: "", publicOnly: false, enabled: true }
+      ? { mineOnly: options, publicOnly: false, enabled: true }
       : {
           mineOnly: !!options?.mineOnly,
-          search: (options?.search ?? "").trim(),
           publicOnly: !!options?.publicOnly,
           enabled: options?.enabled ?? true,
         };
@@ -96,7 +94,6 @@ export function useGroups(options: boolean | UseGroupsOptions = false) {
       "groups",
       normalized.mineOnly ? "mine" : "all",
       normalized.publicOnly ? "public-only" : "visible",
-      normalized.search,
     ],
     queryFn: async () => {
       const headers = await getAuthHeaders();
@@ -109,9 +106,6 @@ export function useGroups(options: boolean | UseGroupsOptions = false) {
         mine_only: normalized.mineOnly ? "true" : "false",
         public_only: normalized.publicOnly ? "true" : "false",
       });
-      if (normalized.search) {
-        query.set("search", normalized.search);
-      }
       const { data } = await axios.get<{ items?: GroupItem[] }>(
         `${API_URL}/groups?${query.toString()}`,
         { headers }
@@ -192,6 +186,30 @@ export function useInviteToGroup() {
     },
     onSuccess: ({ groupId }) => {
       qc.invalidateQueries({ queryKey: ["group-members", groupId] });
+    },
+  });
+}
+
+export function useUpdateGroupVisibility() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      groupId,
+      visibility,
+    }: {
+      groupId: string;
+      visibility: GroupVisibility;
+    }) => {
+      const headers = await getAuthHeaders();
+      const { data } = await axios.patch<{ group: GroupItem }>(
+        `${API_URL}/groups/${encodeURIComponent(groupId)}`,
+        { visibility },
+        { headers }
+      );
+      return data.group;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["groups"] });
     },
   });
 }

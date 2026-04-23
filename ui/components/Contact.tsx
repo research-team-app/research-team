@@ -3,9 +3,8 @@
 import {
   FiCheckCircle,
   FiUsers,
-  FiMail,
-  FiPhone,
   FiMapPin,
+  FiClock,
   FiLinkedin,
   FiSend,
   FiMessageCircle,
@@ -114,7 +113,7 @@ const Contact: React.FC = () => {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           {/* Left Side - Info Section */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -166,42 +165,6 @@ const Contact: React.FC = () => {
               </p>
 
               <div className="space-y-3">
-                <motion.a
-                  href="mailto:research.team.app@gmail.com"
-                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-slate-300/70 bg-white/60 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/60"
-                  whileHover={{ x: 0 }}
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300/75 bg-white/70 dark:border-white/10 dark:bg-slate-700/70">
-                    <FiMail className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-                      Email
-                    </div>
-                    <div className="truncate text-sm font-medium text-slate-900 dark:text-white">
-                      research.team.app@gmail.com
-                    </div>
-                  </div>
-                </motion.a>
-
-                <motion.a
-                  href="tel:+18323106869"
-                  className="group flex cursor-pointer items-start gap-4 rounded-xl border border-slate-300/70 bg-white/60 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/60"
-                  whileHover={{ x: 0 }}
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300/75 bg-white/70 dark:border-white/10 dark:bg-slate-700/70">
-                    <FiPhone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-                      Phone
-                    </div>
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">
-                      +1 (832) 310 6869
-                    </div>
-                  </div>
-                </motion.a>
-
                 <motion.div
                   className="flex items-start gap-4 rounded-xl border border-slate-300/70 bg-white/60 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/60"
                   whileHover={{ x: 0 }}
@@ -216,6 +179,26 @@ const Contact: React.FC = () => {
                     <div className="text-sm font-medium text-slate-900 dark:text-white">
                       Nashville, TN
                     </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  className="flex items-start gap-4 rounded-xl border border-slate-300/70 bg-white/60 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-slate-700/60"
+                  whileHover={{ x: 0 }}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300/75 bg-white/70 dark:border-white/10 dark:bg-slate-700/70">
+                    <FiClock className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                      Response Time
+                    </div>
+                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                      Typically within 24 hours
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Use the contact form to reach the team directly.
+                    </p>
                   </div>
                 </motion.div>
               </div>
@@ -256,7 +239,7 @@ const Contact: React.FC = () => {
 
           {/* Right Side - Form Section */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -369,9 +352,9 @@ const Contact: React.FC = () => {
                   <Toast
                     isOpen={toast.isOpen}
                     onClose={() => setToast((t) => ({ ...t, isOpen: false }))}
+                    position="top-right"
                     variant={toast.variant}
                     duration={10000}
-                    position="bottom-right"
                   >
                     {toast.message}
                   </Toast>

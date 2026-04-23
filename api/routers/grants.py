@@ -4,7 +4,7 @@ import json
 
 import httpx
 from fastapi import APIRouter, Body, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 import db
 from services.vector_utility import VectorUtility
@@ -27,6 +27,15 @@ DEFAULT_STATUSES = ("posted",)
 class GrantSearchFuzzyParams(BaseModel):
     keyword: str
     top_k: int = 20
+
+    @field_validator("top_k", mode="before")
+    @classmethod
+    def _clamp_top_k(cls, v):
+        try:
+            n = int(v)
+        except (TypeError, ValueError):
+            return 20
+        return max(1, min(100, n))
 
 
 async def _grant_details_from_db(grant_id: str) -> dict | None:

@@ -306,7 +306,7 @@ export default function Login() {
           </div>
 
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-600 text-white">
+            <div className="bg-info-600 flex h-10 w-10 items-center justify-center rounded-lg text-white">
               <KeyIcon className="h-6 w-6" />
             </div>
             <div>
@@ -445,7 +445,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setView("login")}
-                  className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                 >
                   Sign in
                 </button>
@@ -456,10 +456,10 @@ export default function Login() {
           {view === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
               {loginError && (
-                <div className="rounded-lg border border-red-200 bg-red-50/80 px-3 py-2.5 dark:border-red-900/50 dark:bg-red-950/20">
+                <div className="border-danger-200 bg-danger-50/80 dark:border-danger-900/50 dark:bg-danger-950/20 rounded-lg border px-3 py-2.5">
                   <div className="flex items-start gap-2">
-                    <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
-                    <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                    <ExclamationCircleIcon className="text-danger-600 dark:text-danger-400 mt-0.5 h-5 w-5 shrink-0" />
+                    <p className="text-danger-700 dark:text-danger-300 text-sm font-medium">
                       {loginError}
                     </p>
                   </div>
@@ -513,7 +513,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setView("forgot")}
-                    className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                    className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                   >
                     Forgot password?
                   </button>
@@ -558,7 +558,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setView("signup")}
-                  className="cursor-pointer font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 cursor-pointer font-medium underline underline-offset-2"
                 >
                   Create an account
                 </button>
@@ -595,7 +595,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setView("login")}
-                  className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                 >
                   Back to sign in
                 </button>
@@ -660,7 +660,7 @@ export default function Login() {
                       );
                     }
                   }}
-                  className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                 >
                   resend
                 </button>
@@ -671,7 +671,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setView("login")}
-                  className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                 >
                   Go to sign in
                 </button>
@@ -747,7 +747,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setView("login")}
-                  className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                  className="text-info-700 decoration-info-300 hover:text-info-800 dark:text-info-300 dark:hover:text-info-200 font-medium underline underline-offset-2"
                 >
                   Return to sign in
                 </button>

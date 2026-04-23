@@ -8,12 +8,11 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from routers.users import (
+    _normalize_timeline_items,
     extract_user_text_for_embedding,
     row_to_dict,
     serialize_json_value,
 )
-
-# ── serialize_json_value ──────────────────────────────────────────────────────
 
 
 def test_serialize_json_value_none():
@@ -42,9 +41,6 @@ def test_serialize_json_value_plain_string_wrapped():
 
 def test_serialize_json_value_bool():
     assert serialize_json_value(True) == "true"
-
-
-# ── row_to_dict ───────────────────────────────────────────────────────────────
 
 
 def test_row_to_dict_deserializes_json_text_fields():
@@ -92,7 +88,36 @@ def test_row_to_dict_leaves_invalid_json_as_string():
     assert result["research_interests"] == "not-valid-json{{"
 
 
-# ── extract_user_text_for_embedding ──────────────────────────────────────────
+def test_row_to_dict_drops_legacy_year_fields_without_backfill():
+    plain = {
+        "education": json.dumps(
+            [{"degree": "PhD", "start_year": 2030, "end_year": 2034}]
+        ),
+        "experience": json.dumps([{"title": "RS", "start_year": 2020}]),
+    }
+
+    class FakeRow:
+        def __iter__(self):
+            return iter(plain.items())
+
+    result = row_to_dict(FakeRow())
+    assert result["education"][0]["start_date"] is None
+    assert result["education"][0]["end_date"] is None
+    assert result["experience"][0]["start_date"] is None
+    assert "start_year" not in result["education"][0]
+    assert "end_year" not in result["education"][0]
+
+
+def test_normalize_timeline_items_strict_dates_only():
+    items = [
+        {"start_date": "2030-01-15", "end_date": "2031-12-31"},
+        {"start_date": "bad-date", "start_year": 2022},
+    ]
+    normalized = _normalize_timeline_items(items)
+    assert normalized[1]["start_date"] is None
+    assert "start_year" not in normalized[0]
+    assert "end_year" not in normalized[0]
+    assert "start_year" not in normalized[1]
 
 
 def test_extract_user_text_basic():
@@ -145,7 +170,7 @@ def test_extract_user_text_empty_data():
     assert isinstance(text, str)
 
 
-# ── Route: GET /health ────────────────────────────────────────────────────────
+# Route: GET /health
 
 
 @pytest.mark.asyncio
@@ -156,7 +181,7 @@ async def test_health_endpoint(client):
     assert response.json()["message"] == "Research Team API is Online"
 
 
-# ── Route: POST /auth/token ───────────────────────────────────────────────────
+# Route: POST /auth/token
 
 
 @pytest.mark.asyncio
@@ -178,7 +203,7 @@ async def test_auth_token_wrong_key(client):
     assert response.status_code == 401
 
 
-# ── Route: GET /users ─────────────────────────────────────────────────────────
+# Route: GET /users
 
 
 @pytest.mark.asyncio
@@ -205,7 +230,7 @@ async def test_list_users_by_ids_empty_result(client):
     assert data["items"] == []
 
 
-# ── Route: GET /users/{id} ────────────────────────────────────────────────────
+# Route: GET /users/{id}
 
 
 @pytest.mark.asyncio

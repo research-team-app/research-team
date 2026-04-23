@@ -137,7 +137,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* ── Main grid: description + nav columns ── */}
+        {/* Main grid: description + nav columns */}
         <div className="mb-10 grid grid-cols-1 gap-10 border-t border-slate-100 pt-10 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800">
           {/* Brand column */}
           <div className="lg:pr-8">
@@ -179,7 +179,7 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* ── Newsletter ── */}
+        {/* Newsletter */}
         <div className="mb-10 rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] sm:p-6 dark:border-slate-700/60 dark:bg-slate-800">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -220,7 +220,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* ── Bottom bar ── */}
+        {/*Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800">
           <p className="text-xs text-slate-400 dark:text-slate-500">
             © {new Date().getFullYear()} Research Team. All rights reserved.

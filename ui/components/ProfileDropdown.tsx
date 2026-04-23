@@ -43,7 +43,7 @@ const menuIntentClasses: Record<MenuIntent, string> = {
   secondary:
     "text-slate-700 hover:bg-slate-100 focus:bg-slate-100 data-highlighted:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-700/80 dark:focus:bg-slate-700/80 dark:data-highlighted:bg-slate-700/80",
   danger:
-    "text-red-600 hover:bg-red-50 focus:bg-red-50 data-highlighted:bg-red-50 dark:text-red-300 dark:hover:bg-red-900/35 dark:focus:bg-red-900/35 dark:data-highlighted:bg-red-900/35",
+    "text-danger-600 hover:bg-danger-50 focus:bg-danger-50 data-highlighted:bg-danger-50 dark:text-danger-300 dark:hover:bg-danger-900/35 dark:focus:bg-danger-900/35 dark:data-highlighted:bg-danger-900/35",
 };
 
 function menuItemClass(intent: MenuIntent = "secondary") {
@@ -250,7 +250,7 @@ export default function ProfileDropdown() {
                   onClick={() => setOpen(false)}
                 >
                   <span className="flex items-center gap-2">
-                    <BookmarkIcon className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400/90" />
+                    <BookmarkIcon className="text-warning-500 dark:text-warning-400/90 h-4 w-4 shrink-0" />
                     Saved grants
                     {wishlistIds.length > 0 && (
                       <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
@@ -405,7 +405,7 @@ export default function ProfileDropdown() {
           </DialogHeader>
 
           {settingsError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="text-danger-600 dark:text-danger-400 text-sm">
               {settingsError}
             </p>
           )}
@@ -483,14 +483,14 @@ export default function ProfileDropdown() {
             </div>
 
             {/* Danger zone */}
-            <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 dark:border-red-900/40 dark:bg-red-950/20">
+            <div className="border-danger-200 bg-danger-50/50 dark:border-danger-900/40 dark:bg-danger-950/20 rounded-lg border p-4">
               <div className="flex items-start gap-3">
-                <TrashIcon className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+                <TrashIcon className="text-danger-600 dark:text-danger-400 mt-0.5 h-5 w-5 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                  <p className="text-danger-800 dark:text-danger-200 text-sm font-medium">
                     Delete profile
                   </p>
-                  <p className="mt-0.5 text-xs text-red-700/90 dark:text-red-300/90">
+                  <p className="text-danger-700/90 dark:text-danger-300/90 mt-0.5 text-xs">
                     Permanently remove your profile. You can register again
                     later.
                   </p>

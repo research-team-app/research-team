@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-# ── Route: GET /grants ────────────────────────────────────────────────────────
+# Route: GET /grants
 
 
 @pytest.mark.asyncio

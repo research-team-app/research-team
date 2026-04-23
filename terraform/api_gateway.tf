@@ -38,8 +38,8 @@ resource "aws_apigatewayv2_stage" "default" {
   # Add this back once ready to enable access logging without disrupting production.
 
   default_route_settings {
-    throttling_burst_limit = 1000
-    throttling_rate_limit  = 1000
+    throttling_burst_limit = 5000
+    throttling_rate_limit  = 10000
   }
 }
 

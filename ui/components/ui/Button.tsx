@@ -6,6 +6,7 @@ import {
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
 } from "react";
+import NextLink from "next/link";
 import clsx from "clsx";
 import { FaSpinner } from "react-icons/fa";
 import type { Intent as SharedIntent } from "./types";
@@ -13,7 +14,7 @@ import type { Intent as SharedIntent } from "./types";
 export type Intent = SharedIntent;
 
 export type Variant = "solid" | "outline" | "link";
-export type Size = "xs" | "sm" | "md" | "lg" | "xl";
+export type Size = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -135,6 +136,8 @@ const Button = forwardRef<ButtonElement, ButtonProps>(function Button(
   const getSizeClass = () => {
     if (variant === "link") {
       switch (size) {
+        case "xxs":
+          return "text-[10px] gap-1";
         case "xs":
           return "text-[11px] gap-1";
         case "sm":
@@ -148,6 +151,8 @@ const Button = forwardRef<ButtonElement, ButtonProps>(function Button(
       }
     }
     switch (size) {
+      case "xxs":
+        return "text-[10px] font-semibold px-2 py-0.5 gap-1";
       case "xs":
         return "text-[11px] font-semibold px-2 py-1 gap-1";
       case "sm":
@@ -171,6 +176,7 @@ const Button = forwardRef<ButtonElement, ButtonProps>(function Button(
 
     getSizeClass(),
     variantStyles[variant][intent],
+    variant === "outline" && "border-[1.5px]",
     isDisabled && "opacity-60 cursor-not-allowed pointer-events-none",
     fullWidth && "w-full",
     className
@@ -208,13 +214,31 @@ const Button = forwardRef<ButtonElement, ButtonProps>(function Button(
   );
 
   if (href && !isDisabled) {
+    if (isExternal || target === "_blank") {
+      return (
+        <a
+          href={href}
+          ref={ref as React.Ref<HTMLAnchorElement>}
+          className={baseClass}
+          target={target}
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            const anchorClick =
+              onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>;
+            anchorClick?.(e);
+          }}
+          role={role}
+        >
+          {content}
+        </a>
+      );
+    }
     return (
-      <a
+      <NextLink
         href={href}
         ref={ref as React.Ref<HTMLAnchorElement>}
         className={baseClass}
         target={target}
-        rel={isExternal ? "noopener noreferrer" : undefined}
         onClick={(e) => {
           const anchorClick =
             onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>;
@@ -223,7 +247,7 @@ const Button = forwardRef<ButtonElement, ButtonProps>(function Button(
         role={role}
       >
         {content}
-      </a>
+      </NextLink>
     );
   }
 

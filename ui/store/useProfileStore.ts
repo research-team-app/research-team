@@ -96,8 +96,8 @@ export type ResearcherProfile = {
     degree?: string;
     institution?: string;
     field_of_study?: string;
-    start_year?: number;
-    end_year?: number;
+    start_date?: string;
+    end_date?: string;
     expected?: boolean;
     description?: string;
   }[];
@@ -107,8 +107,8 @@ export type ResearcherProfile = {
     company?: string;
     location?: string;
     employment_type?: string;
-    start_year?: number;
-    end_year?: number;
+    start_date?: string;
+    end_date?: string;
     current?: boolean;
     description?: string;
   }[];
@@ -121,6 +121,7 @@ export type ResearcherProfile = {
     year?: number;
     status?: string;
   }[];
+  publications?: unknown[];
 };
 
 export const RESEARCHER_DEFAULT_VALUES: ResearcherProfile = {
@@ -154,6 +155,7 @@ export const RESEARCHER_DEFAULT_VALUES: ResearcherProfile = {
   education: [],
   experience: [],
   grants: [],
+  publications: [],
   status: "public",
 };
 

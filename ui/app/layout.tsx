@@ -35,7 +35,8 @@ export default function RootLayout({
       >
         <Providers>
           <Navbar />
-          {children}
+          {/* body */}
+          <div className="bg-white dark:bg-slate-950">{children}</div>
           <Container variant="footer">
             <Footer />
           </Container>

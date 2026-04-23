@@ -127,10 +127,10 @@ const GrantSummaryCard = ({
   };
 
   const urgencyStyles: Record<string, string> = {
-    closed: "text-red-500 dark:text-red-400",
-    critical: "text-red-600 dark:text-red-400 animate-pulse",
-    warning: "text-amber-600 dark:text-amber-400",
-    safe: "text-emerald-600 dark:text-emerald-400",
+    closed: "text-danger-500 dark:text-danger-400",
+    critical: "text-danger-600 dark:text-danger-400 animate-pulse",
+    warning: "text-warning-600 dark:text-warning-400",
+    safe: "text-success-600 dark:text-success-400",
     none: "text-slate-500 dark:text-slate-400",
   };
 
@@ -194,16 +194,16 @@ const GrantSummaryCard = ({
     if (s.includes("posted") || s.includes("open")) {
       return {
         style:
-          "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-800/60",
-        dotColor: "bg-emerald-500",
+          "bg-success-50 text-success-700 ring-1 ring-success-200 dark:bg-success-950/50 dark:text-success-300 dark:ring-success-800/60",
+        dotColor: "bg-success-500",
         label: "Open",
       };
     }
     if (s.includes("closed")) {
       return {
         style:
-          "bg-red-50 text-red-600 ring-1 ring-red-200 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800/60",
-        dotColor: "bg-red-500",
+          "bg-danger-50 text-danger-600 ring-1 ring-danger-200 dark:bg-danger-950/50 dark:text-danger-400 dark:ring-danger-800/60",
+        dotColor: "bg-danger-500",
         label: "Closed",
       };
     }
@@ -217,8 +217,8 @@ const GrantSummaryCard = ({
     }
     return {
       style:
-        "bg-blue-50 text-blue-600 ring-1 ring-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800/60",
-      dotColor: "bg-blue-500",
+        "bg-info-50 text-info-600 ring-1 ring-info-200 dark:bg-info-950/50 dark:text-info-400 dark:ring-info-800/60",
+      dotColor: "bg-info-500",
       label: status,
     };
   };
@@ -232,9 +232,9 @@ const GrantSummaryCard = ({
 
   const progressBarColor =
     dateProgress >= 90
-      ? "bg-red-500"
+      ? "bg-danger-500"
       : dateProgress >= 75
-        ? "bg-amber-500"
+        ? "bg-warning-500"
         : "bg-primary-500 dark:bg-primary-400";
 
   return (
@@ -256,7 +256,7 @@ const GrantSummaryCard = ({
       <div
         className={`relative flex h-full min-h-110 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-slate-200/70 dark:border-slate-700/60 dark:bg-slate-800 dark:shadow-md dark:shadow-black/30 dark:group-hover:shadow-lg dark:group-hover:shadow-black/50`}
       >
-        {/* ── Header ─────────────────────────────────────────────── */}
+        {/*Header */}
         <div className="relative flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4 dark:border-slate-700/60">
           {/* Agency */}
           <div className="flex min-w-0 items-center gap-3">
@@ -292,7 +292,7 @@ const GrantSummaryCard = ({
           </div>
         </div>
 
-        {/* ── Body ───────────────────────────────────────────────── */}
+        {/* Body */}
         <div className="flex flex-1 flex-col px-5 py-5 sm:px-6">
           {/* Search match chips */}
           {!!highlightQuery?.trim() && (
@@ -304,13 +304,13 @@ const GrantSummaryCard = ({
                 matchedFields.slice(0, 3).map((field) => (
                   <span
                     key={field}
-                    className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300"
+                    className="border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-700/50 dark:bg-warning-900/20 dark:text-warning-300 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold"
                   >
                     {field}
                   </span>
                 ))
               ) : (
-                <span className="rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300">
+                <span className="border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-700/50 dark:bg-warning-900/20 dark:text-warning-300 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold">
                   semantic relevance
                 </span>
               )}
@@ -322,7 +322,7 @@ const GrantSummaryCard = ({
             {highlightText(grant.title, highlightQuery)}
           </h3>
 
-          {/* ── Timeline block ──────────────────────────────────── */}
+          {/* Timeline block  */}
           <div className="mb-5 rounded-lg border border-slate-100 bg-slate-50/80 px-4 py-3.5 dark:border-slate-700/50 dark:bg-slate-700/30">
             {/* Label + countdown */}
             <div className="mb-2.5 flex items-center justify-between">
@@ -374,7 +374,7 @@ const GrantSummaryCard = ({
             </div>
           </div>
 
-          {/* ── Meta fields ─────────────────────────────────────── */}
+          {/* Meta fields  */}
           <div className="grid grid-cols-[3rem_1fr] gap-x-3 gap-y-2.5 border-t border-slate-100 pt-4 text-xs dark:border-slate-700/60">
             {[
               { label: "ID", value: String(grant.id) },
@@ -398,7 +398,7 @@ const GrantSummaryCard = ({
           <div className="flex-1" />
         </div>
 
-        {/* ── Footer / Actions ───────────────────────────────────── */}
+        {/* Footer / Actions  */}
         <div className="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50 px-5 py-3 dark:border-slate-700/60 dark:bg-slate-700/30">
           {/* Wishlist */}
           <div className="min-w-0">
@@ -417,7 +417,7 @@ const GrantSummaryCard = ({
                 aria-label={isWishlisted ? "Remove from saved" : "Save grant"}
                 className={
                   isWishlisted
-                    ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-transparent dark:text-red-100 dark:hover:bg-red-900/50"
+                    ? "border-danger-300 bg-danger-50 text-danger-700 hover:bg-danger-100 dark:border-danger-700 dark:text-danger-100 dark:hover:bg-danger-900/50 dark:bg-transparent"
                     : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-100"
                 }
                 startIcon={
