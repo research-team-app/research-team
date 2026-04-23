@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+  type InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -61,6 +62,13 @@ interface FeedPostsResponse {
   page_size: number;
 }
 
+type FeedContext = {
+  previousInfinite: Array<
+    [readonly unknown[], InfiniteData<FeedPostsResponse, number> | undefined]
+  >;
+  optimisticPostId?: string;
+};
+
 interface FeedCommentsResponse {
   items: FeedComment[];
   total: number;
@@ -80,6 +88,91 @@ interface PostLikersResponse {
   post_id: string;
   items: FeedLikeUser[];
   total: number;
+}
+
+function prependPostToFeed(
+  oldData: InfiniteData<FeedPostsResponse, number> | undefined,
+  createdPost: FeedPost
+): InfiniteData<FeedPostsResponse, number> | undefined {
+  if (!oldData?.pages?.length) return oldData;
+  const exists = oldData.pages.some((page) =>
+    page.items.some((p) => p.id === createdPost.id)
+  );
+  if (exists) return oldData;
+  const [first, ...rest] = oldData.pages;
+  return {
+    ...oldData,
+    pages: [
+      {
+        ...first,
+        items: [createdPost, ...first.items],
+        total: (first.total ?? 0) + 1,
+      },
+      ...rest,
+    ],
+  };
+}
+
+function removePostFromFeed(
+  oldData: InfiniteData<FeedPostsResponse, number> | undefined,
+  postId: string
+): InfiniteData<FeedPostsResponse, number> | undefined {
+  if (!oldData?.pages?.length) return oldData;
+  const removed = oldData.pages.some((page) =>
+    page.items.some((p) => p.id === postId)
+  );
+  if (!removed) return oldData;
+
+  const pages = oldData.pages.map((page) => {
+    const filtered = page.items.filter((p) => p.id !== postId);
+    return {
+      ...page,
+      items: filtered,
+      total: Math.max(0, (page.total ?? 0) - 1),
+    };
+  });
+  return { ...oldData, pages };
+}
+
+function updatePostInFeed(
+  oldData: InfiniteData<FeedPostsResponse, number> | undefined,
+  updatedPost: FeedPost
+): InfiniteData<FeedPostsResponse, number> | undefined {
+  if (!oldData?.pages?.length) return oldData;
+  let changed = false;
+  const pages = oldData.pages.map((page) => {
+    const items = page.items.map((p) => {
+      if (p.id !== updatedPost.id) return p;
+      changed = true;
+      return {
+        ...p,
+        ...updatedPost,
+      };
+    });
+    return { ...page, items };
+  });
+  return changed ? { ...oldData, pages } : oldData;
+}
+
+function updateAllInfiniteFeedCaches(
+  qc: ReturnType<typeof useQueryClient>,
+  updater: (
+    oldData: InfiniteData<FeedPostsResponse, number> | undefined
+  ) => InfiniteData<FeedPostsResponse, number> | undefined
+) {
+  qc.setQueriesData(
+    { queryKey: ["feed", "posts", "infinite"] },
+    (oldData: InfiniteData<FeedPostsResponse, number> | undefined) =>
+      updater(oldData)
+  );
+}
+
+function refreshFeedCaches(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ["feed", "posts"], refetchType: "all" });
+  qc.refetchQueries({
+    queryKey: ["feed", "posts", "infinite"],
+    type: "active",
+  });
 }
 
 export function useFeedPosts(page = 1, pageSize = 20) {
@@ -220,8 +313,50 @@ export function useCreateFeedPost() {
       );
       return data;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
+    onMutate: async (variables): Promise<FeedContext> => {
+      await qc.cancelQueries({ queryKey: ["feed", "posts"] });
+      const previousInfinite = qc.getQueriesData<
+        InfiniteData<FeedPostsResponse, number> | undefined
+      >({
+        queryKey: ["feed", "posts", "infinite"],
+      });
+
+      const optimisticPostId = `temp-${Date.now()}`;
+      const optimisticPost: FeedPost = {
+        id: optimisticPostId,
+        author: {
+          id: "me",
+          name: "You",
+        },
+        content: variables.content,
+        likes_count: 0,
+        dislikes_count: 0,
+        comments_count: 0,
+        attachment: null,
+        created_at: new Date().toISOString(),
+      };
+
+      updateAllInfiniteFeedCaches(qc, (oldData) =>
+        prependPostToFeed(oldData, optimisticPost)
+      );
+
+      return { previousInfinite, optimisticPostId };
+    },
+    onSuccess: (createdPost, _variables, context) => {
+      updateAllInfiniteFeedCaches(qc, (oldData) =>
+        prependPostToFeed(
+          removePostFromFeed(oldData, context?.optimisticPostId ?? ""),
+          createdPost
+        )
+      );
+    },
+    onError: (_error, _variables, context) => {
+      context?.previousInfinite?.forEach(([queryKey, snapshot]) => {
+        qc.setQueryData(queryKey, snapshot);
+      });
+    },
+    onSettled: () => {
+      refreshFeedCaches(qc);
     },
   });
 }
@@ -229,18 +364,48 @@ export function useCreateFeedPost() {
 export function useDeleteFeedPost() {
   const qc = useQueryClient();
   return useMutation({
+    onMutate: async (postId): Promise<FeedContext> => {
+      await qc.cancelQueries({ queryKey: ["feed", "posts"] });
+      const previousInfinite = qc.getQueriesData<
+        InfiniteData<FeedPostsResponse, number> | undefined
+      >({
+        queryKey: ["feed", "posts", "infinite"],
+      });
+      updateAllInfiniteFeedCaches(qc, (oldData) =>
+        removePostFromFeed(oldData, postId)
+      );
+      return { previousInfinite };
+    },
     mutationFn: async (postId: string) => {
       const headers = await getAuthHeaders();
-      await axios.delete(
-        `${API_URL}/feed/posts/${encodeURIComponent(postId)}`,
-        {
-          headers,
+      try {
+        await axios.delete(
+          `${API_URL}/feed/posts/${encodeURIComponent(postId)}`,
+          {
+            headers,
+          }
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          // Treat stale already-deleted posts as success.
+          return postId;
         }
-      );
+        throw error;
+      }
       return postId;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
+    onSuccess: (postId) => {
+      updateAllInfiniteFeedCaches(qc, (oldData) =>
+        removePostFromFeed(oldData, postId)
+      );
+    },
+    onError: (_error, _postId, context) => {
+      context?.previousInfinite?.forEach(([queryKey, snapshot]) => {
+        qc.setQueryData(queryKey, snapshot);
+      });
+    },
+    onSettled: () => {
+      refreshFeedCaches(qc);
     },
   });
 }
@@ -263,8 +428,13 @@ export function useUpdateFeedPost() {
       );
       return data;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["feed", "posts"] });
+    onSuccess: (updatedPost) => {
+      updateAllInfiniteFeedCaches(qc, (oldData) =>
+        updatePostInFeed(oldData, updatedPost)
+      );
+    },
+    onSettled: () => {
+      refreshFeedCaches(qc);
     },
   });
 }

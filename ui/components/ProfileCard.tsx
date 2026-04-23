@@ -64,7 +64,7 @@ const collaboratorMatchFields = (
     .map((f) => f.key);
 };
 
-/* ── Social link row ──────────────────────────────────────────────── */
+/* Social link row */
 
 const socialLinkClass =
   "flex items-center justify-center rounded-lg p-2 text-slate-400 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-slate-500 dark:hover:bg-slate-700/50 dark:hover:text-slate-200";
@@ -142,7 +142,7 @@ function hasAnySocialLink(c: Collaborator): boolean {
   );
 }
 
-/* ── ProfileCard ──────────────────────────────────────────────────── */
+/* ProfileCard  */
 
 const ProfileCard: FC<{
   collaborator: Collaborator;
@@ -185,7 +185,7 @@ const ProfileCard: FC<{
             href={`/profile?id=${encodeURIComponent(String(collaborator.id ?? ""))}`}
             title="View profile"
             size={44}
-            className="rounded-lg hover:opacity-90"
+            className="rounded-lg shadow-none ring-0 hover:opacity-90"
             textClassName="text-sm font-semibold"
           />
 

@@ -13,13 +13,12 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-# ── 1. Env vars must be set before any app module is imported ─────────────────
-os.environ["DATABASE_URL"] = "test-host.example.com"
+# Env vars must be set before any app module is imported
 os.environ["INTERNAL_API_KEY"] = "test-secret-key-for-tests"
 os.environ["COGNITO_USER_POOL_ID"] = ""  # disables Cognito auth
 os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
-# ── 2. Mock boto3 at the sys.modules level before app imports touch it ────────
+# Mock boto3 at the sys.modules level before app imports touch it
 _mock_session = MagicMock()
 _mock_boto3 = MagicMock()
 _mock_boto3.Session.return_value = _mock_session
@@ -31,8 +30,6 @@ sys.modules.setdefault("botocore.exceptions", MagicMock())
 
 # Add api/ to path so tests can import app modules directly
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-# ── Fixtures ──────────────────────────────────────────────────────────────────
 
 
 @pytest.fixture

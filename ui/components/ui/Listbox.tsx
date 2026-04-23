@@ -59,7 +59,7 @@ const radiusClasses: Record<Radius, string> = {
 
 // Border colors for normal state
 const borderColorByIntent: Record<Intent, string> = {
-  default: "border-zinc-300 dark:border-zinc-700",
+  default: "border-slate-300 dark:border-slate-500",
   primary: "border-primary-300 dark:border-primary-500/70",
   secondary: "border-secondary-300 dark:border-secondary-500/70",
   success: "border-success-300 dark:border-success-700",
@@ -70,7 +70,7 @@ const borderColorByIntent: Record<Intent, string> = {
 
 // Border colors for hover state
 const hoverBorderColorByIntent: Record<Intent, string> = {
-  default: "hover:border-zinc-400 dark:hover:border-zinc-600",
+  default: "hover:border-slate-400 dark:hover:border-slate-400",
   primary: "hover:border-primary-500 dark:hover:border-primary-400",
   secondary: "hover:border-secondary-500 dark:hover:border-secondary-400",
   success: "hover:border-success-500 dark:hover:border-success-600",
@@ -82,13 +82,13 @@ const hoverBorderColorByIntent: Record<Intent, string> = {
 // Background colors by variant and intent
 const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
   outline: {
-    default: "bg-transparent",
-    primary: "bg-transparent",
-    secondary: "bg-transparent",
-    success: "bg-transparent",
-    warning: "bg-transparent",
-    info: "bg-transparent",
-    danger: "bg-transparent",
+    default: "bg-white dark:bg-slate-900/80",
+    primary: "bg-white dark:bg-slate-900/80",
+    secondary: "bg-white dark:bg-slate-900/80",
+    success: "bg-white dark:bg-slate-900/80",
+    warning: "bg-white dark:bg-slate-900/80",
+    info: "bg-white dark:bg-slate-900/80",
+    danger: "bg-white dark:bg-slate-900/80",
   },
   subtle: {
     default:
@@ -124,7 +124,7 @@ const bgColorByVariant: Record<Variant, Record<Intent, string>> = {
 
 // Text color by intent
 const textColorByIntent: Record<Intent, string> = {
-  default: "text-zinc-900 dark:text-zinc-100",
+  default: "text-slate-900 dark:text-slate-100",
   primary: "text-primary-800 dark:text-primary-300",
   secondary: "text-secondary-800 dark:text-secondary-300",
   success: "text-success-700 dark:text-success-400",
@@ -226,7 +226,7 @@ const Listbox = ({
           id={id}
           className={clsx(
             "group relative flex w-full items-center justify-between transition-all duration-200",
-            "border",
+            "border-[1.5px]",
             sizeClasses[size],
             radiusClasses[radius],
             // Background color
@@ -239,7 +239,21 @@ const Listbox = ({
             // Error state
             showError && errorClasses,
             // States
-            "outline-none focus:outline-none",
+            "outline-none focus:ring-0 focus:outline-none",
+            intent === "default" &&
+              "focus:border-primary-500 dark:focus:border-primary-400 data-[state=open]:border-primary-500 dark:data-[state=open]:border-primary-400",
+            intent === "primary" &&
+              "focus:border-primary-500 dark:focus:border-primary-400 data-[state=open]:border-primary-500 dark:data-[state=open]:border-primary-400",
+            intent === "secondary" &&
+              "focus:border-secondary-500 dark:focus:border-secondary-400 data-[state=open]:border-secondary-500 dark:data-[state=open]:border-secondary-400",
+            intent === "success" &&
+              "focus:border-success-500 dark:focus:border-success-400 data-[state=open]:border-success-500 dark:data-[state=open]:border-success-400",
+            intent === "warning" &&
+              "focus:border-warning-500 dark:focus:border-warning-400 data-[state=open]:border-warning-500 dark:data-[state=open]:border-warning-400",
+            intent === "info" &&
+              "focus:border-info-500 dark:focus:border-info-400 data-[state=open]:border-info-500 dark:data-[state=open]:border-info-400",
+            intent === "danger" &&
+              "focus:border-danger-500 dark:focus:border-danger-400 data-[state=open]:border-danger-500 dark:data-[state=open]:border-danger-400",
             disabled && "cursor-not-allowed opacity-60",
             fullWidth && "w-full",
             // Shadow for solid variant
@@ -299,8 +313,8 @@ const Listbox = ({
             className={clsx(
               "z-50 max-h-60 overflow-hidden",
               radiusClasses[radius],
-              "bg-white shadow-lg dark:bg-zinc-800",
-              "border border-zinc-200 dark:border-zinc-700",
+              "bg-white shadow-lg dark:bg-slate-900",
+              "border border-slate-200 dark:border-slate-700",
               // Width handling for popper
               "w-full min-w-[var(--radix-select-trigger-width)]",
               // Animations
@@ -324,21 +338,29 @@ const Listbox = ({
                     className={clsx(
                       "relative flex w-full cursor-default items-center justify-between rounded-sm px-3 py-2 text-sm outline-none select-none",
                       // Highlighted state (equivalent to active)
-                      intent === "primary"
-                        ? "data-[highlighted]:bg-primary-50 dark:data-[highlighted]:bg-primary-900/30"
-                        : intent === "secondary"
-                          ? "data-[highlighted]:bg-secondary-50 dark:data-[highlighted]:bg-secondary-900/30"
-                          : intent === "info"
-                            ? "data-[highlighted]:bg-info-50 dark:data-[highlighted]:bg-info-900/30"
-                            : "data-[highlighted]:bg-zinc-100 dark:data-[highlighted]:bg-zinc-700",
+                      intent === "secondary"
+                        ? "data-[highlighted]:bg-secondary-50 dark:data-[highlighted]:bg-secondary-900/30"
+                        : intent === "info"
+                          ? "data-[highlighted]:bg-info-50 dark:data-[highlighted]:bg-info-900/30"
+                          : intent === "success"
+                            ? "data-[highlighted]:bg-success-50 dark:data-[highlighted]:bg-success-900/30"
+                            : intent === "warning"
+                              ? "data-[highlighted]:bg-warning-50 dark:data-[highlighted]:bg-warning-900/30"
+                              : intent === "danger"
+                                ? "data-[highlighted]:bg-danger-50 dark:data-[highlighted]:bg-danger-900/30"
+                                : "data-[highlighted]:bg-slate-100 dark:data-[highlighted]:bg-slate-800",
                       // Selected state
-                      intent === "primary"
-                        ? "data-[state=checked]:bg-primary-100 dark:data-[state=checked]:bg-primary-900/40"
-                        : intent === "secondary"
-                          ? "data-[state=checked]:bg-secondary-100 dark:data-[state=checked]:bg-secondary-900/40"
-                          : intent === "info"
-                            ? "data-[state=checked]:bg-info-100 dark:data-[state=checked]:bg-info-900/40"
-                            : "data-[state=checked]:bg-zinc-200 dark:data-[state=checked]:bg-zinc-600",
+                      intent === "secondary"
+                        ? "data-[state=checked]:bg-secondary-100 dark:data-[state=checked]:bg-secondary-900/40"
+                        : intent === "info"
+                          ? "data-[state=checked]:bg-info-100 dark:data-[state=checked]:bg-info-900/40"
+                          : intent === "success"
+                            ? "data-[state=checked]:bg-success-100 dark:data-[state=checked]:bg-success-900/40"
+                            : intent === "warning"
+                              ? "data-[state=checked]:bg-warning-100 dark:data-[state=checked]:bg-warning-900/40"
+                              : intent === "danger"
+                                ? "data-[state=checked]:bg-danger-100 dark:data-[state=checked]:bg-danger-900/40"
+                                : "data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800",
 
                       option.disabled && "pointer-events-none opacity-50",
                       optionClassName
@@ -357,13 +379,17 @@ const Listbox = ({
                       <CheckIcon
                         className={clsx(
                           "h-4 w-4",
-                          intent === "primary"
-                            ? "text-primary-600 dark:text-primary-400"
-                            : intent === "secondary"
-                              ? "text-secondary-600 dark:text-secondary-400"
-                              : intent === "info"
-                                ? "text-info-600 dark:text-info-400"
-                                : "text-zinc-700 dark:text-zinc-300"
+                          intent === "secondary"
+                            ? "text-secondary-600 dark:text-secondary-400"
+                            : intent === "info"
+                              ? "text-info-600 dark:text-info-400"
+                              : intent === "success"
+                                ? "text-success-600 dark:text-success-400"
+                                : intent === "warning"
+                                  ? "text-warning-600 dark:text-warning-400"
+                                  : intent === "danger"
+                                    ? "text-danger-600 dark:text-danger-400"
+                                    : "text-slate-700 dark:text-slate-300"
                         )}
                       />
                     </SelectPrimitive.ItemIndicator>

@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect, useRef, useState } from "react";
 import {
+  ArrowRightEndOnRectangleIcon,
   ArrowUpOnSquareIcon,
   ChatBubbleLeftRightIcon,
   FlagIcon,
@@ -16,12 +17,12 @@ import PageHeader from "@/components/PageHeader";
 import Avatar from "@/components/Avatar";
 import Button from "@/components/ui/Button";
 import TextArea from "@/components/ui/TextArea";
-import Toast from "@/components/ui/Toast";
 import Loading from "@/app/loading";
 import Error from "@/app/error";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastStore } from "@/store/useToastStore";
 import { API_URL } from "@/data/global";
+import { useSearchParams } from "next/navigation";
 import AttachmentChip from "@/components/AttachmentChip";
 import AttachmentPickerButton from "@/components/AttachmentPickerButton";
 import {
@@ -76,11 +77,6 @@ function PostCard({
   const [reportReason, setReportReason] = useState("");
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [toast, setToast] = useState<{
-    isOpen: boolean;
-    message: string;
-    variant: "success" | "error" | "info" | "warning";
-  }>({ isOpen: false, message: "", variant: "info" });
 
   const { data: commentsData, isLoading: isCommentsLoading } = useFeedComments(
     showComments ? post.id : null,
@@ -187,10 +183,10 @@ function PostCard({
       await createCommentMutation.mutateAsync({ postId: post.id, content });
       setCommentDraft("");
       setShowComments(true);
-      setToast({
-        isOpen: true,
-        message: "Comment added successfully.",
+      addToast("Comment added successfully.", {
         variant: "success",
+        position: "bottom-right",
+        duration: 4000,
       });
     } catch (err: unknown) {
       const detail =
@@ -202,12 +198,20 @@ function PostCard({
 
   const handleDeletePost = async () => {
     if (!isOwnPost) return;
-    await deletePostMutation.mutateAsync(post.id);
-    addToast("Post deleted.", {
-      variant: "success",
-      position: "bottom-right",
-      duration: 3000,
-    });
+    setActionError(null);
+    try {
+      await deletePostMutation.mutateAsync(post.id);
+      addToast("Post deleted.", {
+        variant: "success",
+        position: "bottom-right",
+        duration: 4000,
+      });
+    } catch (err: unknown) {
+      const detail =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail ?? "Unable to delete post right now.";
+      setActionError(detail);
+    }
   };
 
   const handleSavePostEdit = async () => {
@@ -238,10 +242,10 @@ function PostCard({
       });
       setReplyDraft("");
       setReplyTargetId(null);
-      setToast({
-        isOpen: true,
-        message: "Reply added successfully.",
+      addToast("Reply added successfully.", {
         variant: "success",
+        position: "bottom-right",
+        duration: 4000,
       });
     } catch (err: unknown) {
       const detail =
@@ -265,34 +269,34 @@ function PostCard({
           text: post.content.slice(0, 160),
           url: postLink,
         });
-        setToast({
-          isOpen: true,
-          message: "Post shared.",
+        addToast("Post shared.", {
           variant: "success",
+          position: "bottom-right",
+          duration: 4000,
         });
         return;
       }
 
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(postLink);
-        setToast({
-          isOpen: true,
-          message: "Post link copied.",
+        addToast("Post link copied.", {
           variant: "success",
+          position: "bottom-right",
+          duration: 4000,
         });
         return;
       }
 
-      setToast({
-        isOpen: true,
-        message: "Sharing is not available in this browser.",
+      addToast("Sharing is not available in this browser.", {
         variant: "warning",
+        position: "bottom-right",
+        duration: 4000,
       });
     } catch {
-      setToast({
-        isOpen: true,
-        message: "Could not share post right now.",
+      addToast("Could not share post right now.", {
         variant: "error",
+        position: "bottom-right",
+        duration: 4000,
       });
     }
   };
@@ -385,6 +389,7 @@ function PostCard({
               variant="outline"
               intent="danger"
               onClick={handleDeletePost}
+              disabled={deletePostMutation.isPending}
               title="Delete post"
             >
               <TrashIcon className="h-4 w-4" />
@@ -449,13 +454,12 @@ function PostCard({
             dislikeMutation.isPending ||
             undislikeMutation.isPending
           }
-          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
-            isLiked
-              ? "border-primary-200 bg-primary-50 text-primary-700 dark:border-primary-800/40 dark:bg-primary-950/30 dark:text-primary-400"
-              : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-          }`}
+          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white`}
+          aria-pressed={isLiked}
         >
-          <HandThumbUpIcon className="h-4 w-4" />
+          <HandThumbUpIcon
+            className={`h-4 w-4 ${isLiked ? "text-primary-600 dark:text-primary-400 fill-current" : ""}`}
+          />
           {displayedLikes > 0 && <span>{displayedLikes}</span>}
           <span>Like</span>
         </button>
@@ -470,13 +474,12 @@ function PostCard({
             dislikeMutation.isPending ||
             undislikeMutation.isPending
           }
-          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
-            isDisliked
-              ? "border-danger-200 bg-danger-50 text-danger-600 dark:border-danger-800/40 dark:bg-danger-950/30 dark:text-danger-400"
-              : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-          }`}
+          className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white`}
+          aria-pressed={isDisliked}
         >
-          <HandThumbDownIcon className="h-4 w-4" />
+          <HandThumbDownIcon
+            className={`h-4 w-4 ${isDisliked ? "text-danger-600 dark:text-danger-400 fill-current" : ""}`}
+          />
           {displayedDislikes > 0 && <span>{displayedDislikes}</span>}
           <span>Dislike</span>
         </button>
@@ -484,11 +487,12 @@ function PostCard({
         <button
           type="button"
           onClick={() => setShowComments((prev) => !prev)}
+          disabled={!currentUserId}
           className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-semibold transition-colors ${
             showComments
               ? "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-          }`}
+          } disabled:cursor-not-allowed disabled:opacity-50`}
         >
           <ChatBubbleLeftRightIcon className="h-4 w-4" />
           {displayedComments > 0 && <span>{displayedComments}</span>}
@@ -530,14 +534,14 @@ function PostCard({
       </div>
 
       {showReportForm && (
-        <div className="mt-3 rounded-lg border p-3 dark:bg-gray-950/50">
+        <div className="mt-3 rounded-lg border p-3 dark:bg-slate-950/50">
           {reportSubmitted ? (
-            <p className="text-xs font-medium text-red-700 dark:text-red-300">
+            <p className="text-danger-700 dark:text-danger-300 text-xs font-medium">
               Thanks — this post has been reported.
             </p>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-red-700 dark:text-red-300">
+              <p className="text-danger-700 dark:text-danger-300 text-xs font-semibold">
                 Report this post
               </p>
               <TextArea
@@ -622,7 +626,7 @@ function PostCard({
       {showComments && (
         <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 dark:border-slate-700">
           {actionError && (
-            <p className="text-xs text-red-600 dark:text-red-400">
+            <p className="text-danger-600 dark:text-danger-400 text-xs">
               {actionError}
             </p>
           )}
@@ -842,24 +846,14 @@ function PostCard({
           )}
         </div>
       )}
-
-      {toast.isOpen && (
-        <Toast
-          isOpen={toast.isOpen}
-          onClose={() => setToast((t) => ({ ...t, isOpen: false }))}
-          variant={toast.variant}
-          position="bottom-right"
-          duration={4000}
-        >
-          {toast.message}
-        </Toast>
-      )}
     </article>
   );
 }
 
 export default function FeedPage() {
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
+  const mineOnly = searchParams.get("mine") === "1";
   const [draft, setDraft] = useState("");
   const [draftFile, setDraftFile] = useState<File | null>(null);
   const [composerError, setComposerError] = useState<string | null>(null);
@@ -896,6 +890,11 @@ export default function FeedPage() {
       seen.add(post.id);
       return true;
     });
+    if (mineOnly && user?.id) {
+      return deduped.filter(
+        (post) => String(post.author?.id ?? "") === user.id
+      );
+    }
     if (followingIds.size === 0) return deduped;
     // Stable sort: followed users' posts bubble to the top, time order preserved within each group
     return [...deduped].sort((a, b) => {
@@ -905,7 +904,7 @@ export default function FeedPage() {
       if (!aF && bF) return 1;
       return 0;
     });
-  }, [data?.pages, followingIds]);
+  }, [data?.pages, followingIds, mineOnly, user?.id]);
 
   const handleCreatePost = async () => {
     const content = draft.trim();
@@ -981,7 +980,7 @@ export default function FeedPage() {
               />
 
               {composerError && (
-                <p className="mt-2 text-xs text-red-600 dark:text-red-400">
+                <p className="text-danger-600 dark:text-danger-400 mt-2 text-xs">
                   {composerError}
                 </p>
               )}
@@ -1031,8 +1030,11 @@ export default function FeedPage() {
                 intent="primary"
                 variant="outline"
                 size="sm"
+                startIcon={
+                  <ArrowRightEndOnRectangleIcon className="h-3.5 w-3.5" />
+                }
               >
-                Login to engage
+                Sign in to join discussion
               </Button>
             </div>
           )}

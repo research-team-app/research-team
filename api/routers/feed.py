@@ -537,6 +537,9 @@ async def delete_feed_post(
     post_id: str,
     auth: dict = Depends(get_verified_user),
 ):
+    post_id = (post_id or "").strip()
+    if not post_id:
+        raise HTTPException(status_code=400, detail="Post id is required")
     sub = (auth.get("sub") or "").strip()
     row = await db.pool.fetchrow(
         "SELECT id, author_id FROM feed_posts WHERE id = $1",
@@ -557,6 +560,9 @@ async def update_feed_post(
     req: FeedPostUpdateRequest,
     auth: dict = Depends(get_verified_user),
 ):
+    post_id = (post_id or "").strip()
+    if not post_id:
+        raise HTTPException(status_code=400, detail="Post id is required")
     sub = (auth.get("sub") or "").strip()
     content = req.content.strip()
     if not content:

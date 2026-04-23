@@ -2,10 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { isAfter, isBefore, isValid, parseISO } from "date-fns";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import {
-  CalendarIcon,
   BuildingOfficeIcon,
   MagnifyingGlassIcon,
   CheckBadgeIcon,
@@ -14,6 +11,7 @@ import {
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import DatePickerField from "@/components/ui/DatePickerField";
 import { Slider } from "@/components/ui/Slider";
 import SidebarLayout from "@/components/SidebarLayout";
 import axios from "axios";
@@ -46,8 +44,8 @@ import { HiX } from "react-icons/hi";
 // --- Types ---
 type ViewMode = "all" | "ai" | "recommended";
 const ITEMS_PER_PAGE = 30;
-const GRANTS_UI_STATE_KEY = "grants-ui-state-v1";
 const DEFAULT_RESULT_LIMIT = 25;
+const GRANTS_UI_STATE_KEY = "grants_ui_state_v1";
 
 interface FilterState {
   searchTerm: string;
@@ -193,7 +191,6 @@ const useGrantFilters = (
         if (!matchesSearch) return false;
       }
 
-      // 3. Categorical Filters
       if (
         filters.agencyFilter !== "all" &&
         grant.agency_name !== filters.agencyFilter
@@ -210,7 +207,6 @@ const useGrantFilters = (
           normalizeGrantStatus(filters.statusFilter)
       )
         return false;
-      // 4. Date Range
       if (
         filters.startDate &&
         grant.open_date &&
@@ -276,10 +272,10 @@ const GrantsExplorer = () => {
   const [resultLimit, setResultLimit] = useState(DEFAULT_RESULT_LIMIT);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [hasHydratedState, setHasHydratedState] = useState(false);
   const grantsTopRef = React.useRef<HTMLDivElement>(null);
 
   const [filters, setFilters] = useState<FilterState>({ ...INITIAL_FILTERS });
+  const [hasHydratedState, setHasHydratedState] = useState(false);
 
   const {
     grants: cachedGrants,
@@ -293,43 +289,6 @@ const GrantsExplorer = () => {
   useEffect(() => {
     if (viewMode === "all") fetchAllGrants();
   }, [fetchAllGrants, viewMode]);
-
-  const { data: aiGrants = [], isLoading: isAiGrantsLoading } = useGrantsByIds(
-    viewMode === "ai" && aiResultIds?.length ? aiResultIds : undefined
-  );
-
-  const { data: recommendedGrants = [], isLoading: isRecommendedLoading } =
-    useGrantsByIds(
-      viewMode === "recommended" && matchingGrantIds?.length
-        ? matchingGrantIds
-        : undefined
-    );
-
-  // Closed/archived can be 80k+ rows — never cache them, fetch server-side on demand.
-  const isHeavyStatus =
-    viewMode === "all" &&
-    (filters.statusFilter === "closed" ||
-      filters.statusFilter === "archived" ||
-      filters.statusFilter === "forecasted");
-
-  const { data: heavyStatusData, isLoading: isHeavyStatusLoading } =
-    usePaginatedGrants(
-      {
-        page: currentPage,
-        pageSize: ITEMS_PER_PAGE,
-        status: filters.statusFilter,
-        search: filters.searchTerm || undefined,
-        agency:
-          filters.agencyFilter !== "all" ? filters.agencyFilter : undefined,
-        openDateFrom: filters.startDate
-          ? filters.startDate.toISOString().split("T")[0]
-          : null,
-        openDateTo: filters.endDate
-          ? filters.endDate.toISOString().split("T")[0]
-          : null,
-      },
-      { enabled: isHeavyStatus }
-    );
 
   useEffect(() => {
     try {
@@ -404,6 +363,43 @@ const GrantsExplorer = () => {
       })
     );
   }, [hasHydratedState, viewMode, aiQuery, resultLimit, filters]);
+
+  const { data: aiGrants = [], isLoading: isAiGrantsLoading } = useGrantsByIds(
+    viewMode === "ai" && aiResultIds?.length ? aiResultIds : undefined
+  );
+
+  const { data: recommendedGrants = [], isLoading: isRecommendedLoading } =
+    useGrantsByIds(
+      viewMode === "recommended" && matchingGrantIds?.length
+        ? matchingGrantIds
+        : undefined
+    );
+
+  // Closed/archived can be 80k+ rows — never cache them, fetch server-side on demand.
+  const isHeavyStatus =
+    viewMode === "all" &&
+    (filters.statusFilter === "closed" ||
+      filters.statusFilter === "archived" ||
+      filters.statusFilter === "forecasted");
+
+  const { data: heavyStatusData, isLoading: isHeavyStatusLoading } =
+    usePaginatedGrants(
+      {
+        page: currentPage,
+        pageSize: ITEMS_PER_PAGE,
+        status: filters.statusFilter,
+        search: filters.searchTerm || undefined,
+        agency:
+          filters.agencyFilter !== "all" ? filters.agencyFilter : undefined,
+        openDateFrom: filters.startDate
+          ? filters.startDate.toISOString().split("T")[0]
+          : null,
+        openDateTo: filters.endDate
+          ? filters.endDate.toISOString().split("T")[0]
+          : null,
+      },
+      { enabled: isHeavyStatus }
+    );
 
   const sourceForView = useMemo(() => {
     if (viewMode === "all") return cachedGrants;
@@ -499,7 +495,7 @@ const GrantsExplorer = () => {
     try {
       const res = await axios.post(`${API_URL}/grants/ai-search`, {
         keyword: aiQuery,
-        top_k: Math.min(300, Math.max(1, resultLimit) * 4),
+        top_k: Math.max(1, Math.min(100, resultLimit)),
       });
       const ids = res.data?.ids ?? [];
       setAiResultIds(Array.isArray(ids) ? ids.map(String) : []);
@@ -574,10 +570,10 @@ const GrantsExplorer = () => {
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
           Filters
         </h3>
-        {hasActiveFilters && (
+        {viewMode !== "ai" && hasActiveFilters && (
           <Button
             onClick={resetFilters}
-            size="xs"
+            size="xxs"
             variant="outline"
             intent="danger"
             endIcon={<HiX className="size-3" />}
@@ -586,6 +582,16 @@ const GrantsExplorer = () => {
           </Button>
         )}
       </div>
+
+      {viewMode === "ai" && (
+        <p
+          className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+          role="status"
+        >
+          Filters narrow the AI results, combine semantic matching with the
+          sidebar to refine further.
+        </p>
+      )}
 
       <div className="space-y-3">
         <ComboboxFilter
@@ -622,29 +628,29 @@ const GrantsExplorer = () => {
           }))}
           placeholder="All Statuses"
         />
-        <DateFilter
-          label="Filter by start date"
+        <DatePickerField
+          label="Opens after"
           selected={filters.startDate}
           onChange={(d) => updateFilter("startDate", d)}
           selectsStart
-          startDate={filters.startDate}
-          endDate={filters.endDate}
+          startDate={filters.startDate ?? undefined}
+          endDate={filters.endDate ?? undefined}
         />
-        <DateFilter
-          label="Filter by end date"
+        <DatePickerField
+          label="Closes before"
           selected={filters.endDate}
           onChange={(d) => updateFilter("endDate", d)}
           selectsEnd
-          startDate={filters.startDate}
-          endDate={filters.endDate}
-          minDate={filters.startDate}
+          startDate={filters.startDate ?? undefined}
+          endDate={filters.endDate ?? undefined}
+          minDate={filters.startDate ?? undefined}
         />
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-950">
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl lg:max-w-7xl">
         <div ref={grantsTopRef} />
         <PageHeader variant="grants" />
@@ -687,6 +693,7 @@ const GrantsExplorer = () => {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                 <InputField
                   className="min-w-0 flex-1"
+                  inputClassName="bg-transparent dark:bg-transparent"
                   startIcon={<SparklesIcon className="h-5 w-5" />}
                   placeholder="e.g. early-stage cancer biomarkers, renewable energy pilots…"
                   value={aiQuery}
@@ -699,7 +706,7 @@ const GrantsExplorer = () => {
                 <Button
                   intent="primary"
                   onClick={handleAiSearch}
-                  disabled={isAiLoading}
+                  disabled={isAiLoading || !aiQuery.trim()}
                   className="shrink-0 sm:self-stretch"
                   startIcon={<MagnifyingGlassIcon className="size-5" />}
                 >
@@ -708,7 +715,7 @@ const GrantsExplorer = () => {
               </div>
               {aiSearchError && (
                 <p
-                  className="text-sm text-red-600 dark:text-red-400"
+                  className="text-danger-600 dark:text-danger-400 text-sm"
                   role="alert"
                 >
                   {aiSearchError}
@@ -717,6 +724,7 @@ const GrantsExplorer = () => {
             </>
           ) : (
             <InputField
+              inputClassName="bg-transparent dark:bg-transparent"
               startIcon={
                 <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
               }
@@ -742,19 +750,16 @@ const GrantsExplorer = () => {
 
           {viewMode === "recommended" && !user ? (
             <SuggestedLoginState />
-          ) : viewMode === "recommended" &&
-            user &&
-            !hasGrantsCache &&
-            isGrantsCacheLoading ? (
-            <div className="border-border bg-muted/40 flex min-h-70 flex-col items-center justify-center rounded-2xl border py-16">
-              <Loading mode="inline" title="Loading grants catalog…" />
-            </div>
           ) : viewMode === "recommended" && user && isSuggestedLoading ? (
             <div className="border-border bg-muted/50 flex min-h-55 flex-col items-center justify-center rounded-2xl border border-dashed py-12">
               <Loading
                 mode="inline"
                 title="Finding grants that match your profile…"
               />
+            </div>
+          ) : showCatalogLoading ? (
+            <div className="border-border bg-muted/40 flex min-h-70 flex-col items-center justify-center rounded-2xl border py-16">
+              <Loading mode="inline" title="Loading grants catalog…" />
             </div>
           ) : viewMode === "recommended" &&
             user &&
@@ -780,11 +785,6 @@ const GrantsExplorer = () => {
                 &quot;renewable energy pilot&quot;
               </p>
             </div>
-          ) : (viewMode === "all" || (viewMode === "recommended" && user)) &&
-            showCatalogLoading ? (
-            <div className="border-border bg-muted/40 flex min-h-70 flex-col items-center justify-center rounded-2xl border py-16">
-              <Loading mode="inline" title="Loading grants catalog…" />
-            </div>
           ) : totalCount === 0 ? (
             <EmptyState onReset={handleResetAll} />
           ) : (
@@ -796,14 +796,13 @@ const GrantsExplorer = () => {
                     : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                 }
               >
-                {displayedGrants.map((grant, index) => (
+                {displayedGrants.map((grant) => (
                   <GrantSummaryCard
                     key={grant.id}
                     grant={grant}
                     isLoggedIn={!!user}
                     isWishlisted={isInWishlist(grant.id)}
                     onWishlistToggle={handleWishlistToggle}
-                    animationDelay={index * 0.05}
                     highlightQuery={
                       viewMode === "ai" ? aiQuery : filters.searchTerm
                     }
@@ -826,46 +825,6 @@ const GrantsExplorer = () => {
     </div>
   );
 };
-
-interface DateFilterProps {
-  label: string;
-  selected: Date | null;
-  onChange: (date: Date | null) => void;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  minDate?: Date | null;
-  selectsStart?: boolean;
-  selectsEnd?: boolean;
-}
-
-const DateFilter = ({
-  label,
-  onChange,
-  minDate,
-  ...props
-}: DateFilterProps) => (
-  <div className="space-y-2">
-    <label className="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300">
-      <CalendarIcon className="mr-2 size-4 text-slate-500 dark:text-slate-400" />{" "}
-      {label}
-    </label>
-    <div>
-      <DatePicker
-        {...props}
-        minDate={minDate ?? undefined}
-        onChange={(value: Date | null | Date[]) => {
-          const d = Array.isArray(value) ? (value[0] ?? null) : value;
-          onChange(d);
-        }}
-        dateFormat="yyyy-MM-dd"
-        wrapperClassName="w-full"
-        className="focus:border-primary-500 focus:ring-primary-500 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:ring-1 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-        placeholderText="Select date"
-        isClearable
-      />
-    </div>
-  </div>
-);
 
 interface FilterSummaryProps {
   count: number;
@@ -921,12 +880,12 @@ const FilterSummary = ({
       {(hasActiveFilters || viewMode !== "all") && (
         <Button
           onClick={onReset}
-          size="xs"
+          size="xxs"
           variant="outline"
           intent="danger"
           endIcon={<HiX className="size-3" />}
         >
-          Clear Filters
+          {viewMode === "all" ? "Clear Filters" : "Reset"}
         </Button>
       )}
     </div>

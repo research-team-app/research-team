@@ -8,12 +8,32 @@ import { type CachedGrant, useGrantStore } from "../store/useGrantStore";
 import SectionHeader from "./SectionHeader";
 import Button from "@/components/ui/Button";
 
+const GrantPreviewSkeleton = () => (
+  <section className="relative overflow-hidden py-10 sm:py-14 lg:py-20">
+    <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mb-10 animate-pulse space-y-3">
+        <div className="mx-auto h-3 w-28 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto h-7 w-64 rounded-lg bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto h-4 w-96 rounded-lg bg-slate-100 dark:bg-slate-800" />
+      </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-52 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 const GrantPreview = () => {
   const { data: grants, isLoading, isError } = useGrantStore();
   const router = useRouter();
 
   if (isLoading || !grants || isError) {
-    return <></>;
+    return <GrantPreviewSkeleton />;
   }
 
   // Get the first 3 grants for preview

@@ -9,7 +9,7 @@ from uuid import UUID
 import boto3
 import httpx
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 import db
 from auth import (
@@ -83,6 +83,51 @@ class ResearcherUpdate(ResearcherBase):
     pass
 
 
+def _normalize_iso_date(value: Any) -> str | None:
+    """Normalize accepted date inputs to YYYY-MM-DD."""
+    if not value:
+        return None
+    if isinstance(value, str):
+        v = value.strip()
+        if not v:
+            return None
+        # Accept full ISO timestamps by truncating to date.
+        m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v)
+        if not m:
+            return None
+        y, mo, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        try:
+            datetime(y, mo, d)
+        except ValueError:
+            return None
+        return f"{y:04d}-{mo:02d}-{d:02d}"
+    return None
+
+
+def _normalize_timeline_items(items: Any) -> Any:
+    """
+    Normalize education/experience timeline entries to date-only fields.
+    """
+    if not isinstance(items, list):
+        return items
+    normalized: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            normalized.append(item)
+            continue
+        row = dict(item)
+
+        start_date = _normalize_iso_date(row.get("start_date"))
+        end_date = _normalize_iso_date(row.get("end_date"))
+
+        row["start_date"] = start_date
+        row["end_date"] = end_date
+        row.pop("start_year", None)
+        row.pop("end_year", None)
+        normalized.append(row)
+    return normalized
+
+
 def serialize_json_value(value: Any) -> str | None:
     """
     Convert Python objects to JSON text suitable for a TEXT/VARCHAR column.
@@ -116,12 +161,23 @@ def row_to_dict(row) -> dict:
         except Exception:
             # Leave raw string if not valid JSON
             pass
+    record["education"] = _normalize_timeline_items(record.get("education"))
+    record["experience"] = _normalize_timeline_items(record.get("experience"))
     return record
 
 
 class UserAISearchParams(BaseModel):
     keyword: str
     top_k: int = 20
+
+    @field_validator("top_k", mode="before")
+    @classmethod
+    def _clamp_top_k(cls, v):
+        try:
+            n = int(v)
+        except (TypeError, ValueError):
+            return 20
+        return max(1, min(100, n))
 
 
 def _try_delete_cognito_user(
@@ -234,6 +290,7 @@ async def list_users(
         None,
         description="Comma-separated user ids to fetch (overrides pagination when set)",
     ),
+    auth: dict | None = Depends(get_optional_user),
 ):
     """Fetch users (collaborators) with pagination, or by ids for AI result set."""
     try:
@@ -241,9 +298,20 @@ async def list_users(
             id_list = [x.strip() for x in ids.split(",") if x.strip()]
             if not id_list:
                 return {"items": [], "total": 0, "page": 1, "page_size": 0}
+            caller_sub = ((auth or {}).get("sub") or "").strip()
             rows = await db.pool.fetch(
-                f"SELECT * FROM {DB_TABLE} WHERE id::text = ANY($1::text[]) ORDER BY first_name, last_name",
+                f"""
+                SELECT * FROM {DB_TABLE}
+                WHERE id::text = ANY($1::text[])
+                  AND (
+                    status IS NULL
+                    OR status = 'public'
+                    OR id = $2
+                  )
+                ORDER BY first_name, last_name
+                """,
                 id_list,
+                caller_sub,
             )
             items = [row_to_dict(r) for r in rows]
             return {
@@ -437,6 +505,8 @@ async def create_user(
         }
 
     payload = researcher.model_dump(exclude_none=True)
+    payload["education"] = _normalize_timeline_items(payload.get("education"))
+    payload["experience"] = _normalize_timeline_items(payload.get("experience"))
     payload.setdefault("status", "public")
 
     try:
@@ -520,6 +590,8 @@ async def update_user(
     _: str = Depends(require_self_id),
 ):
     payload = researcher.model_dump(exclude_unset=True, exclude_none=True)
+    payload["education"] = _normalize_timeline_items(payload.get("education"))
+    payload["experience"] = _normalize_timeline_items(payload.get("experience"))
     # Prevent users from overwriting identity/auth fields
     for protected in ("id", "email", "cognito_id"):
         payload.pop(protected, None)
@@ -711,13 +783,15 @@ async def import_orcid_profile(
             sy = ((emp.get("start-date") or {}).get("year") or {}).get("value")
             ey = ((emp.get("end-date") or {}).get("year") or {}).get("value")
             if org or role:
+                start_date = f"{int(sy):04d}-01-01" if sy else None
+                end_date = f"{int(ey):04d}-01-01" if ey else None
                 employments.append(
                     {
                         "company": org,
                         "title": role,
                         "department": dept,
-                        "start_year": int(sy) if sy else None,
-                        "end_year": int(ey) if ey else None,
+                        "start_date": start_date,
+                        "end_date": end_date,
                         "current": ey is None,
                     }
                 )
@@ -735,13 +809,15 @@ async def import_orcid_profile(
             sy = ((edu.get("start-date") or {}).get("year") or {}).get("value")
             ey = ((edu.get("end-date") or {}).get("year") or {}).get("value")
             if org:
+                start_date = f"{int(sy):04d}-01-01" if sy else None
+                end_date = f"{int(ey):04d}-01-01" if ey else None
                 educations.append(
                     {
                         "institution": org,
                         "degree": degree,
                         "field_of_study": field,
-                        "start_year": int(sy) if sy else None,
-                        "end_year": int(ey) if ey else None,
+                        "start_date": start_date,
+                        "end_date": end_date,
                     }
                 )
     if educations:

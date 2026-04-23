@@ -16,7 +16,7 @@ from auth import (
     verify_internal_token,
 )
 
-# ── Internal token round-trip ─────────────────────────────────────────────────
+# Internal token round-trip
 
 
 def test_create_and_verify_internal_token():
@@ -59,9 +59,6 @@ def test_verify_internal_token_expired():
         algorithm="HS256",
     )
     assert verify_internal_token(token) is None
-
-
-# ── require_self ──────────────────────────────────────────────────────────────
 
 
 def test_require_self_allows_matching_sub():

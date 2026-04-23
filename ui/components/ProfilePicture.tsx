@@ -417,7 +417,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       </div>
 
       {err && (
-        <p className="max-w-[16rem] text-center text-xs text-red-600 dark:text-red-400">
+        <p className="text-danger-600 dark:text-danger-400 max-w-[16rem] text-center text-xs">
           {err}
         </p>
       )}

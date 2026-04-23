@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.datastructures import UploadFile
 
 import db
-from auth import _is_internal, get_verified_user
+from auth import _is_internal, get_optional_user, get_verified_user
 from utils import (
     DEFAULT_ATTACHMENT_CONTENT_TYPE,
     MAX_ATTACHMENT_SIZE_BYTES,
@@ -36,6 +36,10 @@ class GroupMessageReplyCreateRequest(BaseModel):
 class GroupInviteRequest(BaseModel):
     user_id: str | None = Field(None, min_length=1, max_length=120)
     email: str | None = Field(None, min_length=3, max_length=320)
+
+
+class GroupVisibilityUpdateRequest(BaseModel):
+    visibility: str = Field(..., pattern="^(public|private)$")
 
 
 def _build_group_attachment_payload(record, group_id: str, message_id: str):
@@ -206,11 +210,13 @@ async def list_groups(
     mine_only: bool = Query(False),
     search: str | None = Query(None),
     public_only: bool = Query(False),
-    auth: dict = Depends(get_verified_user),
+    auth: dict | None = Depends(get_optional_user),
 ):
-    user_id = (auth.get("sub") or "").strip()
+    user_id = ((auth or {}).get("sub") or "").strip()
     if not user_id:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        if mine_only:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        public_only = True
 
     try:
         if mine_only:
@@ -277,7 +283,13 @@ async def list_groups(
             return {"items": []}
         raise HTTPException(status_code=500, detail="Group list failed.")
 
-    return {"items": [dict(r) for r in rows]}
+    items = [dict(r) for r in rows]
+    if not user_id:
+        for item in items:
+            item.pop("role", None)
+            item.pop("status", None)
+            item["is_member"] = False
+    return {"items": items}
 
 
 @groups_router.post("/groups/{group_id}/join-request")
@@ -384,6 +396,51 @@ async def invite_to_group(
         raise HTTPException(status_code=500, detail="Invite failed.")
 
     return {"status": "active", "user_id": target_id}
+
+
+@groups_router.patch("/groups/{group_id}")
+async def update_group_visibility(
+    group_id: str,
+    req: GroupVisibilityUpdateRequest,
+    auth: dict = Depends(get_verified_user),
+):
+    actor_id = (auth.get("sub") or "").strip()
+    if not actor_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    group, actor_membership = await _require_group_access(
+        group_id, actor_id, require_active=True
+    )
+    actor_role = (actor_membership.get("role") or "").strip()
+    if actor_role not in {"owner", "admin"} and group.get("owner_id") != actor_id:
+        raise HTTPException(
+            status_code=403, detail="Only owner/admin can update team visibility"
+        )
+
+    visibility = req.visibility.strip().lower()
+    if visibility not in {"public", "private"}:
+        raise HTTPException(
+            status_code=400, detail="Visibility must be public or private"
+        )
+
+    try:
+        row = await db.pool.fetchrow(
+            """
+            UPDATE groups
+            SET visibility = $2
+            WHERE id = $1
+            RETURNING id, name, description, visibility, owner_id, created_at
+            """,
+            group_id,
+            visibility,
+        )
+    except Exception:
+        raise HTTPException(status_code=500, detail="Update team visibility failed.")
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    return {"group": dict(row)}
 
 
 @groups_router.post("/groups/{group_id}/members/{user_id}/decline")

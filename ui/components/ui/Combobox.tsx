@@ -71,17 +71,6 @@ export function ComboboxFilter({
     }
   }, [intent]);
 
-  const focusRingClass = React.useMemo(() => {
-    switch (intent) {
-      case "secondary":
-        return "focus-visible:ring-secondary-500";
-      case "danger":
-        return "focus-visible:ring-danger-500";
-      default:
-        return "focus-visible:ring-primary-500";
-    }
-  }, [intent]);
-
   return (
     <div className={cn("space-y-2", containerClassName)}>
       {label && (
@@ -105,8 +94,9 @@ export function ComboboxFilter({
             endIcon={<ChevronsUpDown className="size-4 shrink-0 opacity-50" />}
             className={cn(
               "font-normal",
-              "focus-visible:ring-2 focus-visible:ring-offset-2 dark:ring-offset-slate-950",
-              focusRingClass,
+              "border-[1.5px] border-slate-300 bg-white text-slate-900 hover:border-slate-400 hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-slate-500 dark:bg-slate-900/80 dark:text-slate-100 dark:hover:border-slate-400 dark:hover:bg-slate-900/80",
+              "focus-visible:border-primary-500 dark:focus-visible:border-primary-400",
+              "data-[state=open]:border-primary-500 dark:data-[state=open]:border-primary-400",
               className
             )}
           >

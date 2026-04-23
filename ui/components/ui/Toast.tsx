@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   XMarkIcon,
   CheckCircleIcon,
@@ -49,7 +50,7 @@ const Toast: React.FC<ToastProps> = ({
   children,
   isOpen,
   onClose,
-  position = "top-right",
+  position = "default",
   variant = "info",
   appearance = "outline",
   duration = DEFAULT_DURATION,
@@ -88,7 +89,7 @@ const Toast: React.FC<ToastProps> = ({
 
   if (!isOpen && !isExiting) return null;
 
-  /* ─── Variant Config ─────────────────────────────────────────── */
+  /* Variant Config */
   type VariantConfig = {
     label: string;
     icon: React.ReactElement;
@@ -110,7 +111,7 @@ const Toast: React.FC<ToastProps> = ({
   const configs: Record<ToastVariant, VariantConfig> = {
     success: {
       label: "Success",
-      icon: <CheckCircleIcon className="h-[18px] w-[18px]" />,
+      icon: <CheckCircleIcon className="h-4.5 w-4.5" />,
       // outline
       outlineBg: "bg-white dark:bg-neutral-900",
       outlineBorder: "border border-success-200/80 dark:border-success-800/50",
@@ -184,14 +185,14 @@ const Toast: React.FC<ToastProps> = ({
   const title = titleProp ?? cfg.label;
   const isSolid = appearance === "solid";
 
-  /* ─── Transition states ─────────────────────────────────────── */
+  /* Transition states  */
   const enterClass = isExiting
     ? "opacity-0 translate-y-[-6px] scale-[0.97]"
     : "opacity-100 translate-y-0 scale-100";
 
   const isFixed = position !== "default";
 
-  return (
+  const content = (
     <div
       className={`${isFixed ? `fixed z-50 w-full max-w-90 ${positionClasses[position]}` : "w-full"} ${className}`}
       style={
@@ -221,7 +222,7 @@ const Toast: React.FC<ToastProps> = ({
               }
         }
       >
-        {/* ── Body ─────────────────────────────────────────────── */}
+        {/* Body */}
         <div className="flex items-start gap-3.5 px-4 pt-4 pb-3.5">
           {/* Icon pill */}
           <div
@@ -266,10 +267,10 @@ const Toast: React.FC<ToastProps> = ({
           </button>
         </div>
 
-        {/* ── Progress bar ─────────────────────────────────────── */}
+        {/* Progress bar*/}
         {duration > 0 && (
           <div
-            className={`h-[3px] w-full ${isSolid ? "bg-white/15" : cfg.outlineBarTrack} `}
+            className={`h-0.75 w-full ${isSolid ? "bg-white/15" : cfg.outlineBarTrack} `}
             aria-hidden
           >
             <div
@@ -281,6 +282,15 @@ const Toast: React.FC<ToastProps> = ({
       </div>
     </div>
   );
+
+  if (isFixed) {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return null;
+    }
+    return createPortal(content, document.body);
+  }
+
+  return content;
 };
 
 export default Toast;
