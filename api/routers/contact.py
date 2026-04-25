@@ -1,10 +1,11 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
 import db
 from auth import admin
+from utils import enforce_rate_limit
 
 contact_router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -14,15 +15,19 @@ class ContactRequest(BaseModel):
     firstname: str = Field(..., min_length=1, max_length=255)
     lastname: str = Field(..., min_length=1, max_length=255)
     email: EmailStr
-    subject: str = Field(..., min_length=1)
-    message: str = Field(..., min_length=1)
+    subject: str = Field(..., min_length=1, max_length=500)
+    message: str = Field(..., min_length=1, max_length=10000)
 
 
 @contact_router.post("/contact-us")
-async def post_message(request: ContactRequest):
-    """
-    Inserts into contact_us (id defaults via gen_random_uuid() in DB).
-    """
+async def post_message(request: ContactRequest, raw_request: Request):
+    """Inserts into contact_us (id defaults via gen_random_uuid() in DB)."""
+    enforce_rate_limit(
+        raw_request,
+        bucket="contact-us",
+        max_requests=5,
+        window_seconds=60,
+    )
     contact_data = request.model_dump()
     try:
         await db.pool.execute(

@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import type { MouseEvent } from "react";
 import {
   ArchiveBoxIcon,
   ArrowDownTrayIcon,
@@ -13,6 +16,7 @@ import {
   formatAttachmentSize,
   inferAttachmentKind,
 } from "@/lib/attachmentUtils";
+import { getAuthHeaders } from "@/lib/apiAuth";
 
 type Tone = "default" | "inverse";
 
@@ -21,6 +25,7 @@ type AttachmentChipProps = {
   sizeBytes: number;
   contentType?: string;
   href?: string;
+  authenticated?: boolean;
   onRemove?: () => void;
   tone?: Tone;
   className?: string;
@@ -32,6 +37,7 @@ export default function AttachmentChip({
   sizeBytes,
   contentType,
   href,
+  authenticated = false,
   onRemove,
   tone = "default",
   className,
@@ -74,12 +80,39 @@ export default function AttachmentChip({
     </>
   );
 
+  const handleAuthenticatedDownload = async (
+    event: MouseEvent<HTMLAnchorElement>
+  ) => {
+    if (!authenticated || !href) return;
+    event.preventDefault();
+
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch(href, { headers });
+      if (!res.ok) return;
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName || "download";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      // Fall back to the native browser download (href is still set on the <a>)
+      window.open(href, "_blank", "noreferrer");
+    }
+  };
+
   if (href) {
     return (
       <a
         href={href}
         target="_blank"
         rel="noreferrer"
+        onClick={handleAuthenticatedDownload}
         className={clsx(
           "inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition",
           baseTone,

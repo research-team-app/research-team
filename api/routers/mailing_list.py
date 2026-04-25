@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 
 import db
 from auth import admin
+from utils import enforce_rate_limit
 
 mailing_list_router = APIRouter()
 
@@ -28,8 +29,14 @@ async def get_mailing_list():
 
 
 @mailing_list_router.post("/mailing-list")
-async def subscribe_mailing_list(item: MailingListSubscribe):
+async def subscribe_mailing_list(item: MailingListSubscribe, raw_request: Request):
     """Subscribe an email to the newsletter (Stay Updated). Idempotent: already-subscribed returns success."""
+    enforce_rate_limit(
+        raw_request,
+        bucket="mailing-list",
+        max_requests=5,
+        window_seconds=60,
+    )
     email = str(item.email).strip().lower()
     try:
         await db.pool.execute(

@@ -203,14 +203,15 @@ export function useProfileStore(
 }
 
 /** Vector-based suggested grant ids for the logged-in user (Cognito sub). */
-export function useMatchingGrants(id: string | undefined) {
+export function useMatchingGrants(id: string | undefined, topK: number = 20) {
   const idStr = trimId(id);
+  const clampedTopK = Math.max(1, Math.min(100, topK));
   return useQuery({
-    queryKey: ["matching_grants", idStr],
+    queryKey: ["matching_grants", idStr, clampedTopK],
     queryFn: async (): Promise<string[]> => {
       if (!idStr) return [];
       const { data } = await axios.get<unknown>(
-        `${API_URL}/matching_grants/${idStr}`
+        `${API_URL}/matching_grants/${idStr}?top_k=${clampedTopK}`
       );
       if (!Array.isArray(data)) return [];
       return data.map((x) => String(x));

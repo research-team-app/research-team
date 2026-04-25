@@ -169,8 +169,10 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       return;
     }
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(
-        `${apiBase}/profile_picture/${encodeURIComponent(uid)}`
+        `${apiBase}/profile_picture/${encodeURIComponent(uid)}`,
+        { headers }
       );
       if (res.status === 404) {
         setImgSrc(null);
@@ -198,7 +200,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   useEffect(() => {
     loadImage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, canEdit]);
 
   useEffect(() => {
     return () => {

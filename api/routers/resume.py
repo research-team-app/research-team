@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
+
 import boto3
 from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from auth import require_self_user_id
+import db
+from auth import get_optional_user, require_self_user_id
 
 resume_router = APIRouter(prefix="/resume")
 
@@ -66,15 +69,39 @@ def create_presigned_put(
     }
 
 
+async def _is_private_profile(user_id: str) -> bool:
+    """Return True if the user exists and has set status='private'."""
+    try:
+        row = await db.pool.fetchrow(
+            "SELECT status FROM users WHERE id::text = $1", user_id
+        )
+    except Exception:
+        return False
+    return bool(row) and (row.get("status") or "").strip() == "private"
+
+
 @resume_router.get(
     "/{user_id}",
     summary="Get presigned URL to view a user's CV/resume PDF",
     description="Returns a short-lived presigned GET URL for the user's CV/resume. Returns presigned_url as null if not uploaded.",
 )
-def get_resume(user_id: str):
+async def get_resume(
+    user_id: str,
+    auth: dict | None = Depends(get_optional_user),
+):
+    caller_sub = ((auth or {}).get("sub") or "").strip()
+    # Private profiles only expose their resume to the owner. Match the
+    # not-uploaded shape so we don't leak the existence of a private CV.
+    if (
+        caller_sub != user_id
+        and (auth or {}).get("sub") != "internal"
+        and await _is_private_profile(user_id)
+    ):
+        return {"presigned_url": None}
+
     key = f"{user_id}.pdf"
     try:
-        s3.head_object(Bucket=S3_BUCKET_NAME, Key=key)
+        await asyncio.to_thread(s3.head_object, Bucket=S3_BUCKET_NAME, Key=key)
     except ClientError as e:
         code = e.response.get("Error", {}).get("Code")
         if code in ("404", "NoSuchKey", "NotFound"):
@@ -85,7 +112,8 @@ def get_resume(user_id: str):
         )
 
     try:
-        url = s3.generate_presigned_url(
+        url = await asyncio.to_thread(
+            s3.generate_presigned_url,
             "get_object",
             Params={"Bucket": S3_BUCKET_NAME, "Key": key},
             ExpiresIn=PRESIGNED_GET_TTL_SECONDS,

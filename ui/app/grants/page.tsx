@@ -252,12 +252,6 @@ const GrantsExplorer = () => {
   const { fetchWishlistIds, addToWishlist, removeFromWishlist, isInWishlist } =
     useWishlistStore();
 
-  const {
-    data: matchingGrantIds = EMPTY_IDS,
-    isLoading: isSuggestedLoading,
-    isFetched: isSuggestedFetched,
-  } = useMatchingGrants(user?.id);
-
   // Load wishlist when user logs in
   useEffect(() => {
     if (user?.id) fetchWishlistIds(user.id);
@@ -270,12 +264,19 @@ const GrantsExplorer = () => {
   const [aiSearchError, setAiSearchError] = useState<string | null>(null);
   const [aiResultIds, setAiResultIds] = useState<string[] | null>(null);
   const [resultLimit, setResultLimit] = useState(DEFAULT_RESULT_LIMIT);
+  const [appliedResultLimit, setAppliedResultLimit] = useState(DEFAULT_RESULT_LIMIT);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const grantsTopRef = React.useRef<HTMLDivElement>(null);
 
   const [filters, setFilters] = useState<FilterState>({ ...INITIAL_FILTERS });
   const [hasHydratedState, setHasHydratedState] = useState(false);
+
+  const {
+    data: matchingGrantIds = EMPTY_IDS,
+    isLoading: isSuggestedLoading,
+    isFetched: isSuggestedFetched,
+  } = useMatchingGrants(user?.id, appliedResultLimit);
 
   const {
     grants: cachedGrants,
@@ -323,6 +324,7 @@ const GrantsExplorer = () => {
       if (typeof saved.resultLimit === "number") {
         const normalized = Math.max(1, Math.min(100, saved.resultLimit));
         setResultLimit(normalized);
+        setAppliedResultLimit(normalized);
       }
       if (saved.filters) {
         setFilters({
@@ -354,7 +356,7 @@ const GrantsExplorer = () => {
       JSON.stringify({
         viewMode,
         aiQuery,
-        resultLimit,
+        resultLimit: appliedResultLimit,
         filters: {
           ...filters,
           startDate: filters.startDate ? filters.startDate.toISOString() : null,
@@ -362,7 +364,7 @@ const GrantsExplorer = () => {
         },
       })
     );
-  }, [hasHydratedState, viewMode, aiQuery, resultLimit, filters]);
+  }, [hasHydratedState, viewMode, aiQuery, appliedResultLimit, filters]);
 
   const { data: aiGrants = [], isLoading: isAiGrantsLoading } = useGrantsByIds(
     viewMode === "ai" && aiResultIds?.length ? aiResultIds : undefined
@@ -430,10 +432,10 @@ const GrantsExplorer = () => {
   const limitedFilteredGrants = useMemo(() => {
     if (isHeavyStatus) return heavyItems;
     if (viewMode === "ai" || viewMode === "recommended") {
-      return filteredGrants.slice(0, resultLimit);
+      return filteredGrants.slice(0, appliedResultLimit);
     }
     return filteredGrants;
-  }, [isHeavyStatus, heavyItems, filteredGrants, viewMode, resultLimit]);
+  }, [isHeavyStatus, heavyItems, filteredGrants, viewMode, appliedResultLimit]);
 
   const totalCount = isHeavyStatus ? heavyTotal : limitedFilteredGrants.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
@@ -472,7 +474,7 @@ const GrantsExplorer = () => {
     filters.statusFilter,
     filters.agencyFilter,
     filters.departmentFilter,
-    resultLimit,
+    appliedResultLimit,
     filters.startDate,
     filters.endDate,
     aiResultIds,
@@ -493,6 +495,7 @@ const GrantsExplorer = () => {
     setIsAiLoading(true);
     setAiSearchError(null);
     try {
+      setAppliedResultLimit(resultLimit);
       const res = await axios.post(`${API_URL}/grants/ai-search`, {
         keyword: aiQuery,
         top_k: Math.max(1, Math.min(100, resultLimit)),
@@ -522,6 +525,7 @@ const GrantsExplorer = () => {
     setAiSearchError(null);
     setAiQuery("");
     setResultLimit(DEFAULT_RESULT_LIMIT);
+    setAppliedResultLimit(DEFAULT_RESULT_LIMIT);
     setViewMode("all");
     setCurrentPage(1);
   };
@@ -684,6 +688,16 @@ const GrantsExplorer = () => {
                   showValue
                   aria-label="Maximum number of results"
                 />
+                {viewMode === "recommended" &&
+                  resultLimit !== appliedResultLimit && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setAppliedResultLimit(resultLimit)}
+                    >
+                      Apply
+                    </Button>
+                  )}
               </ResultLimitRow>
             ) : undefined
           }

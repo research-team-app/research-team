@@ -166,6 +166,28 @@ def row_to_dict(row) -> dict:
     return record
 
 
+# Fields that should never be exposed to viewers other than the row's owner
+# (or the internal token). Used by list/get endpoints to redact PII.
+_PRIVATE_USER_FIELDS = ("email", "phone")
+
+
+def _redact_private_fields(record: dict) -> dict:
+    out = dict(record)
+    for f in _PRIVATE_USER_FIELDS:
+        if f in out:
+            out[f] = None
+    return out
+
+
+def _public_user_dict(row, *, caller_sub: str, is_internal: bool) -> dict:
+    record = row_to_dict(row)
+    if is_internal:
+        return record
+    if (record.get("id") or "") and str(record["id"]) == caller_sub:
+        return record
+    return _redact_private_fields(record)
+
+
 class UserAISearchParams(BaseModel):
     keyword: str
     top_k: int = 20
@@ -294,11 +316,12 @@ async def list_users(
 ):
     """Fetch users (collaborators) with pagination, or by ids for AI result set."""
     try:
+        caller_sub = ((auth or {}).get("sub") or "").strip()
+        is_internal = caller_sub == "internal"
         if ids and ids.strip():
             id_list = [x.strip() for x in ids.split(",") if x.strip()]
             if not id_list:
                 return {"items": [], "total": 0, "page": 1, "page_size": 0}
-            caller_sub = ((auth or {}).get("sub") or "").strip()
             rows = await db.pool.fetch(
                 f"""
                 SELECT * FROM {DB_TABLE}
@@ -313,7 +336,10 @@ async def list_users(
                 id_list,
                 caller_sub,
             )
-            items = [row_to_dict(r) for r in rows]
+            items = [
+                _public_user_dict(r, caller_sub=caller_sub, is_internal=is_internal)
+                for r in rows
+            ]
             return {
                 "items": items,
                 "total": len(items),
@@ -347,7 +373,10 @@ async def list_users(
         """
         params.extend([page_size, offset])
         rows = await db.pool.fetch(data_sql, *params)
-        items = [row_to_dict(r) for r in rows]
+        items = [
+            _public_user_dict(r, caller_sub=caller_sub, is_internal=is_internal)
+            for r in rows
+        ]
         return {"items": items, "total": total, "page": page, "page_size": page_size}
     except Exception:
         raise HTTPException(status_code=500, detail="Unexpected Error")
@@ -364,14 +393,15 @@ async def get_user(
         raise HTTPException(status_code=500, detail="UnExpected Error")
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
+    caller_sub = ((auth or {}).get("sub") or "").strip()
+    is_internal = caller_sub == "internal"
     user = row_to_dict(row)
     # Private profiles are only visible to the owner — return 404 to everyone else
     # so we don't leak the existence of private accounts.
     if user.get("status") == "private":
-        caller_sub = (auth or {}).get("sub", "")
-        if caller_sub != id:
+        if not is_internal and caller_sub != id:
             raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return _public_user_dict(row, caller_sub=caller_sub, is_internal=is_internal)
 
 
 @users_router.delete("/users/{id}")
@@ -467,9 +497,15 @@ async def create_user(
         existing_email = str(existing.get("email") or "").strip().lower()
         requested_email = str(researcher.email or "").strip().lower()
 
+        is_internal_caller = (auth_payload.get("sub") or "").strip() == "internal"
         # Recovery path: same email, different id (e.g., account recreated).
+        # Only the internal Cognito PostConfirmation Lambda is allowed to
+        # rewrite an existing row's id — otherwise a logged-in user could
+        # call POST /users with another user's email and silently take over
+        # that account by binding their own sub to the row.
         if (
-            existing_email
+            is_internal_caller
+            and existing_email
             and existing_email == requested_email
             and existing_id != researcher.id
         ):
@@ -968,7 +1004,10 @@ async def export_user_data(
 
 
 @users_router.get("/matching_grants/{id}")
-async def find_matching_grants(id: UUID):
+async def find_matching_grants(
+    id: UUID,
+    top_k: int = Query(20, ge=1, le=100),
+):
     """Return list of similar grant ids based on user profile vector (empty if none / error)."""
     try:
         # boto3 is synchronous — run in a thread so the event loop stays free.
@@ -982,6 +1021,7 @@ async def find_matching_grants(id: UUID):
         grant_vectors = await asyncio.to_thread(
             grants_vector_utility.query_vectors_with_vector,
             vector=data["float32"],
+            topK=top_k,
         )
         if not grant_vectors:
             return []

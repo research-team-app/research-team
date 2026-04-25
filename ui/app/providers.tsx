@@ -60,7 +60,17 @@ Amplify.configure({
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Create a client once for the application
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Don't refetch just because the user switched tabs — Lambda pays per call.
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  );
 
   const darkMode = useThemeStore((state) => state.darkMode);
   const { loadUser, user } = useAuthStore();

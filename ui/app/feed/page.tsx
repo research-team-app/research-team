@@ -437,6 +437,7 @@ function PostCard({
               contentType={post.attachment.content_type}
               sizeBytes={post.attachment.size_bytes}
               href={`${API_URL}${post.attachment.download_url}`}
+              authenticated
               className="mt-3"
             />
           )}

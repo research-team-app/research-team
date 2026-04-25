@@ -103,7 +103,7 @@ logger.addHandler(handler)
 
 logger.info(f"{RUN_LOCAL=}")
 logger.info(f"{GRANTS_API_URL=}")
-logger.info(f"{DB_DSN=}")
+logger.info("DB_DSN configured: %s", bool(DB_DSN))
 logger.info(f"{DB_TABLE=}")
 logger.info(f"{GRANTS_ROWS=}")
 logger.info(f"{GRANTS_MAX_PAGES=}")

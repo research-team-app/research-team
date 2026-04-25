@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from typing import Any
-from urllib.parse import quote
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
@@ -16,6 +15,7 @@ from utils import (
     DEFAULT_ATTACHMENT_CONTENT_TYPE,
     MAX_ATTACHMENT_SIZE_BYTES,
     is_missing_relation_error,
+    safe_attachment_disposition,
 )
 
 _log = logging.getLogger(__name__)
@@ -507,27 +507,33 @@ async def create_feed_post(
 
 
 @feed_router.get("/feed/posts/{post_id}/attachment")
-async def download_feed_post_attachment(post_id: str):
+async def download_feed_post_attachment(
+    post_id: str,
+    auth: dict = Depends(get_verified_user),
+):
+    # Require auth so the binary store isn't openly scrapable. Today every feed
+    # post is visible to logged-in users, so we don't gate per-post — but the
+    # attachment now respects deletion (the post must still exist).
+    if not (auth.get("sub") or "").strip():
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     row = await db.pool.fetchrow(
         """
-        SELECT file_name, content_type, file_data
-        FROM feed_post_attachments
-        WHERE post_id = $1
+        SELECT a.file_name, a.content_type, a.file_data
+        FROM feed_post_attachments a
+        JOIN feed_posts p ON p.id = a.post_id
+        WHERE a.post_id = $1
         """,
         post_id,
     )
     if not row:
         raise HTTPException(status_code=404, detail="Attachment not found")
 
-    file_name = (row["file_name"] or "download").strip() or "download"
-    encoded_file_name = quote(file_name)
     return Response(
         content=bytes(row["file_data"]),
         media_type=(row["content_type"] or DEFAULT_ATTACHMENT_CONTENT_TYPE),
         headers={
-            "Content-Disposition": (
-                f"attachment; filename=\"{file_name}\"; filename*=UTF-8''{encoded_file_name}"
-            )
+            "Content-Disposition": safe_attachment_disposition(row["file_name"]),
         },
     )
 
@@ -797,8 +803,21 @@ async def delete_feed_comment(
             detail="You can only delete your own comment",
         )
 
+    # Recursively delete the comment and all of its descendants. The previous
+    # query only handled one level of children, leaving deeper replies as
+    # orphans (their parent_comment_id pointed at a deleted row).
     await db.pool.execute(
-        "DELETE FROM feed_comments WHERE id = $1 OR parent_comment_id = $1",
+        """
+        WITH RECURSIVE descendants AS (
+            SELECT id FROM feed_comments WHERE id = $1
+            UNION ALL
+            SELECT c.id
+            FROM feed_comments c
+            JOIN descendants d ON c.parent_comment_id = d.id
+        )
+        DELETE FROM feed_comments
+        WHERE id IN (SELECT id FROM descendants)
+        """,
         comment_id,
     )
     return {

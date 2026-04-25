@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from urllib.parse import quote
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
@@ -14,6 +13,7 @@ from utils import (
     DEFAULT_ATTACHMENT_CONTENT_TYPE,
     MAX_ATTACHMENT_SIZE_BYTES,
     is_missing_relation_error,
+    safe_attachment_disposition,
 )
 
 messages_router = APIRouter()
@@ -602,15 +602,11 @@ async def download_message_attachment(
             status_code=403, detail="You do not have access to this attachment"
         )
 
-    file_name = (row["file_name"] or "download").strip() or "download"
-    encoded_file_name = quote(file_name)
     return Response(
         content=bytes(row["file_data"]),
         media_type=(row["content_type"] or DEFAULT_ATTACHMENT_CONTENT_TYPE),
         headers={
-            "Content-Disposition": (
-                f"attachment; filename=\"{file_name}\"; filename*=UTF-8''{encoded_file_name}"
-            )
+            "Content-Disposition": safe_attachment_disposition(row["file_name"]),
         },
     )
 

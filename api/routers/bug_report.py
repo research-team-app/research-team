@@ -1,10 +1,11 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
 import db
 from auth import admin
+from utils import enforce_rate_limit
 
 bug_report_router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -13,12 +14,18 @@ logger = logging.getLogger(__name__)
 class BugReportRequest(BaseModel):
     email: EmailStr
     subject: str = Field(..., min_length=1, max_length=500)
-    description: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1, max_length=20000)
 
 
 @bug_report_router.post("/report-bug")
-async def submit_bug_report(request: BugReportRequest):
+async def submit_bug_report(request: BugReportRequest, raw_request: Request):
     """Insert into bug_reports table."""
+    enforce_rate_limit(
+        raw_request,
+        bucket="report-bug",
+        max_requests=10,
+        window_seconds=60,
+    )
     try:
         await db.pool.execute(
             """

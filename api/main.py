@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 
 IS_LOCAL = os.getenv("IS_LOCAL", "false").lower() == "true"
 
-# Docs are only public locally. In production, use /admin/docs?token=<bearer_token>
+# Public /docs only locally. In production use /admin/docs (opens a login form).
 fastapi_app = FastAPI(
     lifespan=lifespan,
     title="Research Team API",
@@ -38,13 +38,16 @@ fastapi_app = FastAPI(
     openapi_url="/openapi.json" if IS_LOCAL else None,
 )
 
+allowed_origins = [
+    "https://research.team",
+    "https://www.research.team",
+]
+if IS_LOCAL:
+    allowed_origins.append("http://localhost:3000")
+
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://research.team",
-        "https://www.research.team",
-        "http://localhost:3000",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
