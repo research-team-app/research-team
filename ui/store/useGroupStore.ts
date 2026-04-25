@@ -112,7 +112,7 @@ export function useGroups(options: boolean | UseGroupsOptions = false) {
       );
       return Array.isArray(data?.items) ? data.items : [];
     },
-    staleTime: 15 * 1000,
+    staleTime: 5 * 60 * 1000,
     enabled: normalized.enabled,
   });
 }
@@ -264,6 +264,44 @@ export function useDeclineGroupMember() {
   });
 }
 
+export function useAcceptGroupInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      const headers = await getAuthHeaders();
+      await axios.post(
+        `${API_URL}/groups/${encodeURIComponent(groupId)}/accept-invite`,
+        {},
+        { headers }
+      );
+      return groupId;
+    },
+    onSuccess: (groupId) => {
+      qc.invalidateQueries({ queryKey: ["groups"] });
+      qc.invalidateQueries({ queryKey: ["group-members", groupId] });
+    },
+  });
+}
+
+export function useDeclineGroupInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      const headers = await getAuthHeaders();
+      await axios.post(
+        `${API_URL}/groups/${encodeURIComponent(groupId)}/decline-invite`,
+        {},
+        { headers }
+      );
+      return groupId;
+    },
+    onSuccess: (groupId) => {
+      qc.invalidateQueries({ queryKey: ["groups"] });
+      qc.invalidateQueries({ queryKey: ["group-members", groupId] });
+    },
+  });
+}
+
 export function useLeaveGroup() {
   const qc = useQueryClient();
   return useMutation({
@@ -340,7 +378,7 @@ export function useGroupMembers(groupId: string | null) {
       return Array.isArray(data?.items) ? data.items : [];
     },
     enabled: !!groupId,
-    staleTime: 10 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -357,7 +395,7 @@ export function useGroupMessages(groupId: string | null) {
       return Array.isArray(data?.items) ? data.items : [];
     },
     enabled: !!groupId,
-    staleTime: 5 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -465,7 +503,7 @@ export function useGroupMessageReplies(
       return Array.isArray(data?.items) ? data.items : [];
     },
     enabled: !!groupId && !!messageId,
-    staleTime: 5 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

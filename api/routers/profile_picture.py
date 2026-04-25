@@ -1,9 +1,12 @@
+import asyncio
+
 import boto3
 from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from auth import require_self_user_id
+import db
+from auth import get_optional_user, require_self_user_id
 
 profile_router = APIRouter(prefix="/profile_picture")
 
@@ -84,12 +87,33 @@ def create_presigned_put(
     }
 
 
+async def _is_private_profile(user_id: str) -> bool:
+    try:
+        row = await db.pool.fetchrow(
+            "SELECT status FROM users WHERE id::text = $1", user_id
+        )
+    except Exception:
+        return False
+    return bool(row) and (row.get("status") or "").strip() == "private"
+
+
 @profile_router.get(
     "/{user_id}",
     summary="Get user's profile picture (presigned GET URL)",
     description="Returns JSON containing a short-lived presigned URL to view the user's profile picture. If not uploaded yet, returns presigned_url as null.",
 )
-def get_profile_picture(user_id: str):
+async def get_profile_picture(
+    user_id: str,
+    auth: dict | None = Depends(get_optional_user),
+):
+    caller_sub = ((auth or {}).get("sub") or "").strip()
+    if (
+        caller_sub != user_id
+        and (auth or {}).get("sub") != "internal"
+        and await _is_private_profile(user_id)
+    ):
+        return {"presigned_url": None}
+
     # Try common extensions in case type changed
     possible_keys = [
         f"{user_id}.jpeg",
@@ -101,7 +125,7 @@ def get_profile_picture(user_id: str):
     found_key = None
     for key in possible_keys:
         try:
-            s3.head_object(Bucket=S3_BUCKET_NAME, Key=key)
+            await asyncio.to_thread(s3.head_object, Bucket=S3_BUCKET_NAME, Key=key)
             found_key = key
             break
         except ClientError as e:
@@ -117,7 +141,8 @@ def get_profile_picture(user_id: str):
         return {"presigned_url": None}
 
     try:
-        url = s3.generate_presigned_url(
+        url = await asyncio.to_thread(
+            s3.generate_presigned_url,
             "get_object",
             Params={"Bucket": S3_BUCKET_NAME, "Key": found_key},
             ExpiresIn=PRESIGNED_GET_TTL_SECONDS,

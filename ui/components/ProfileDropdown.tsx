@@ -33,6 +33,7 @@ import axios from "axios";
 import Button from "@/components/ui/Button";
 import Avatar from "@/components/Avatar";
 import { useGroups } from "@/store/useGroupStore";
+import { useUnreadStore } from "@/store/useUnreadStore";
 
 type MenuIntent = "secondary" | "danger";
 
@@ -68,7 +69,7 @@ export default function ProfileDropdown() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { count: unreadCount, fetch: fetchUnreadCount } = useUnreadStore();
 
   const loadSettings = useCallback(async () => {
     if (!user?.id) return;
@@ -97,28 +98,11 @@ export default function ProfileDropdown() {
     if (settingsOpen && user?.id) loadSettings();
   }, [settingsOpen, user?.id, loadSettings]);
 
-  const loadUnreadCount = useCallback(async () => {
-    if (!user?.id) {
-      setUnreadCount(0);
-      return;
-    }
-    try {
-      const headers = await getAuthHeaders();
-      const { data } = await axios.get<{ unread_count?: number }>(
-        `${API_URL}/messages/unread-count`,
-        { headers }
-      );
-      setUnreadCount(Number(data?.unread_count ?? 0));
-    } catch {
-      setUnreadCount(0);
-    }
-  }, [user?.id]);
-
   useEffect(() => {
     if (user?.id) {
-      loadUnreadCount();
+      void fetchUnreadCount(user.id);
     }
-  }, [user?.id, loadUnreadCount]);
+  }, [user?.id, fetchUnreadCount]);
 
   const handlePrivateToggle = async (next: boolean) => {
     if (!user?.id) return;

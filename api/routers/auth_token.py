@@ -2,6 +2,7 @@
 Token endpoint for Glue / cron jobs. Exchange INTERNAL_API_KEY for a Bearer token.
 """
 
+import hmac
 import os
 import time
 from collections import defaultdict, deque
@@ -66,7 +67,11 @@ async def get_internal_token(request: TokenRequest, raw_request: Request):
     _enforce_auth_token_rate_limit(client_host)
 
     key_from_request = request.api_key.strip()
-    if key_from_request != INTERNAL_API_KEY:
+    # Constant-time compare so a timing oracle can't be used to recover the key.
+    if not hmac.compare_digest(
+        key_from_request.encode("utf-8"),
+        INTERNAL_API_KEY.encode("utf-8"),
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid api_key. Use the exact value of INTERNAL_API_KEY from the API's environment (no extra spaces or quotes).",

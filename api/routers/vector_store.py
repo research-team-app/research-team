@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
+from auth import get_verified_user_or_internal, require_admin_access
 from services.vector_utility import VectorUtility
 
 vector_store_router = APIRouter()
@@ -29,8 +30,11 @@ class PutVectorModal(BaseVectorModel):
 
 
 @vector_store_router.post("/embedding")
-async def get_embedding(embeddingModel: EmbeddingModel):
-    """Pass list of text and get embedding back"""
+async def get_embedding(
+    embeddingModel: EmbeddingModel,
+    _auth: dict = Depends(get_verified_user_or_internal),
+):
+    """Pass list of text and get embedding back. Authenticated callers only."""
     try:
         embeddings = vector_utility.get_embeddings(embeddingModel.text)
     except Exception:
@@ -42,8 +46,11 @@ async def get_embedding(embeddingModel: EmbeddingModel):
 
 
 @vector_store_router.post("/all-vectors")
-async def get_all_vectors(model: BaseVectorModel):
-    """return all the vectors from given vector bucket and index"""
+async def get_all_vectors(
+    model: BaseVectorModel,
+    _auth: dict = Depends(require_admin_access),
+):
+    """Return all the vectors from given vector bucket and index. Admin/internal only."""
     try:
         vectors = vector_utility.get_all_vectors(
             vector_bucket=model.vector_bucket, vector_index=model.index_name
@@ -57,8 +64,11 @@ async def get_all_vectors(model: BaseVectorModel):
 
 
 @vector_store_router.post("/vectors")
-async def get_vectors(model: VectorModel):
-    """return vectors with specific keys"""
+async def get_vectors(
+    model: VectorModel,
+    _auth: dict = Depends(require_admin_access),
+):
+    """Return vectors with specific keys. Admin/internal only."""
     try:
         vectors = vector_utility.get_vectors(
             vector_bucket=model.vector_bucket,
@@ -74,8 +84,11 @@ async def get_vectors(model: VectorModel):
 
 
 @vector_store_router.delete("/vectors")
-async def delete_vectors(model: VectorModel):
-    """delete vectors by keys"""
+async def delete_vectors(
+    model: VectorModel,
+    _auth: dict = Depends(require_admin_access),
+):
+    """Delete vectors by keys. Admin/internal only — destructive."""
     try:
         response = vector_utility.delete_vectors(
             vector_bucket=model.vector_bucket,
@@ -91,8 +104,11 @@ async def delete_vectors(model: VectorModel):
 
 
 @vector_store_router.put("/vectors")
-def put_vectors(model: PutVectorModal):
-    """put vectors in vector store. If the key exist,, it will override it"""
+def put_vectors(
+    model: PutVectorModal,
+    _auth: dict = Depends(require_admin_access),
+):
+    """Put vectors in vector store. If the key exists, it will override. Admin/internal only."""
     try:
         response = vector_utility.put_vectors(
             vector_bucket=model.vector_bucket,

@@ -12,9 +12,15 @@ from fastapi import FastAPI
 dotenv.load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "postgres")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 USE_LOCAL_DATABASE = os.getenv("USE_LOCAL_DATABASE", "false").lower() == "true"
+# Only the local docker-compose path uses a static password. Anywhere else, we
+# expect IAM auth (DSQL token) and must not silently fall back to "postgres".
+DATABASE_PASSWORD = (
+    os.getenv("DATABASE_PASSWORD", "postgres")
+    if USE_LOCAL_DATABASE
+    else os.getenv("DATABASE_PASSWORD")
+)
 
 
 def _load_db_pool_max_size() -> int:

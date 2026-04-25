@@ -13,6 +13,7 @@ import axios from "axios";
 import { API_URL } from "@/data/global";
 import { getAuthHeaders } from "@/lib/apiAuth";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useUnreadStore } from "@/store/useUnreadStore";
 import Button from "@/components/ui/Button";
 import TextArea from "@/components/ui/TextArea";
 import AttachmentChip from "@/components/AttachmentChip";
@@ -98,10 +99,10 @@ function formatWhen(dateIso?: string): string {
 
 export default function ChatDock() {
   const { user } = useAuthStore();
+  const { count: unreadCount, fetch: fetchUnreadCount } = useUnreadStore();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [conversationItems, setConversationItems] = useState<
     ConversationItem[]
   >([]);
@@ -157,22 +158,9 @@ export default function ChatDock() {
     });
   }, [conversationItems]);
 
-  const loadUnreadCount = useCallback(async () => {
-    if (!user?.id) {
-      setUnreadCount(0);
-      return;
-    }
-    try {
-      const headers = await getAuthHeaders();
-      const { data } = await axios.get<{ unread_count?: number }>(
-        `${API_URL}/messages/unread-count`,
-        { headers }
-      );
-      setUnreadCount(Number(data?.unread_count ?? 0));
-    } catch {
-      setUnreadCount(0);
-    }
-  }, [user?.id]);
+  const loadUnreadCount = useCallback(() => {
+    void fetchUnreadCount(user?.id);
+  }, [user?.id, fetchUnreadCount]);
 
   const loadConversations = useCallback(async () => {
     if (!user?.id) {
@@ -779,6 +767,7 @@ export default function ChatDock() {
                           contentType={msg.attachment.content_type}
                           sizeBytes={msg.attachment.size_bytes}
                           href={`${API_URL}${msg.attachment.download_url}`}
+                          authenticated
                           tone={mine ? "inverse" : "default"}
                           className="mt-1"
                         />

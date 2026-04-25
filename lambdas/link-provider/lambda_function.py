@@ -35,11 +35,24 @@ def lambda_handler(event, context):
         return event
 
     user_pool_id = event["userPoolId"]
-    email = event["request"]["userAttributes"].get("email", "").lower().strip()
+    user_attrs = event["request"]["userAttributes"] or {}
+    email = (user_attrs.get("email") or "").lower().strip()
+    # only auto-link if the federated provider has actually verified
+    # the email. Without this check, an attacker who creates a federated account
+    # claiming someone else's email gets linked into that user's existing native
+    email_verified_raw = str(user_attrs.get("email_verified", "")).strip().lower()
+    email_verified = email_verified_raw in ("true", "1", "yes")
     external_username = event["userName"]  # e.g. "google_107250448787567689045"
 
     if not email:
         logger.warning("No email in PreSignUp attributes; skipping link.")
+        return event
+
+    if not email_verified:
+        logger.warning(
+            "Skipping auto-link for %s: federated email is not verified.",
+            external_username,
+        )
         return event
 
     # Parse provider name and subject from the federated username.

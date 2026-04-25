@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from urllib.parse import quote
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
@@ -13,6 +12,7 @@ from utils import (
     DEFAULT_ATTACHMENT_CONTENT_TYPE,
     MAX_ATTACHMENT_SIZE_BYTES,
     is_missing_relation_error,
+    safe_attachment_disposition,
 )
 
 groups_router = APIRouter()
@@ -382,12 +382,18 @@ async def invite_to_group(
         raise HTTPException(status_code=404, detail="User not found")
 
     try:
+        # Status starts as 'invited'; the target user must call
         await db.pool.execute(
             """
             INSERT INTO group_memberships (group_id, user_id, role, status)
-            VALUES ($1, $2, 'member', 'active')
+            VALUES ($1, $2, 'member', 'invited')
             ON CONFLICT (group_id, user_id)
-            DO UPDATE SET status = 'active'
+            DO UPDATE SET status =
+                CASE
+                    WHEN group_memberships.status IN ('active', 'pending')
+                        THEN group_memberships.status
+                    ELSE 'invited'
+                END
             """,
             group_id,
             target_id,
@@ -395,7 +401,66 @@ async def invite_to_group(
     except Exception:
         raise HTTPException(status_code=500, detail="Invite failed.")
 
-    return {"status": "active", "user_id": target_id}
+    return {"status": "invited", "user_id": target_id}
+
+
+@groups_router.post("/groups/{group_id}/accept-invite")
+async def accept_group_invite(
+    group_id: str,
+    auth: dict = Depends(get_verified_user),
+):
+    """Target of an invitation accepts and becomes an active member."""
+    user_id = (auth.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    membership = await _get_membership(group_id, user_id)
+    if not membership or (membership.get("status") or "") != "invited":
+        raise HTTPException(status_code=404, detail="Invitation not found")
+
+    try:
+        await db.pool.execute(
+            """
+            UPDATE group_memberships
+            SET status = 'active'
+            WHERE group_id = $1 AND user_id = $2 AND status = 'invited'
+            """,
+            group_id,
+            user_id,
+        )
+    except Exception:
+        raise HTTPException(status_code=500, detail="Accept invite failed.")
+
+    return {"status": "active", "group_id": group_id}
+
+
+@groups_router.post("/groups/{group_id}/decline-invite")
+async def decline_group_invite(
+    group_id: str,
+    auth: dict = Depends(get_verified_user),
+):
+    """Target of an invitation declines and is removed from the membership table."""
+    user_id = (auth.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    membership = await _get_membership(group_id, user_id)
+    if not membership or (membership.get("status") or "") != "invited":
+        raise HTTPException(status_code=404, detail="Invitation not found")
+
+    try:
+        await db.pool.execute(
+            """
+            DELETE FROM group_memberships
+            WHERE group_id = $1 AND user_id = $2 AND status = 'invited'
+            """,
+            group_id,
+            user_id,
+        )
+    except Exception:
+        raise HTTPException(status_code=500, detail="Decline invite failed.")
+
+    return {"status": "declined", "group_id": group_id}
 
 
 @groups_router.patch("/groups/{group_id}")
@@ -505,13 +570,17 @@ async def approve_member(
     target = await _get_membership(group_id, user_id)
     if not target:
         raise HTTPException(status_code=404, detail="Request not found")
+    if (target.get("status") or "") != "pending":
+        raise HTTPException(
+            status_code=400, detail="Only pending join requests can be approved"
+        )
 
     try:
         await db.pool.execute(
             """
             UPDATE group_memberships
             SET status = 'active'
-            WHERE group_id = $1 AND user_id = $2
+            WHERE group_id = $1 AND user_id = $2 AND status = 'pending'
             """,
             group_id,
             user_id,
@@ -1023,15 +1092,11 @@ async def download_group_message_attachment(
     if not row:
         raise HTTPException(status_code=404, detail="Attachment not found")
 
-    file_name = (row["file_name"] or "download").strip() or "download"
-    encoded_file_name = quote(file_name)
     return Response(
         content=bytes(row["file_data"]),
         media_type=(row["content_type"] or DEFAULT_ATTACHMENT_CONTENT_TYPE),
         headers={
-            "Content-Disposition": (
-                f"attachment; filename=\"{file_name}\"; filename*=UTF-8''{encoded_file_name}"
-            )
+            "Content-Disposition": safe_attachment_disposition(row["file_name"]),
         },
     )
 

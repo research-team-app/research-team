@@ -28,9 +28,11 @@ import {
   type GroupItem,
   type GroupMessage,
   type GroupMessageReply,
+  useAcceptGroupInvite,
   useApproveGroupMember,
   useCreateGroupMessageReply,
   useCreateGroup,
+  useDeclineGroupInvite,
   useDeclineGroupMember,
   useGroupMessageReplies,
   useGroupMembers,
@@ -244,6 +246,7 @@ function TeamMessageCard({
                   contentType={message.attachment.content_type}
                   sizeBytes={message.attachment.size_bytes}
                   href={`${API_URL}${message.attachment.download_url}`}
+                  authenticated
                   className="mt-2"
                 />
               )}
@@ -447,6 +450,8 @@ export default function GroupsPage() {
   const sendMessageMutation = useSendGroupMessage();
   const approveMemberMutation = useApproveGroupMember();
   const declineMemberMutation = useDeclineGroupMember();
+  const acceptInviteMutation = useAcceptGroupInvite();
+  const declineInviteMutation = useDeclineGroupInvite();
   const leaveGroupMutation = useLeaveGroup();
   const removeMemberMutation = useRemoveGroupMember();
   const deleteGroupMutation = useDeleteGroup();
@@ -836,27 +841,78 @@ export default function GroupsPage() {
                                 : "Pending approval"}
                             </span>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="shrink-0"
-                            onClick={() => {
-                              void leaveGroupMutation
-                                .mutateAsync(g.id)
-                                .then(() => setActionError(""))
-                                .catch((error) => {
-                                  setActionError(
-                                    toErrorMessage(
-                                      error,
-                                      "Could not cancel join request."
-                                    )
-                                  );
-                                });
-                            }}
-                            disabled={leaveGroupMutation.isPending}
-                          >
-                            Cancel
-                          </Button>
+                          {g.status === "invited" ? (
+                            <div className="flex shrink-0 items-center gap-1.5">
+                              <Button
+                                size="sm"
+                                intent="primary"
+                                onClick={() => {
+                                  void acceptInviteMutation
+                                    .mutateAsync(g.id)
+                                    .then(() => setActionError(""))
+                                    .catch((error) => {
+                                      setActionError(
+                                        toErrorMessage(
+                                          error,
+                                          "Could not accept invitation."
+                                        )
+                                      );
+                                    });
+                                }}
+                                disabled={
+                                  acceptInviteMutation.isPending ||
+                                  declineInviteMutation.isPending
+                                }
+                              >
+                                Accept
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  void declineInviteMutation
+                                    .mutateAsync(g.id)
+                                    .then(() => setActionError(""))
+                                    .catch((error) => {
+                                      setActionError(
+                                        toErrorMessage(
+                                          error,
+                                          "Could not decline invitation."
+                                        )
+                                      );
+                                    });
+                                }}
+                                disabled={
+                                  declineInviteMutation.isPending ||
+                                  acceptInviteMutation.isPending
+                                }
+                              >
+                                Decline
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="shrink-0"
+                              onClick={() => {
+                                void leaveGroupMutation
+                                  .mutateAsync(g.id)
+                                  .then(() => setActionError(""))
+                                  .catch((error) => {
+                                    setActionError(
+                                      toErrorMessage(
+                                        error,
+                                        "Could not cancel join request."
+                                      )
+                                    );
+                                  });
+                              }}
+                              disabled={leaveGroupMutation.isPending}
+                            >
+                              Cancel
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1148,16 +1204,77 @@ export default function GroupsPage() {
                   {!canAccessTeamData ? (
                     <div className="flex min-h-[45vh] items-center justify-center p-6">
                       <div className="max-w-md rounded-xl border border-slate-200 bg-slate-50 p-5 text-center dark:border-slate-700 dark:bg-slate-900/40">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                          {activeGroup.visibility === "private"
-                            ? "This team is private"
-                            : "Join this team to view messages"}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                          {activeGroup.visibility === "private"
-                            ? "Ask an admin to invite you."
-                            : "Once approved, you can read and post team messages."}
-                        </p>
+                        {activeMembership?.status === "invited" ? (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                              You&apos;ve been invited to this team
+                            </p>
+                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                              Accept to start reading and posting team messages.
+                            </p>
+                            <div className="mt-4 flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                intent="primary"
+                                onClick={() => {
+                                  void acceptInviteMutation
+                                    .mutateAsync(activeGroup.id)
+                                    .then(() => setActionError(""))
+                                    .catch((error) => {
+                                      setActionError(
+                                        toErrorMessage(
+                                          error,
+                                          "Could not accept invitation."
+                                        )
+                                      );
+                                    });
+                                }}
+                                disabled={
+                                  acceptInviteMutation.isPending ||
+                                  declineInviteMutation.isPending
+                                }
+                              >
+                                Accept invitation
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  void declineInviteMutation
+                                    .mutateAsync(activeGroup.id)
+                                    .then(() => setActionError(""))
+                                    .catch((error) => {
+                                      setActionError(
+                                        toErrorMessage(
+                                          error,
+                                          "Could not decline invitation."
+                                        )
+                                      );
+                                    });
+                                }}
+                                disabled={
+                                  declineInviteMutation.isPending ||
+                                  acceptInviteMutation.isPending
+                                }
+                              >
+                                Decline
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                              {activeGroup.visibility === "private"
+                                ? "This team is private"
+                                : "Join this team to view messages"}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                              {activeGroup.visibility === "private"
+                                ? "Ask an admin to invite you."
+                                : "Once approved, you can read and post team messages."}
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
                   ) : (

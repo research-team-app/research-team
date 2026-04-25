@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 import db
-from auth import get_verified_user
+from auth import _is_internal, get_verified_user
 
 follows_router = APIRouter()
 
@@ -72,8 +72,15 @@ async def get_follow_stats(user_id: str = Path(...)):
 async def check_following(
     viewer_id: str = Path(...),
     target_id: str = Path(...),
+    auth: dict = Depends(get_verified_user),
 ):
-    """Check whether viewer_id currently follows target_id."""
+    """Check whether viewer_id currently follows target_id. The viewer must be the caller."""
+    sub = (auth.get("sub") or "").strip()
+    if not _is_internal(auth) and sub != viewer_id.strip():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only check your own follow state",
+        )
     try:
         row = await db.pool.fetchrow(
             "SELECT 1 FROM user_follows WHERE follower_id = $1 AND following_id = $2",

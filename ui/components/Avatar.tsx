@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { API_URL } from "@/data/global";
+import { getAuthHeaders } from "@/lib/apiAuth";
 
 const profilePictureUrlCache = new Map<string, string | null>();
 
@@ -55,10 +56,6 @@ export default function Avatar({
 }: AvatarProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const [fetchedSrc, setFetchedSrc] = useState<string | null>(null);
-  const cachedSrc = userId
-    ? (profilePictureUrlCache.get(String(userId).trim()) ?? null)
-    : null;
-
   useEffect(() => {
     let active = true;
     const uid = String(userId ?? "").trim();
@@ -69,19 +66,21 @@ export default function Avatar({
         active = false;
       };
 
-    if (profilePictureUrlCache.has(uid)) {
-      return () => {
-        active = false;
-      };
-    }
-
     const loadPicture = async () => {
       try {
+        const headers = await getAuthHeaders();
+        const cacheKey = `${uid}:${headers.Authorization ? "auth" : "public"}`;
+        if (profilePictureUrlCache.has(cacheKey)) {
+          if (active) setFetchedSrc(profilePictureUrlCache.get(cacheKey) ?? null);
+          return;
+        }
+
         const res = await fetch(
-          `${API_URL}/profile_picture/${encodeURIComponent(uid)}`
+          `${API_URL}/profile_picture/${encodeURIComponent(uid)}`,
+          { headers }
         );
         if (!res.ok) {
-          profilePictureUrlCache.set(uid, null);
+          profilePictureUrlCache.set(cacheKey, null);
           if (active) setFetchedSrc(null);
           return;
         }
@@ -92,10 +91,9 @@ export default function Avatar({
         const withBust = remote
           ? `${remote}${separator}bust=${Date.now()}`
           : null;
-        profilePictureUrlCache.set(uid, withBust);
+        profilePictureUrlCache.set(cacheKey, withBust);
         if (active) setFetchedSrc(withBust);
       } catch {
-        profilePictureUrlCache.set(uid, null);
         if (active) setFetchedSrc(null);
       }
     };
@@ -115,7 +113,7 @@ export default function Avatar({
   const resolvedTitle = [title ?? displayName, profileTitle]
     .filter(Boolean)
     .join(" • ");
-  const resolvedSrc = String(src ?? "").trim() || cachedSrc || fetchedSrc || "";
+  const resolvedSrc = String(src ?? "").trim() || fetchedSrc || "";
   const canShowImage = Boolean(resolvedSrc && resolvedSrc !== failedSrc);
 
   const avatarContent = canShowImage ? (

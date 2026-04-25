@@ -14,8 +14,9 @@ resource "aws_lambda_function" "backend" {
   role          = data.aws_iam_role.shared.arn
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.backend.repository_url}:latest"
-  timeout       = 15
-  memory_size   = 128
+  timeout       = 30
+  # memory budget; cost increase is small relative to invocation time savings.
+  memory_size = 1024
 
   environment {
     variables = {
@@ -37,8 +38,9 @@ resource "aws_lambda_function" "backend" {
 }
 
 resource "aws_cloudwatch_log_group" "backend" {
-  name              = "/aws/lambda/${aws_lambda_function.backend.function_name}"
-  retention_in_days = 0
+  name = "/aws/lambda/${aws_lambda_function.backend.function_name}"
+  # Cap at 14 days so log storage cost
+  retention_in_days = 14
 }
 
 # Allow API Gateway to invoke the backend Lambda

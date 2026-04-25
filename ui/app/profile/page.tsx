@@ -312,16 +312,22 @@ const Profile: React.FC = () => {
     if (!id) return;
     const fetchStats = async () => {
       try {
-        const [statsRes, checkRes] = await Promise.all([
-          axios.get(`${API_URL}/follows/${id}/stats`),
-          user?.id && user.id !== id
-            ? axios.get(`${API_URL}/follows/${user.id}/check/${id}`)
-            : Promise.resolve({ data: { is_following: false } }),
-        ]);
+        const statsRes = await axios.get(`${API_URL}/follows/${id}/stats`);
+        let isFollowing = false;
+        if (user?.id && user.id !== id) {
+          const headers = await getAuthHeaders();
+          if (headers.Authorization) {
+            const checkRes = await axios.get(
+              `${API_URL}/follows/${user.id}/check/${id}`,
+              { headers }
+            );
+            isFollowing = !!checkRes.data.is_following;
+          }
+        }
         setFollowStats({
           followers: statsRes.data.followers,
           following: statsRes.data.following,
-          is_following: checkRes.data.is_following,
+          is_following: isFollowing,
         });
       } catch {
         setFollowStats({ followers: 0, following: 0, is_following: false });
@@ -333,11 +339,19 @@ const Profile: React.FC = () => {
   // Fetch CV presigned URL whenever we have a profile with resume_url
   useEffect(() => {
     if (!id) return;
-    axios
-      .get(`${API_URL}/resume/${id}`)
-      .then(({ data }) => setCvPresignedUrl(data.presigned_url ?? null))
-      .catch(() => setCvPresignedUrl(null));
-  }, [id]);
+    const fetchResume = async () => {
+      try {
+        const headers = await getAuthHeaders();
+        const { data } = await axios.get(`${API_URL}/resume/${id}`, {
+          headers,
+        });
+        setCvPresignedUrl(data.presigned_url ?? null);
+      } catch {
+        setCvPresignedUrl(null);
+      }
+    };
+    void fetchResume();
+  }, [id, user?.id]);
 
   const handleCvUpload = async (file: File) => {
     if (!user?.id || user.id !== id) return;

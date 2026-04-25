@@ -35,10 +35,22 @@ def _load_internal_api_key() -> str:
 INTERNAL_API_KEY = _load_internal_api_key()
 INTERNAL_JWT_ISSUER = "research-team-api"
 INTERNAL_JWT_AUDIENCE = "research-team-internal"
-INTERNAL_TOKEN_EXPIRY_SECONDS = 86400  # 24 hours
+# Short lifetime: cron / Glue jobs grab a fresh token at the start of each run.
+INTERNAL_TOKEN_EXPIRY_SECONDS = 3600  # 1 hour
 
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID", "").strip()
 COGNITO_REGION = os.environ.get("COGNITO_REGION", "us-east-1").strip()
+COGNITO_ISSUER = (
+    f"https://cognito-idp.{COGNITO_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}"
+    if COGNITO_USER_POOL_ID
+    else ""
+)
+# When set, access tokens whose `client_id` is not in the list are rejected.
+_ALLOWED_CLIENT_IDS = {
+    s.strip()
+    for s in (os.environ.get("COGNITO_ALLOWED_CLIENT_IDS") or "").split(",")
+    if s.strip()
+}
 # If pool ID is not set, auth is disabled (no verification)
 AUTH_ENABLED = bool(COGNITO_USER_POOL_ID)
 
@@ -78,6 +90,7 @@ def _verify_token(token: str) -> dict:
             signing_key.key,
             algorithms=["RS256"],
             options={"verify_aud": False},
+            issuer=COGNITO_ISSUER,
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(
@@ -95,6 +108,20 @@ def _verify_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token missing sub",
         )
+    token_use = (payload.get("token_use") or "").strip()
+    if token_use not in ("access", "id"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token_use",
+        )
+    if _ALLOWED_CLIENT_IDS:
+        # access tokens use `client_id`; id tokens use `aud`.
+        candidate = (payload.get("client_id") or payload.get("aud") or "").strip()
+        if candidate not in _ALLOWED_CLIENT_IDS:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token not issued for this application",
+            )
     return payload
 
 
@@ -187,7 +214,7 @@ def _get_admin_subs() -> set[str]:
     return ADMIN_SUBS
 
 
-def require_bug_report_admin(
+def require_admin_access(
     payload: Annotated[dict, Depends(get_verified_user)],
 ) -> dict:
     """Dependency: require valid Bearer token and that token's sub is in ADMIN_SUBS.
@@ -327,21 +354,5 @@ def authenticated(f: Callable) -> Callable:
 
 def admin(f: Callable) -> Callable:
     """Decorator: require valid Bearer token and sub in BUG_REPORT_ADMIN_SUBS. Use for admin-only routes."""
-    return _inject_auth_dependency(f, require_bug_report_admin)
+    return _inject_auth_dependency(f, require_admin_access)
 
-
-def verify_admin_token(token: str) -> dict:
-    """Verify a raw Bearer token string and confirm the sub is in ADMIN_SUBS.
-    Used by query-param protected endpoints (e.g. /admin/docs). Raises HTTPException on failure.
-    """
-    payload = _verify_token(token)
-    if _is_internal(payload):
-        return payload
-    sub = (payload.get("sub") or "").strip()
-    admin_subs = _get_admin_subs()
-    if not admin_subs or sub not in admin_subs:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied.",
-        )
-    return payload

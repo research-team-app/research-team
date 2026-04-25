@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import json
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 import db
-from auth import require_bug_report_admin, verify_admin_token
+from auth import require_admin_access
 from utils import is_missing_relation_error
+
+IS_LOCAL = os.getenv("IS_LOCAL", "false").lower() == "true"
 
 admin_router = APIRouter()
 
@@ -15,7 +19,7 @@ admin_router = APIRouter()
 async def list_post_reports(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    _admin: dict = Depends(require_bug_report_admin),
+    _admin: dict = Depends(require_admin_access),
 ):
     """List all reported posts with reporter info, newest first."""
     offset = (page - 1) * page_size
@@ -81,25 +85,128 @@ async def list_post_reports(
     }
 
 
+# /admin/docs is intentionally public HTML — it contains no sensitive data itself.
+# Locally (IS_LOCAL=true) it renders Swagger immediately with the full spec embedded.
+# In production it shows a token gate; the spec is fetched from /admin/openapi.json
+# with the supplied Bearer token so the auth check still happens server-side.
 @admin_router.get("/admin/docs", include_in_schema=False)
-async def admin_docs(token: str = Query(...)):
-    verify_admin_token(token)
-    return get_swagger_ui_html(
-        openapi_url=f"/admin/openapi.json?token={token}",
-        title="Research Team API — Admin Docs",
+async def admin_docs(request: Request):
+    base = str(request.base_url).rstrip("/")
+
+    if IS_LOCAL:
+        openapi_json = json.dumps(request.app.openapi()).replace("</", "<\\/")
+        return HTMLResponse(
+            f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Research Team API — Admin Docs (local)</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({{
+      spec: {openapi_json},
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis],
+    }});
+  </script>
+</body>
+</html>"""
+        )
+
+    return HTMLResponse(
+        f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Research Team API — Admin Docs</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+  <style>
+    body {{ margin: 0; font-family: sans-serif; background: #fafafa; }}
+    #gate {{
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 20px; background: #1a1a2e; color: #fff;
+    }}
+    #gate label {{ font-size: 13px; white-space: nowrap; }}
+    #gate input {{
+      flex: 1; padding: 6px 10px; border-radius: 4px; border: none;
+      font-size: 13px; font-family: monospace;
+    }}
+    #gate button {{
+      padding: 6px 16px; border-radius: 4px; border: none;
+      background: #4f8ef7; color: #fff; cursor: pointer; font-size: 13px;
+    }}
+    #gate button:hover {{ background: #3a7de0; }}
+    #msg {{ font-size: 13px; color: #f87171; }}
+  </style>
+</head>
+<body>
+  <div id="gate">
+    <label for="tok">Bearer token:</label>
+    <input id="tok" type="password" placeholder="Paste your admin or internal token" autocomplete="off">
+    <button onclick="loadSpec()">Load</button>
+    <span id="msg"></span>
+  </div>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    const SPEC_URL = "{base}/admin/openapi.json";
+    const SK = "admin_docs_token";
+
+    async function loadSpec() {{
+      const token = document.getElementById("tok").value.trim();
+      if (!token) {{ setMsg("Paste a token first."); return; }}
+      setMsg("");
+      const res = await fetch(SPEC_URL, {{
+        headers: {{ Authorization: "Bearer " + token }}
+      }});
+      if (!res.ok) {{
+        setMsg(res.status === 401 ? "Invalid or expired token." :
+               res.status === 403 ? "Not an admin." : "Error " + res.status);
+        return;
+      }}
+      sessionStorage.setItem(SK, token);
+      const spec = await res.json();
+      document.getElementById("gate").style.display = "none";
+      SwaggerUIBundle({{
+        spec,
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        presets: [SwaggerUIBundle.presets.apis],
+        requestInterceptor: (req) => {{
+          req.headers["Authorization"] = "Bearer " + token;
+          return req;
+        }},
+      }});
+    }}
+
+    function setMsg(t) {{ document.getElementById("msg").textContent = t; }}
+
+    // Auto-load if a token was saved this session
+    const saved = sessionStorage.getItem(SK);
+    if (saved) {{ document.getElementById("tok").value = saved; loadSpec(); }}
+  </script>
+</body>
+</html>""",
     )
 
 
 @admin_router.get("/admin/openapi.json", include_in_schema=False)
-async def admin_openapi(request: Request, token: str = Query(...)):
-    verify_admin_token(token)
+async def admin_openapi(
+    request: Request,
+    _admin: dict = Depends(require_admin_access),
+):
     return JSONResponse(request.app.openapi())
 
 
 @admin_router.delete("/admin/posts/{post_id}", status_code=status.HTTP_200_OK)
 async def admin_delete_post(
     post_id: str,
-    _admin: dict = Depends(require_bug_report_admin),
+    _admin: dict = Depends(require_admin_access),
 ):
     """Hard-delete a post and all its interactions (admin only)."""
     exists = await db.pool.fetchval("SELECT 1 FROM feed_posts WHERE id = $1", post_id)
