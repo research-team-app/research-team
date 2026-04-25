@@ -355,4 +355,3 @@ def authenticated(f: Callable) -> Callable:
 def admin(f: Callable) -> Callable:
     """Decorator: require valid Bearer token and sub in BUG_REPORT_ADMIN_SUBS. Use for admin-only routes."""
     return _inject_auth_dependency(f, require_admin_access)
-

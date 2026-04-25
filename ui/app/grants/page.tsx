@@ -264,7 +264,8 @@ const GrantsExplorer = () => {
   const [aiSearchError, setAiSearchError] = useState<string | null>(null);
   const [aiResultIds, setAiResultIds] = useState<string[] | null>(null);
   const [resultLimit, setResultLimit] = useState(DEFAULT_RESULT_LIMIT);
-  const [appliedResultLimit, setAppliedResultLimit] = useState(DEFAULT_RESULT_LIMIT);
+  const [appliedResultLimit, setAppliedResultLimit] =
+    useState(DEFAULT_RESULT_LIMIT);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const grantsTopRef = React.useRef<HTMLDivElement>(null);

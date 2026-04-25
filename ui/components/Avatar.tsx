@@ -71,7 +71,8 @@ export default function Avatar({
         const headers = await getAuthHeaders();
         const cacheKey = `${uid}:${headers.Authorization ? "auth" : "public"}`;
         if (profilePictureUrlCache.has(cacheKey)) {
-          if (active) setFetchedSrc(profilePictureUrlCache.get(cacheKey) ?? null);
+          if (active)
+            setFetchedSrc(profilePictureUrlCache.get(cacheKey) ?? null);
           return;
         }
 
