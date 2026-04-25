@@ -33,9 +33,7 @@ def enforce_rate_limit(
     AWS WAF on top.
     """
     forwarded = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
-    client_id = forwarded or (
-        request.client.host if request.client else "unknown"
-    )
+    client_id = forwarded or (request.client.host if request.client else "unknown")
     now = time.time()
     cutoff = now - window_seconds
     attempts = _rate_limit_store[bucket][client_id]
