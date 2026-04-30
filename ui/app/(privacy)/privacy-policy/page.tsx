@@ -52,7 +52,7 @@ export const PrivacyPolicy: React.FC = () => {
             href="mailto:support@example.com"
             className="font-medium text-blue-600 hover:underline dark:text-blue-400"
           >
-            research.team.app@gmail.com
+            [REDACTED FOR BLIND REVIEW]
           </a>
           .
         </p>

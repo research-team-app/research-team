@@ -43,11 +43,6 @@ export default function Home() {
         <Community />
       </Container>
 
-      {/* Testimonials  */}
-      {/* <Container variant="secondary">
-        <Testimonials />
-      </Container> */}
-
       {/* Contact Section */}
       <Container variant="primary">
         <Contact />

@@ -1,12 +1,9 @@
 # ResearchTeam
 
-[![CI Status](https://github.com/research-team-app/research-team/actions/workflows/main.yml/badge.svg)](https://github.com/research-team-app/research-team/actions)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
 Platform for research team formation — combines grant discovery, researcher profiles, and AI-powered collaboration matching.
 
-**Live:** [https://research.team](https://research.team)
-**Contact:** [research.team.app@gmail.com](mailto:research.team.app@gmail.com)
+**Live:** [REDACTED FOR BLIND REVIEW]
+**Contact:** [REDACTED FOR BLIND REVIEW]
 
 ## Components
 

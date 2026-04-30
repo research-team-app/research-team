@@ -31,7 +31,7 @@ const NAV_COLUMNS = [
       { name: "Contact us", href: "/#contact-us-section" },
       {
         name: "Contribute on GitHub",
-        href: "https://github.com/research-team-app/research-team",
+        href: "https://github.com/[REDACTED FOR BLIND REVIEW]/research-team",
       },
       { name: "Report a bug", href: "/report-bug" },
       { name: "FAQs", href: "/faqs" },
@@ -43,14 +43,14 @@ const SOCIALS = [
   {
     icon: FiLinkedin,
     label: "LinkedIn",
-    href: "https://www.linkedin.com/company/research-team-app/?viewAsMember=true",
+    href: "https://[REDACTED FOR BLIND REVIEW]",
   },
   {
     icon: FiGithub,
     label: "GitHub",
-    href: "https://github.com/research-team-app",
+    href: "https://github.com/[REDACTED FOR BLIND REVIEW]",
   },
-  { icon: FiMail, label: "Email", href: "mailto:research.team.app@gmail.com" },
+  { icon: FiMail, label: "Email", href: "mailto:[REDACTED FOR BLIND REVIEW]" },
 ];
 
 const LEGAL = [

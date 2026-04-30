@@ -6,7 +6,7 @@
 
 If you discover a security vulnerability, please report it by emailing:
 
-**research.team.app@gmail.com**
+**[REDACTED FOR BLIND REVIEW]**
 
 Include as much detail as possible:
 

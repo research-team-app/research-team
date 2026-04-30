@@ -26,7 +26,6 @@ Thank you for your interest in contributing! This document covers how to get set
     - [General](#general)
   - [Commit Messages](#commit-messages)
   - [Security Issues](#security-issues)
-  - [Questions?](#questions)
 
 ---
 
@@ -59,7 +58,7 @@ This project follows our [Code of Conduct](CODE_OF_CONDUCT.md). By participating
    ```
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/research-team-app/research-team.git
+   git remote add upstream https://github.com/[REDACTED FOR BLIND REVIEW]/research-team.git
    ```
 4. **Install pre-commit hooks** (runs lint/format/type checks automatically before each commit):
    ```bash
@@ -246,7 +245,3 @@ Common prefixes: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
 Do **not** open a public issue for security vulnerabilities. See [SECURITY.md](SECURITY.md).
 
 ---
-
-## Questions?
-
-Open a [Discussion](https://github.com/research-team-app/research-team/discussions) or email [research.team.app@gmail.com](mailto:research.team.app@gmail.com).

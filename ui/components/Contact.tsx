@@ -213,12 +213,12 @@ const Contact: React.FC = () => {
                     {
                       icon: FiGithub,
                       label: "GitHub",
-                      href: "https://github.com/research-team-app",
+                      href: "https://github.com/[REDACTED FOR BLIND REVIEW]",
                     },
                     {
                       icon: FiLinkedin,
                       label: "LinkedIn",
-                      href: "https://www.linkedin.com/company/research-team-app/?viewAsMember=true",
+                      href: "https://[REDACTED FOR BLIND REVIEW]",
                     },
                   ].map((social) => (
                     <motion.a
